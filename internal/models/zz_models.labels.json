@@ -412,13 +412,13 @@
     {
       "key": "table.talk.Talk_EventId",
       "path": "table.talk.event_id",
-      "text": "Event Id",
+      "text": "Event",
       "var": "L10nTalk_EventId"
     },
     {
       "key": "table.talk.Talk_SpeakerId",
       "path": "table.talk.speaker_id",
-      "text": "Speaker Id",
+      "text": "Speaker",
       "var": "L10nTalk_SpeakerId"
     },
     {

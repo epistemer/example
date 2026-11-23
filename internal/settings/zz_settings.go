@@ -58,8 +58,6 @@ type values struct {
 	AuthThrottleCeiling       time.Duration
 	AuthThrottleWindow        time.Duration
 	AuthCookieInsecure        bool
-	AuthPasskeyDomain         string
-	AuthPasskeyOrigins        []string
 	ThemeBrandColor           string
 	ThemeDangerColor          string
 	ThemeWarningColor         string
@@ -650,24 +648,6 @@ var keys = [...]engine.Key[values]{
 		Schema: `{"description":"Drop Secure and the __Host- prefix, for development over plain HTTP","type":"boolean"}`,
 	},
 	{
-		Path: "auth.passkey.domain", Env: "CONFAB_AUTH_PASSKEY_DOMAIN", Flag: "auth-passkey-domain",
-		Type: "string", Desc: "Domain passkeys are bound to: the site's, without scheme or port", Quote: true, Required: true,
-		Set:    func(v *values, raw string) error { return engine.ParseString(raw, &v.AuthPasskeyDomain) },
-		IsSet:  func(v *values) bool { return v.AuthPasskeyDomain != "" },
-		Show:   func(v *values) any { return v.AuthPasskeyDomain },
-		Kind:   "string",
-		Schema: `{"description":"Domain passkeys are bound to: the site's, without scheme or port","type":"string"}`,
-	},
-	{
-		Path: "auth.passkey.origins", Env: "CONFAB_AUTH_PASSKEY_ORIGINS", Flag: "auth-passkey-origins",
-		Type: "strings", Desc: "Origins passkeys may be used from; https://<domain> when empty",
-		SetItems: func(v *values, items []string) error { return engine.ParseStrings(items, &v.AuthPasskeyOrigins) },
-		IsSet:    func(v *values) bool { return len(v.AuthPasskeyOrigins) != 0 },
-		Show:     func(v *values) any { return v.AuthPasskeyOrigins },
-		Kind:     "strings",
-		Schema:   `{"anyOf":[{"items":{"type":["string","number","boolean"]},"type":"array"},{"type":"string"}],"description":"Origins passkeys may be used from; https://<domain> when empty"}`,
-	},
-	{
 		Path: "theme.brand_color", Env: "CONFAB_THEME_BRAND_COLOR", Flag: "theme-brand-color",
 		Type: "string", Desc: "Brand colour", Mutable: true, DefaultText: "#2f5bd3", Quote: true,
 		Set:    func(v *values, raw string) error { return engine.ParseString(raw, &v.ThemeBrandColor) },
@@ -1090,17 +1070,6 @@ auth:
     # Env CONFAB_AUTH_COOKIE_INSECURE, flag --auth-cookie-insecure. Used by Serve, Seed.
     # insecure:
 
-  # Passkeys
-  passkey:
-    # Domain passkeys are bound to: the site's, without scheme or port.
-    # Required.
-    # Env CONFAB_AUTH_PASSKEY_DOMAIN, flag --auth-passkey-domain. Used by Serve, Seed.
-    # domain:
-
-    # Origins passkeys may be used from; https://<domain> when empty.
-    # Env CONFAB_AUTH_PASSKEY_ORIGINS, flag --auth-passkey-origins. Used by Serve, Seed.
-    # origins:
-
 # Theme
 theme:
   # Brand colour.
@@ -1407,41 +1376,6 @@ demo:
               ],
               "default": "30m0s",
               "description": "Lifetime of a recovery link"
-            }
-          },
-          "type": "object"
-        },
-        "passkey": {
-          "additionalProperties": false,
-          "description": "Passkeys",
-          "properties": {
-            "domain": {
-              "description": "Domain passkeys are bound to: the site's, without scheme or port",
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "origins": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Origins passkeys may be used from; https://<domain> when empty"
             }
           },
           "type": "object"
@@ -2062,7 +1996,6 @@ type Auth interface {
 	AuthPassword
 	AuthThrottle
 	AuthCookie
-	AuthPasskey
 }
 
 type authGroup struct {
@@ -2079,7 +2012,6 @@ type authGroup struct {
 	*authPasswordGroup
 	*authThrottleGroup
 	*authCookieGroup
-	*authPasskeyGroup
 }
 
 // AuthIssuer returns auth.issuer: Issuer: the name in tokens and authenticator apps
@@ -2278,20 +2210,6 @@ type authCookieGroup struct{ r *root }
 // AuthCookieInsecure returns auth.cookie.insecure: Drop Secure and the __Host- prefix, for development over plain HTTP
 func (g *authCookieGroup) AuthCookieInsecure() bool { return g.r.cur.Load().AuthCookieInsecure }
 
-// AuthPasskey is the auth.passkey group: Passkeys
-type AuthPasskey interface {
-	AuthPasskeyDomain() string
-	AuthPasskeyOrigins() []string
-}
-
-type authPasskeyGroup struct{ r *root }
-
-// AuthPasskeyDomain returns auth.passkey.domain: Domain passkeys are bound to: the site's, without scheme or port
-func (g *authPasskeyGroup) AuthPasskeyDomain() string { return g.r.cur.Load().AuthPasskeyDomain }
-
-// AuthPasskeyOrigins returns auth.passkey.origins: Origins passkeys may be used from; https://<domain> when empty
-func (g *authPasskeyGroup) AuthPasskeyOrigins() []string { return g.r.cur.Load().AuthPasskeyOrigins }
-
 // Theme is the theme group: Theme
 type Theme interface {
 	ThemeBrandColor() string
@@ -2388,107 +2306,107 @@ type Update struct{ e *engine.Edits[values] }
 
 // SetThemeBrandColor sets theme.brand_color: Brand colour
 func (u *Update) SetThemeBrandColor(v string) {
-	u.e.Set(39, func(c *values) { c.ThemeBrandColor = v })
+	u.e.Set(37, func(c *values) { c.ThemeBrandColor = v })
 }
 
 // ResetThemeBrandColor removes theme.brand_color's stored value.
-func (u *Update) ResetThemeBrandColor() { u.e.Reset(39) }
+func (u *Update) ResetThemeBrandColor() { u.e.Reset(37) }
 
 // SetThemeDangerColor sets theme.danger_color: Danger colour
 func (u *Update) SetThemeDangerColor(v string) {
-	u.e.Set(40, func(c *values) { c.ThemeDangerColor = v })
+	u.e.Set(38, func(c *values) { c.ThemeDangerColor = v })
 }
 
 // ResetThemeDangerColor removes theme.danger_color's stored value.
-func (u *Update) ResetThemeDangerColor() { u.e.Reset(40) }
+func (u *Update) ResetThemeDangerColor() { u.e.Reset(38) }
 
 // SetThemeWarningColor sets theme.warning_color: Warning colour
 func (u *Update) SetThemeWarningColor(v string) {
-	u.e.Set(41, func(c *values) { c.ThemeWarningColor = v })
+	u.e.Set(39, func(c *values) { c.ThemeWarningColor = v })
 }
 
 // ResetThemeWarningColor removes theme.warning_color's stored value.
-func (u *Update) ResetThemeWarningColor() { u.e.Reset(41) }
+func (u *Update) ResetThemeWarningColor() { u.e.Reset(39) }
 
 // SetThemeSuccessColor sets theme.success_color: Success colour
 func (u *Update) SetThemeSuccessColor(v string) {
-	u.e.Set(42, func(c *values) { c.ThemeSuccessColor = v })
+	u.e.Set(40, func(c *values) { c.ThemeSuccessColor = v })
 }
 
 // ResetThemeSuccessColor removes theme.success_color's stored value.
-func (u *Update) ResetThemeSuccessColor() { u.e.Reset(42) }
+func (u *Update) ResetThemeSuccessColor() { u.e.Reset(40) }
 
 // SetThemeInfoColor sets theme.info_color: Information colour
 func (u *Update) SetThemeInfoColor(v string) {
-	u.e.Set(43, func(c *values) { c.ThemeInfoColor = v })
+	u.e.Set(41, func(c *values) { c.ThemeInfoColor = v })
 }
 
 // ResetThemeInfoColor removes theme.info_color's stored value.
-func (u *Update) ResetThemeInfoColor() { u.e.Reset(43) }
+func (u *Update) ResetThemeInfoColor() { u.e.Reset(41) }
 
 // SetThemeFontSans sets theme.font_sans: Text font
 func (u *Update) SetThemeFontSans(v string) {
-	u.e.Set(44, func(c *values) { c.ThemeFontSans = v })
+	u.e.Set(42, func(c *values) { c.ThemeFontSans = v })
 }
 
 // ResetThemeFontSans removes theme.font_sans's stored value.
-func (u *Update) ResetThemeFontSans() { u.e.Reset(44) }
+func (u *Update) ResetThemeFontSans() { u.e.Reset(42) }
 
 // SetThemeFontMono sets theme.font_mono: Code font
 func (u *Update) SetThemeFontMono(v string) {
-	u.e.Set(45, func(c *values) { c.ThemeFontMono = v })
+	u.e.Set(43, func(c *values) { c.ThemeFontMono = v })
 }
 
 // ResetThemeFontMono removes theme.font_mono's stored value.
-func (u *Update) ResetThemeFontMono() { u.e.Reset(45) }
+func (u *Update) ResetThemeFontMono() { u.e.Reset(43) }
 
 // SetThemeRadius sets theme.radius: Corner radius
 func (u *Update) SetThemeRadius(v string) {
-	u.e.Set(46, func(c *values) { c.ThemeRadius = v })
+	u.e.Set(44, func(c *values) { c.ThemeRadius = v })
 }
 
 // ResetThemeRadius removes theme.radius's stored value.
-func (u *Update) ResetThemeRadius() { u.e.Reset(46) }
+func (u *Update) ResetThemeRadius() { u.e.Reset(44) }
 
 // SetI18nDefaultLocale sets i18n.default_locale: Locale for visitors without a chosen locale; empty means the source locale
 func (u *Update) SetI18nDefaultLocale(v string) {
-	u.e.Set(47, func(c *values) { c.I18nDefaultLocale = v })
+	u.e.Set(45, func(c *values) { c.I18nDefaultLocale = v })
 }
 
 // ResetI18nDefaultLocale removes i18n.default_locale's stored value.
-func (u *Update) ResetI18nDefaultLocale() { u.e.Reset(47) }
+func (u *Update) ResetI18nDefaultLocale() { u.e.Reset(45) }
 
 // SetCFPClosed sets cfp.closed: Refuse new talks
 func (u *Update) SetCFPClosed(v bool) {
-	u.e.Set(48, func(c *values) { c.CFPClosed = v })
+	u.e.Set(46, func(c *values) { c.CFPClosed = v })
 }
 
 // ResetCFPClosed removes cfp.closed's stored value.
-func (u *Update) ResetCFPClosed() { u.e.Reset(48) }
+func (u *Update) ResetCFPClosed() { u.e.Reset(46) }
 
 // SetCFPMaxTalks sets cfp.max_talks: Talks a speaker may give at one event
 func (u *Update) SetCFPMaxTalks(v int) {
-	u.e.Set(49, func(c *values) { c.CFPMaxTalks = v })
+	u.e.Set(47, func(c *values) { c.CFPMaxTalks = v })
 }
 
 // ResetCFPMaxTalks removes cfp.max_talks's stored value.
-func (u *Update) ResetCFPMaxTalks() { u.e.Reset(49) }
+func (u *Update) ResetCFPMaxTalks() { u.e.Reset(47) }
 
 // SetCFPDefaultLevel sets cfp.default_level: Level a new talk starts at
 func (u *Update) SetCFPDefaultLevel(v models.TalkLevel) {
-	u.e.Set(50, func(c *values) { c.CFPDefaultLevel = v })
+	u.e.Set(48, func(c *values) { c.CFPDefaultLevel = v })
 }
 
 // ResetCFPDefaultLevel removes cfp.default_level's stored value.
-func (u *Update) ResetCFPDefaultLevel() { u.e.Reset(50) }
+func (u *Update) ResetCFPDefaultLevel() { u.e.Reset(48) }
 
 // SetCFPDefaultDuration sets cfp.default_duration: Length a new talk starts at
 func (u *Update) SetCFPDefaultDuration(v time.Duration) {
-	u.e.Set(51, func(c *values) { c.CFPDefaultDuration = v })
+	u.e.Set(49, func(c *values) { c.CFPDefaultDuration = v })
 }
 
 // ResetCFPDefaultDuration removes cfp.default_duration's stored value.
-func (u *Update) ResetCFPDefaultDuration() { u.e.Reset(51) }
+func (u *Update) ResetCFPDefaultDuration() { u.e.Reset(49) }
 
 // Key names a mutable setting, for Change.Has.
 type Key string
@@ -2591,7 +2509,6 @@ type AuthValues struct {
 	Password       AuthPasswordValues
 	Throttle       AuthThrottleValues
 	Cookie         AuthCookieValues
-	Passkey        AuthPasskeyValues
 }
 
 // AuthSessionValues holds the auth.session settings, for Test.
@@ -2666,12 +2583,6 @@ type AuthCookieValues struct {
 	Insecure bool
 }
 
-// AuthPasskeyValues holds the auth.passkey settings, for Test.
-type AuthPasskeyValues struct {
-	Domain  string
-	Origins []string
-}
-
 // ThemeValues holds the theme settings, for Test.
 type ThemeValues struct {
 	BrandColor   string
@@ -2743,8 +2654,6 @@ func (tv *Values) load(v *values) {
 	tv.Auth.Throttle.Ceiling = v.AuthThrottleCeiling
 	tv.Auth.Throttle.Window = v.AuthThrottleWindow
 	tv.Auth.Cookie.Insecure = v.AuthCookieInsecure
-	tv.Auth.Passkey.Domain = v.AuthPasskeyDomain
-	tv.Auth.Passkey.Origins = v.AuthPasskeyOrigins
 	tv.Theme.BrandColor = v.ThemeBrandColor
 	tv.Theme.DangerColor = v.ThemeDangerColor
 	tv.Theme.WarningColor = v.ThemeWarningColor
@@ -2802,8 +2711,6 @@ func (tv *Values) store(v *values) {
 	v.AuthThrottleCeiling = tv.Auth.Throttle.Ceiling
 	v.AuthThrottleWindow = tv.Auth.Throttle.Window
 	v.AuthCookieInsecure = tv.Auth.Cookie.Insecure
-	v.AuthPasskeyDomain = tv.Auth.Passkey.Domain
-	v.AuthPasskeyOrigins = tv.Auth.Passkey.Origins
 	v.ThemeBrandColor = tv.Theme.BrandColor
 	v.ThemeDangerColor = tv.Theme.DangerColor
 	v.ThemeWarningColor = tv.Theme.WarningColor
@@ -2856,7 +2763,7 @@ func Test(edit func(v *Values)) *All {
 		storageGroup: &storageGroup{r: r},
 		dbGroup:      &dbGroup{r: r},
 		mailGroup:    &mailGroup{r: r},
-		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}, authPasskeyGroup: &authPasskeyGroup{r: r}},
+		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}},
 		themeGroup:   &themeGroup{r: r},
 		i18nGroup:    &i18nGroup{r: r},
 		cfpGroup:     &cfpGroup{r: r},
@@ -2892,7 +2799,7 @@ type Serve struct {
 // them. The slice is a copy.
 func (c *Serve) Args() []string { return slices.Clone(c.args) }
 
-var keysServe = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51}
+var keysServe = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49}
 
 func newServe(s *engine.Snapshot[values], w *engine.Writer[values], args []string) *Serve {
 	r := &root{cur: s, w: w}
@@ -2905,7 +2812,7 @@ func newServe(s *engine.Snapshot[values], w *engine.Writer[values], args []strin
 		storageGroup: &storageGroup{r: r},
 		dbGroup:      &dbGroup{r: r},
 		mailGroup:    &mailGroup{r: r},
-		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}, authPasskeyGroup: &authPasskeyGroup{r: r}},
+		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}},
 		themeGroup:   &themeGroup{r: r},
 		i18nGroup:    &i18nGroup{r: r},
 		cfpGroup:     &cfpGroup{r: r},
@@ -3023,7 +2930,7 @@ type Seed struct {
 // them. The slice is a copy.
 func (c *Seed) Args() []string { return slices.Clone(c.args) }
 
-var keysSeed = []int{0, 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 52, 53, 54}
+var keysSeed = []int{0, 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 50, 51, 52}
 
 func newSeed(s *engine.Snapshot[values], w *engine.Writer[values], args []string) *Seed {
 	r := &root{cur: s, w: w}
@@ -3035,7 +2942,7 @@ func newSeed(s *engine.Snapshot[values], w *engine.Writer[values], args []string
 		storageGroup: &storageGroup{r: r},
 		dbGroup:      &dbGroup{r: r},
 		mailGroup:    &mailGroup{r: r},
-		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}, authPasskeyGroup: &authPasskeyGroup{r: r}},
+		authGroup:    &authGroup{r: r, authSessionGroup: &authSessionGroup{r: r}, authAccessGroup: &authAccessGroup{r: r}, authRefreshGroup: &authRefreshGroup{r: r}, authFlowGroup: &authFlowGroup{r: r}, authFreshGroup: &authFreshGroup{r: r}, authCodeGroup: &authCodeGroup{r: r}, authLinkGroup: &authLinkGroup{r: r}, authInvitationGroup: &authInvitationGroup{r: r}, authDeviceGroup: &authDeviceGroup{r: r}, authPasswordGroup: &authPasswordGroup{r: r}, authThrottleGroup: &authThrottleGroup{r: r}, authCookieGroup: &authCookieGroup{r: r}},
 		demoGroup:    &demoGroup{r: r},
 		r:            r,
 		args:         slices.Clone(args),

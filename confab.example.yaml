@@ -191,17 +191,6 @@ auth:
     # Env CONFAB_AUTH_COOKIE_INSECURE, flag --auth-cookie-insecure. Used by Serve, Seed.
     # insecure:
 
-  # Passkeys
-  passkey:
-    # Domain passkeys are bound to: the site's, without scheme or port.
-    # Required.
-    # Env CONFAB_AUTH_PASSKEY_DOMAIN, flag --auth-passkey-domain. Used by Serve, Seed.
-    # domain:
-
-    # Origins passkeys may be used from; https://<domain> when empty.
-    # Env CONFAB_AUTH_PASSKEY_ORIGINS, flag --auth-passkey-origins. Used by Serve, Seed.
-    # origins:
-
 # Theme
 theme:
   # Brand colour.

@@ -60,9 +60,6 @@ var (
 	L10nAuthThrottleWindow        = i18n.Key("settings.auth.throttle.window", "Time without a failure after which a counter starts again")
 	L10nAuthCookie                = i18n.Key("settings.auth.cookie", "Cookies")
 	L10nAuthCookieInsecure        = i18n.Key("settings.auth.cookie.insecure", "Drop Secure and the __Host- prefix, for development over plain HTTP")
-	L10nAuthPasskey               = i18n.Key("settings.auth.passkey", "Passkeys")
-	L10nAuthPasskeyDomain         = i18n.Key("settings.auth.passkey.domain", "Domain passkeys are bound to: the site's, without scheme or port")
-	L10nAuthPasskeyOrigins        = i18n.Key("settings.auth.passkey.origins", "Origins passkeys may be used from; https://<domain> when empty")
 	L10nTheme                     = i18n.Key("settings.theme", "Theme")
 	L10nThemeBrandColor           = i18n.Key("settings.theme.brand_color", "Brand colour")
 	L10nThemeDangerColor          = i18n.Key("settings.theme.danger_color", "Danger colour")
@@ -148,9 +145,6 @@ var l10n = map[string]i18n.TKer{
 	"auth.throttle.window":           L10nAuthThrottleWindow,
 	"auth.cookie":                    L10nAuthCookie,
 	"auth.cookie.insecure":           L10nAuthCookieInsecure,
-	"auth.passkey":                   L10nAuthPasskey,
-	"auth.passkey.domain":            L10nAuthPasskeyDomain,
-	"auth.passkey.origins":           L10nAuthPasskeyOrigins,
 	"theme":                          L10nTheme,
 	"theme.brand_color":              L10nThemeBrandColor,
 	"theme.danger_color":             L10nThemeDangerColor,

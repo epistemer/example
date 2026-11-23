@@ -91,6 +91,8 @@ CREATE TABLE talk (
     updated_at       timestamptz  NOT NULL DEFAULT now()
 );
 COMMENT ON TABLE talk IS 'Talk';
+COMMENT ON COLUMN talk.event_id IS 'Event';
+COMMENT ON COLUMN talk.speaker_id IS 'Speaker';
 COMMENT ON COLUMN talk.starts_at IS 'Starts at';
 COMMENT ON COLUMN talk.duration_minutes IS 'Duration (minutes)';
 COMMENT ON COLUMN talk.seats IS 'Workshop seats';

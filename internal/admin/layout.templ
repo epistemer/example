@@ -31,12 +31,12 @@ var (
 // theme: htmx, with history caching off (the tables skill).
 templ scripts() {
 	<meta name="htmx-config" content='{"includeIndicatorStyles":false,"historyCacheSize":0}'/>
-	<script src={ adminroutes.Prefix + "/assets/htmx.min.js" } defer></script>
+	<script src={ adminroutes.Prefix + "/assets/htmx.min.js" }></script>
 }
 
 // navItem is a nav link shown only when the request's guard admits its
 // route: layout.NavItem doesn't ask the actions gate (see findings).
-templ navItem(ctx context.Context, r *http.Request, to ui.Link, label i18n.Ter) {
+templ navItem(r *http.Request, to ui.Link, label i18n.Ter) {
 	if actions.Allowed(ctx, to) {
 		@layout.NavItem(to).Current(r.URL.Path == to.URL()) {
 			{ label.T(ctx) }
@@ -45,21 +45,21 @@ templ navItem(ctx context.Context, r *http.Request, to ui.Link, label i18n.Ter) 
 }
 
 templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
-	@layout.Document(title).Head(themeHead(ctx), scripts()).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
+	@layout.Document(title).Head(scripts(), themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
 		@layout.App() {
 			@layout.AppBrand {
 				{ L10nBrand.T(ctx) }
 			}
 			@layout.AppNav {
-				@navItem(ctx, r, adminroutes.Dashboard(), adminroutes.L10nDashboard)
+				@navItem(r, adminroutes.Dashboard(), adminroutes.L10nDashboard)
 				@layout.NavSection(L10nProgramme) {
-					@navItem(ctx, r, adminroutes.Events(), adminroutes.L10nEvents)
-					@navItem(ctx, r, adminroutes.Talks(), adminroutes.L10nTalks)
-					@navItem(ctx, r, adminroutes.Speakers(), adminroutes.L10nSpeakers)
+					@navItem(r, adminroutes.Events(), adminroutes.L10nEvents)
+					@navItem(r, adminroutes.Talks(), adminroutes.L10nTalks)
+					@navItem(r, adminroutes.Speakers(), adminroutes.L10nSpeakers)
 				}
 				@layout.NavSection(L10nAdmin) {
-					@navItem(ctx, r, adminroutes.Settings(), adminroutes.L10nSettings)
-					@navItem(ctx, r, adminroutes.Translations(ids.Locale(h.Tr.Default().Code)), adminroutes.L10nTranslations)
+					@navItem(r, adminroutes.SettingsEdit(), adminroutes.L10nSettingsEdit)
+					@navItem(r, adminroutes.Translations(ids.Locale(h.Tr.Default().Code)), adminroutes.L10nTranslations)
 				}
 			}
 			@layout.AppBar {

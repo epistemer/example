@@ -659,23 +659,6 @@
             }
           ],
           "name": "cookie"
-        },
-        {
-          "desc": "Passkeys",
-          "keys": [
-            {
-              "desc": "Domain passkeys are bound to: the site's, without scheme or port",
-              "kind": "string",
-              "name": "domain",
-              "required": true
-            },
-            {
-              "desc": "Origins passkeys may be used from; https://<domain> when empty",
-              "kind": "strings",
-              "name": "origins"
-            }
-          ],
-          "name": "passkey"
         }
       ],
       "keys": [

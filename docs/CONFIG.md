@@ -167,15 +167,6 @@ Cookies.
 |-----|-------------|------|---------|-----|------|---------|
 | `auth.cookie.insecure` | Drop Secure and the __Host- prefix, for development over plain HTTP. | bool |  | `CONFAB_AUTH_COOKIE_INSECURE` | `--auth-cookie-insecure` | Serve, Seed |
 
-## `auth.passkey`
-
-Passkeys.
-
-| Key | Description | Type | Default | Env | Flag | Used by |
-|-----|-------------|------|---------|-----|------|---------|
-| `auth.passkey.domain` | Domain passkeys are bound to: the site's, without scheme or port. Required. | string |  | `CONFAB_AUTH_PASSKEY_DOMAIN` | `--auth-passkey-domain` | Serve, Seed |
-| `auth.passkey.origins` | Origins passkeys may be used from; https://<domain> when empty. | strings |  | `CONFAB_AUTH_PASSKEY_ORIGINS` | `--auth-passkey-origins` | Serve, Seed |
-
 ## `theme`
 
 Theme.

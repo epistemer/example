@@ -1,0 +1,910 @@
+{
+  "domain": "routes/v1",
+  "producer": "handlers",
+  "source": "internal/admin",
+  "package": {
+    "name": "adminroutes",
+    "dir": "internal/admin/adminroutes"
+  },
+  "surface": "html",
+  "prefix": "/admin",
+  "routes": [
+    {
+      "key": "events",
+      "method": "GET",
+      "pattern": "/events",
+      "name": "Events",
+      "var": "L10nEvents",
+      "text": "Events",
+      "auth": "permission",
+      "view": true,
+      "search": true,
+      "params": [],
+      "permission": "events.manage"
+    },
+    {
+      "key": "events.new",
+      "method": "GET",
+      "pattern": "/events/new",
+      "name": "EventsNew",
+      "var": "L10nEventsNew",
+      "text": "New event",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "events.manage",
+      "entity": "events"
+    },
+    {
+      "key": "events.create",
+      "method": "POST",
+      "pattern": "/events",
+      "name": "EventsCreate",
+      "var": "L10nEventsCreate",
+      "text": "Create an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "events.manage"
+    },
+    {
+      "key": "events.edit",
+      "method": "GET",
+      "pattern": "/events/{id}/edit",
+      "name": "EventsEdit",
+      "var": "L10nEventsEdit",
+      "text": "Edit an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nEventsEditId",
+          "type": "ids.EventID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Event number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "events.manage",
+      "entity": "events"
+    },
+    {
+      "key": "events.update",
+      "method": "POST",
+      "pattern": "/events/{id}/edit",
+      "name": "EventsUpdate",
+      "var": "L10nEventsUpdate",
+      "text": "Save an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nEventsUpdateId",
+          "type": "ids.EventID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Event number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "events.manage"
+    },
+    {
+      "key": "events.status",
+      "method": "PATCH",
+      "pattern": "/events/{id}/status/{status}",
+      "name": "EventsStatus",
+      "var": "L10nEventsStatus",
+      "text": "Publish or archive an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nEventsStatusId",
+          "type": "ids.EventID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Event number",
+          "alias": "ids"
+        },
+        {
+          "name": "status",
+          "go": "status",
+          "var": "L10nEventsStatusStatus",
+          "type": "models.EventStatus",
+          "import": "github.com/epistemer/example/internal/models",
+          "parse": "string",
+          "kind": "segment",
+          "label": "New status",
+          "alias": "models"
+        }
+      ],
+      "permission": "events.manage"
+    },
+    {
+      "key": "events.delete",
+      "method": "DELETE",
+      "pattern": "/events/{id}",
+      "name": "EventsDelete",
+      "var": "L10nEventsDelete",
+      "text": "Delete an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nEventsDeleteId",
+          "type": "ids.EventID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Event number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "events.manage"
+    },
+    {
+      "key": "event_page",
+      "method": "GET",
+      "pattern": "/e/{slug}",
+      "name": "EventPage",
+      "var": "L10nEventPage",
+      "text": "Event programme",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "slug",
+          "go": "slug",
+          "var": "L10nEventPageSlug",
+          "type": "ids.Slug",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "text",
+          "kind": "segment",
+          "label": "Event address",
+          "alias": "ids"
+        }
+      ]
+    },
+    {
+      "key": "dashboard",
+      "method": "GET",
+      "pattern": "/",
+      "name": "Dashboard",
+      "var": "L10nDashboard",
+      "text": "Dashboard",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "staff"
+    },
+    {
+      "key": "account",
+      "method": "GET",
+      "pattern": "/account",
+      "name": "Account",
+      "var": "L10nAccount",
+      "text": "Your account",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "staff"
+    },
+    {
+      "key": "file",
+      "method": "GET",
+      "pattern": "/files/{key...}",
+      "name": "File",
+      "var": "L10nFile",
+      "text": "A stored file",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nFileKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "rest",
+          "label": "File"
+        }
+      ]
+    },
+    {
+      "key": "search",
+      "method": "GET",
+      "pattern": "/search",
+      "name": "Search",
+      "var": "L10nSearch",
+      "text": "Search pages",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "settings",
+      "method": "GET",
+      "pattern": "/settings",
+      "name": "SettingsEdit",
+      "var": "L10nSettingsEdit",
+      "text": "Settings",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "settings.manage"
+    },
+    {
+      "key": "settings.save",
+      "method": "POST",
+      "pattern": "/settings",
+      "name": "SettingsSave",
+      "var": "L10nSettingsSave",
+      "text": "Save the settings",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "settings.manage"
+    },
+    {
+      "key": "translations",
+      "method": "GET",
+      "pattern": "/translations/{locale}",
+      "name": "Translations",
+      "var": "L10nTranslations",
+      "text": "Translations",
+      "auth": "permission",
+      "view": true,
+      "search": true,
+      "params": [
+        {
+          "name": "locale",
+          "go": "locale",
+          "var": "L10nTranslationsLocale",
+          "type": "ids.Locale",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "text",
+          "kind": "segment",
+          "label": "Language",
+          "alias": "ids"
+        }
+      ],
+      "permission": "translations.manage"
+    },
+    {
+      "key": "translations.edit",
+      "method": "GET",
+      "pattern": "/translations/{locale}/keys/{key...}",
+      "name": "TranslationsEdit",
+      "var": "L10nTranslationsEdit",
+      "text": "Edit a translation",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "locale",
+          "go": "locale",
+          "var": "L10nTranslationsEditLocale",
+          "type": "ids.Locale",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "text",
+          "kind": "segment",
+          "label": "Language",
+          "alias": "ids"
+        },
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nTranslationsEditKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "rest",
+          "label": "Key"
+        }
+      ],
+      "permission": "translations.manage"
+    },
+    {
+      "key": "translations.save",
+      "method": "POST",
+      "pattern": "/translations/{locale}/keys/{key...}",
+      "name": "TranslationsSave",
+      "var": "L10nTranslationsSave",
+      "text": "Save a translation",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "locale",
+          "go": "locale",
+          "var": "L10nTranslationsSaveLocale",
+          "type": "ids.Locale",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "text",
+          "kind": "segment",
+          "label": "Language",
+          "alias": "ids"
+        },
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nTranslationsSaveKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "rest",
+          "label": "Key"
+        }
+      ],
+      "permission": "translations.manage"
+    },
+    {
+      "key": "translations.reset",
+      "method": "DELETE",
+      "pattern": "/translations/{locale}/keys/{key...}",
+      "name": "TranslationsReset",
+      "var": "L10nTranslationsReset",
+      "text": "Drop a translation",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "locale",
+          "go": "locale",
+          "var": "L10nTranslationsResetLocale",
+          "type": "ids.Locale",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "text",
+          "kind": "segment",
+          "label": "Language",
+          "alias": "ids"
+        },
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nTranslationsResetKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "rest",
+          "label": "Key"
+        }
+      ],
+      "permission": "translations.manage"
+    },
+    {
+      "key": "locale",
+      "method": "POST",
+      "pattern": "/locale",
+      "name": "Locale",
+      "var": "L10nLocale",
+      "text": "Change the language",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "sign_in",
+      "method": "GET",
+      "pattern": "/sign-in",
+      "name": "SignIn",
+      "var": "L10nSignIn",
+      "text": "Sign in",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "sign_in.password",
+      "method": "POST",
+      "pattern": "/sign-in",
+      "name": "SignInPassword",
+      "var": "L10nSignInPassword",
+      "text": "Check a password",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "sign_in.code",
+      "method": "GET",
+      "pattern": "/sign-in/code",
+      "name": "SignInCode",
+      "var": "L10nSignInCode",
+      "text": "Enter the emailed code",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "sign_in.verify",
+      "method": "POST",
+      "pattern": "/sign-in/code",
+      "name": "SignInVerify",
+      "var": "L10nSignInVerify",
+      "text": "Check the emailed code",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "sign_out",
+      "method": "POST",
+      "pattern": "/sign-out",
+      "name": "SignOut",
+      "var": "L10nSignOut",
+      "text": "Sign out",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": []
+    },
+    {
+      "key": "speakers",
+      "method": "GET",
+      "pattern": "/speakers",
+      "name": "Speakers",
+      "var": "L10nSpeakers",
+      "text": "Speakers",
+      "auth": "permission",
+      "view": true,
+      "search": true,
+      "params": [],
+      "permission": "speakers.manage"
+    },
+    {
+      "key": "speakers.search",
+      "method": "GET",
+      "pattern": "/speakers/search",
+      "name": "SpeakersSearch",
+      "var": "L10nSpeakersSearch",
+      "text": "Find a speaker",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "talks.manage"
+    },
+    {
+      "key": "speakers.new",
+      "method": "GET",
+      "pattern": "/speakers/new",
+      "name": "SpeakersNew",
+      "var": "L10nSpeakersNew",
+      "text": "New speaker",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "speakers.manage",
+      "entity": "speakers"
+    },
+    {
+      "key": "speakers.create",
+      "method": "POST",
+      "pattern": "/speakers",
+      "name": "SpeakersCreate",
+      "var": "L10nSpeakersCreate",
+      "text": "Create a speaker",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "speakers.manage",
+      "maxBody": 3145728
+    },
+    {
+      "key": "speakers.edit",
+      "method": "GET",
+      "pattern": "/speakers/{id}",
+      "name": "SpeakersEdit",
+      "var": "L10nSpeakersEdit",
+      "text": "Edit a speaker",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nSpeakersEditId",
+          "type": "ids.SpeakerID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Speaker number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "speakers.manage",
+      "entity": "speakers"
+    },
+    {
+      "key": "speakers.update",
+      "method": "POST",
+      "pattern": "/speakers/{id}",
+      "name": "SpeakersUpdate",
+      "var": "L10nSpeakersUpdate",
+      "text": "Save a speaker",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nSpeakersUpdateId",
+          "type": "ids.SpeakerID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Speaker number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "speakers.manage",
+      "maxBody": 3145728
+    },
+    {
+      "key": "speakers.delete",
+      "method": "DELETE",
+      "pattern": "/speakers/{id}",
+      "name": "SpeakersDelete",
+      "var": "L10nSpeakersDelete",
+      "text": "Delete a speaker",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nSpeakersDeleteId",
+          "type": "ids.SpeakerID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Speaker number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "speakers.manage"
+    },
+    {
+      "key": "speakers.import",
+      "method": "GET",
+      "pattern": "/speakers/import",
+      "name": "SpeakersImport",
+      "var": "L10nSpeakersImport",
+      "text": "Import speakers",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "speakers.manage",
+      "entity": "speakers"
+    },
+    {
+      "key": "speakers.import_post",
+      "method": "POST",
+      "pattern": "/speakers/import",
+      "name": "SpeakersImportPost",
+      "var": "L10nSpeakersImportPost",
+      "text": "Read an import",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "speakers.manage",
+      "maxBody": 67108864
+    },
+    {
+      "key": "talks",
+      "method": "GET",
+      "pattern": "/talks",
+      "name": "Talks",
+      "var": "L10nTalks",
+      "text": "Talks",
+      "auth": "permission",
+      "view": true,
+      "search": true,
+      "params": [],
+      "permission": "talks.manage"
+    },
+    {
+      "key": "talks.new",
+      "method": "GET",
+      "pattern": "/talks/new",
+      "name": "TalksNew",
+      "var": "L10nTalksNew",
+      "text": "New talk",
+      "auth": "permission",
+      "view": false,
+      "search": true,
+      "params": [],
+      "permission": "talks.manage",
+      "entity": "talks"
+    },
+    {
+      "key": "talks.create",
+      "method": "POST",
+      "pattern": "/talks",
+      "name": "TalksCreate",
+      "var": "L10nTalksCreate",
+      "text": "Create a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "talks.manage",
+      "maxBody": 115343360
+    },
+    {
+      "key": "talks.edit",
+      "method": "GET",
+      "pattern": "/talks/{id}",
+      "name": "TalksEdit",
+      "var": "L10nTalksEdit",
+      "text": "Edit a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksEditId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "talks.manage",
+      "entity": "talks"
+    },
+    {
+      "key": "talks.update",
+      "method": "POST",
+      "pattern": "/talks/{id}",
+      "name": "TalksUpdate",
+      "var": "L10nTalksUpdate",
+      "text": "Save a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksUpdateId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "talks.manage",
+      "maxBody": 115343360
+    },
+    {
+      "key": "talks.review",
+      "method": "POST",
+      "pattern": "/talks/{id}/review/{state}",
+      "name": "TalksReview",
+      "var": "L10nTalksReview",
+      "text": "Accept, reject or schedule a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksReviewId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        },
+        {
+          "name": "state",
+          "go": "state",
+          "var": "L10nTalksReviewState",
+          "type": "models.TalkState",
+          "import": "github.com/epistemer/example/internal/models",
+          "parse": "string",
+          "kind": "segment",
+          "label": "New state",
+          "alias": "models"
+        }
+      ],
+      "permission": "talks.review"
+    },
+    {
+      "key": "talks.review_many",
+      "method": "POST",
+      "pattern": "/talks/review/{state}",
+      "name": "TalksReviewMany",
+      "var": "L10nTalksReviewMany",
+      "text": "Accept or reject the chosen talks",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "state",
+          "go": "state",
+          "var": "L10nTalksReviewManyState",
+          "type": "models.TalkState",
+          "import": "github.com/epistemer/example/internal/models",
+          "parse": "string",
+          "kind": "segment",
+          "label": "New state",
+          "alias": "models"
+        }
+      ],
+      "permission": "talks.review"
+    },
+    {
+      "key": "talks.move",
+      "method": "GET",
+      "pattern": "/talks/{id}/state",
+      "name": "TalksMove",
+      "var": "L10nTalksMove",
+      "text": "Change a talk's state",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksMoveId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "talks.review"
+    },
+    {
+      "key": "talks.move_put",
+      "method": "PUT",
+      "pattern": "/talks/{id}/state",
+      "name": "TalksMovePut",
+      "var": "L10nTalksMovePut",
+      "text": "Save a talk's state",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksMovePutId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "talks.review"
+    },
+    {
+      "key": "talks.delete",
+      "method": "DELETE",
+      "pattern": "/talks/{id}",
+      "name": "TalksDelete",
+      "var": "L10nTalksDelete",
+      "text": "Delete a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nTalksDeleteId",
+          "type": "ids.TalkID",
+          "import": "github.com/epistemer/example/internal/ids",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Talk number",
+          "alias": "ids"
+        }
+      ],
+      "permission": "talks.manage"
+    }
+  ],
+  "permissions": [
+    {
+      "key": "events.manage",
+      "var": "PermEventsManage",
+      "text": "Events Manage",
+      "level": "verified"
+    },
+    {
+      "key": "staff",
+      "var": "PermStaff",
+      "text": "Staff",
+      "level": "unverified"
+    },
+    {
+      "key": "settings.manage",
+      "var": "PermSettingsManage",
+      "text": "Settings Manage",
+      "level": "verified"
+    },
+    {
+      "key": "translations.manage",
+      "var": "PermTranslationsManage",
+      "text": "Translations Manage",
+      "level": "verified"
+    },
+    {
+      "key": "speakers.manage",
+      "var": "PermSpeakersManage",
+      "text": "Speakers Manage",
+      "level": "verified"
+    },
+    {
+      "key": "talks.manage",
+      "var": "PermTalksManage",
+      "text": "Talks Manage",
+      "level": "verified"
+    },
+    {
+      "key": "talks.review",
+      "var": "PermTalksReview",
+      "text": "Talks Review",
+      "level": "verified"
+    }
+  ]
+}

@@ -255,11 +255,11 @@ var EventsView = components.TableOf(EventsTable).
 	Cell(ec.Status, statusBadge(func(e models.EventView) option.SelectOption { return e.Status }))
 
 var (
-	EditEvent    = actions.New(L10nEdit).Icon(icons.Pencil())
+	EditEvent    = actions.New(L10nEdit)
 	PublishEvent = actions.New(L10nPublish).Primary()
 	ArchiveEvent = actions.New(L10nArchive).Confirm(L10nArchiveQ)
 	DeleteEvent  = actions.New(L10nDelete).Danger().Confirm(L10nDeleteEvent)
-	ViewEvent    = actions.New(L10nPublicPage).Icon(icons.ExternalLink())
+	ViewEvent    = actions.New(L10nPublicPage).Icon(icons.Eye())
 )
 
 func eventActions(ctx context.Context, e models.EventView) []actions.Item {
@@ -339,7 +339,7 @@ func (h *H) EventsCreate(w http.ResponseWriter, r *http.Request) error {
 	id, err := h.Store.CreateEvent(ctx, f.Input())
 	if err != nil {
 		f.fail(err)
-		return h.page(w, r, handlersStatus(err), L10nNewEvent, eventFormPage(f, 0))
+		return h.page(w, r, http.StatusUnprocessableEntity, L10nNewEvent, eventFormPage(f, 0))
 	}
 	return components.Reply(w, r).Toast(L10nCreated).Go(adminroutes.EventsEdit(id))
 }
@@ -380,7 +380,7 @@ func (h *H) EventsUpdate(w http.ResponseWriter, r *http.Request, id ids.EventID)
 	}
 	if err := h.Store.UpdateEvent(ctx, id, int32(f.Version.Value()), f.Input()); err != nil {
 		f.fail(err)
-		return h.page(w, r, handlersStatus(err), i18n.Static(f.Name.Value()), eventFormPage(f, id))
+		return h.page(w, r, http.StatusUnprocessableEntity, i18n.Static(f.Name.Value()), eventFormPage(f, id))
 	}
 	return components.Reply(w, r).Toast(L10nSaved).Go(adminroutes.EventsEdit(id))
 }

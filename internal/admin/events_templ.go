@@ -214,7 +214,7 @@ func eventFormPage(f *EventForm, id ids.EventID) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		title := L10nNewEvent
+		var title i18n.Ter = L10nNewEvent
 		action := adminroutes.EventsCreate().URL()
 		if id != 0 {
 			title = i18n.Static(f.Name.Value())

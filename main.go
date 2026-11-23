@@ -1,4 +1,5 @@
-// Command example is a cfgx application. Its settings are declared in
+// Command confab is the neozp example app: a conference organiser's back
+// office. Its settings are declared in
 // internal/settings/schema; run go generate after changing them.
 package main
 
@@ -7,6 +8,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -37,9 +39,12 @@ func main() {
 
 func newRoot() *cobra.Command {
 	log := logging.New()
-	root := &cobra.Command{Use: "example", Short: "example is a cfgx application", SilenceUsage: true}
+	root := &cobra.Command{Use: "confab", Short: "Confab, a conference organiser's back office", SilenceUsage: true}
 	// cfgx's warnings, such as unknown keys in the config file, go to the
 	// same logger as the rest.
+	// auth, handlers and i18n log through log/slog's default logger: send
+	// it to logrus too, not only cfgx's warnings (findings F14).
+	slog.SetDefault(logging.Slog(log))
 	settings.BindRoot(root, cfgx.WithLogger(logging.Slog(log)))
 	root.AddCommand(
 		settings.ServeCommand(&cobra.Command{Use: "serve", Short: "Run the HTTP server"},
@@ -49,6 +54,10 @@ func newRoot() *cobra.Command {
 				}
 				return serve(ctx, s, log)
 			}),
+		settings.MigrateCommand(&cobra.Command{Use: "migrate", Short: "Create the database schema"},
+			func(ctx context.Context, s *settings.Migrate) error { return migrate(ctx, s, log) }),
+		settings.SeedCommand(&cobra.Command{Use: "seed", Short: "Add the organiser and demo data"},
+			func(ctx context.Context, s *settings.Seed) error { return seed(ctx, s, log) }),
 		settings.ConfigCommand(),
 		&cobra.Command{Use: "version", Short: "Print the version", Args: cobra.NoArgs,
 			Run: func(cmd *cobra.Command, _ []string) { fmt.Fprintln(cmd.OutOrStdout(), version()) }},

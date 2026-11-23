@@ -132,7 +132,7 @@ func speakerFormPage(f *SpeakerForm, id ids.SpeakerID) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		title := L10nNewSpeaker
+		var title i18n.Ter = L10nNewSpeaker
 		action := adminroutes.SpeakersCreate().URL()
 		if id != 0 {
 			title = i18n.Static(f.Name.Value())

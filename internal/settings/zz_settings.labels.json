@@ -362,24 +362,6 @@
       "var": "L10nAuthCookieInsecure"
     },
     {
-      "key": "settings.auth.passkey",
-      "path": "auth.passkey",
-      "text": "Passkeys",
-      "var": "L10nAuthPasskey"
-    },
-    {
-      "key": "settings.auth.passkey.domain",
-      "path": "auth.passkey.domain",
-      "text": "Domain passkeys are bound to: the site's, without scheme or port",
-      "var": "L10nAuthPasskeyDomain"
-    },
-    {
-      "key": "settings.auth.passkey.origins",
-      "path": "auth.passkey.origins",
-      "text": "Origins passkeys may be used from; https://<domain> when empty",
-      "var": "L10nAuthPasskeyOrigins"
-    },
-    {
       "key": "settings.theme",
       "path": "theme",
       "text": "Theme",

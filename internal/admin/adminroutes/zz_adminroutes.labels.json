@@ -1,0 +1,418 @@
+{
+  "domain": "labels/v1",
+  "labels": [
+    {
+      "key": "route.events",
+      "path": "route.events",
+      "text": "Events",
+      "var": "L10nEvents"
+    },
+    {
+      "key": "route.events.new",
+      "path": "route.events.new",
+      "text": "New event",
+      "var": "L10nEventsNew"
+    },
+    {
+      "key": "route.events.create",
+      "path": "route.events.create",
+      "text": "Create an event",
+      "var": "L10nEventsCreate"
+    },
+    {
+      "key": "route.events.edit",
+      "path": "route.events.edit",
+      "text": "Edit an event",
+      "var": "L10nEventsEdit"
+    },
+    {
+      "key": "route_param.events.edit.id",
+      "path": "route_param.events.edit.id",
+      "text": "Event number",
+      "var": "L10nEventsEditId"
+    },
+    {
+      "key": "route.events.update",
+      "path": "route.events.update",
+      "text": "Save an event",
+      "var": "L10nEventsUpdate"
+    },
+    {
+      "key": "route_param.events.update.id",
+      "path": "route_param.events.update.id",
+      "text": "Event number",
+      "var": "L10nEventsUpdateId"
+    },
+    {
+      "key": "route.events.status",
+      "path": "route.events.status",
+      "text": "Publish or archive an event",
+      "var": "L10nEventsStatus"
+    },
+    {
+      "key": "route_param.events.status.id",
+      "path": "route_param.events.status.id",
+      "text": "Event number",
+      "var": "L10nEventsStatusId"
+    },
+    {
+      "key": "route_param.events.status.status",
+      "path": "route_param.events.status.status",
+      "text": "New status",
+      "var": "L10nEventsStatusStatus"
+    },
+    {
+      "key": "route.events.delete",
+      "path": "route.events.delete",
+      "text": "Delete an event",
+      "var": "L10nEventsDelete"
+    },
+    {
+      "key": "route_param.events.delete.id",
+      "path": "route_param.events.delete.id",
+      "text": "Event number",
+      "var": "L10nEventsDeleteId"
+    },
+    {
+      "key": "route.event_page",
+      "path": "route.event_page",
+      "text": "Event programme",
+      "var": "L10nEventPage"
+    },
+    {
+      "key": "route_param.event_page.slug",
+      "path": "route_param.event_page.slug",
+      "text": "Event address",
+      "var": "L10nEventPageSlug"
+    },
+    {
+      "key": "route.dashboard",
+      "path": "route.dashboard",
+      "text": "Dashboard",
+      "var": "L10nDashboard"
+    },
+    {
+      "key": "route.account",
+      "path": "route.account",
+      "text": "Your account",
+      "var": "L10nAccount"
+    },
+    {
+      "key": "route.file",
+      "path": "route.file",
+      "text": "A stored file",
+      "var": "L10nFile"
+    },
+    {
+      "key": "route_param.file.key",
+      "path": "route_param.file.key",
+      "text": "File",
+      "var": "L10nFileKey"
+    },
+    {
+      "key": "route.search",
+      "path": "route.search",
+      "text": "Search pages",
+      "var": "L10nSearch"
+    },
+    {
+      "key": "route.settings",
+      "path": "route.settings",
+      "text": "Settings",
+      "var": "L10nSettingsEdit"
+    },
+    {
+      "key": "route.settings.save",
+      "path": "route.settings.save",
+      "text": "Save the settings",
+      "var": "L10nSettingsSave"
+    },
+    {
+      "key": "route.translations",
+      "path": "route.translations",
+      "text": "Translations",
+      "var": "L10nTranslations"
+    },
+    {
+      "key": "route_param.translations.locale",
+      "path": "route_param.translations.locale",
+      "text": "Language",
+      "var": "L10nTranslationsLocale"
+    },
+    {
+      "key": "route.translations.edit",
+      "path": "route.translations.edit",
+      "text": "Edit a translation",
+      "var": "L10nTranslationsEdit"
+    },
+    {
+      "key": "route_param.translations.edit.locale",
+      "path": "route_param.translations.edit.locale",
+      "text": "Language",
+      "var": "L10nTranslationsEditLocale"
+    },
+    {
+      "key": "route_param.translations.edit.key",
+      "path": "route_param.translations.edit.key",
+      "text": "Key",
+      "var": "L10nTranslationsEditKey"
+    },
+    {
+      "key": "route.translations.save",
+      "path": "route.translations.save",
+      "text": "Save a translation",
+      "var": "L10nTranslationsSave"
+    },
+    {
+      "key": "route_param.translations.save.locale",
+      "path": "route_param.translations.save.locale",
+      "text": "Language",
+      "var": "L10nTranslationsSaveLocale"
+    },
+    {
+      "key": "route_param.translations.save.key",
+      "path": "route_param.translations.save.key",
+      "text": "Key",
+      "var": "L10nTranslationsSaveKey"
+    },
+    {
+      "key": "route.translations.reset",
+      "path": "route.translations.reset",
+      "text": "Drop a translation",
+      "var": "L10nTranslationsReset"
+    },
+    {
+      "key": "route_param.translations.reset.locale",
+      "path": "route_param.translations.reset.locale",
+      "text": "Language",
+      "var": "L10nTranslationsResetLocale"
+    },
+    {
+      "key": "route_param.translations.reset.key",
+      "path": "route_param.translations.reset.key",
+      "text": "Key",
+      "var": "L10nTranslationsResetKey"
+    },
+    {
+      "key": "route.locale",
+      "path": "route.locale",
+      "text": "Change the language",
+      "var": "L10nLocale"
+    },
+    {
+      "key": "route.sign_in",
+      "path": "route.sign_in",
+      "text": "Sign in",
+      "var": "L10nSignIn"
+    },
+    {
+      "key": "route.sign_in.password",
+      "path": "route.sign_in.password",
+      "text": "Check a password",
+      "var": "L10nSignInPassword"
+    },
+    {
+      "key": "route.sign_in.code",
+      "path": "route.sign_in.code",
+      "text": "Enter the emailed code",
+      "var": "L10nSignInCode"
+    },
+    {
+      "key": "route.sign_in.verify",
+      "path": "route.sign_in.verify",
+      "text": "Check the emailed code",
+      "var": "L10nSignInVerify"
+    },
+    {
+      "key": "route.sign_out",
+      "path": "route.sign_out",
+      "text": "Sign out",
+      "var": "L10nSignOut"
+    },
+    {
+      "key": "route.speakers",
+      "path": "route.speakers",
+      "text": "Speakers",
+      "var": "L10nSpeakers"
+    },
+    {
+      "key": "route.speakers.search",
+      "path": "route.speakers.search",
+      "text": "Find a speaker",
+      "var": "L10nSpeakersSearch"
+    },
+    {
+      "key": "route.speakers.new",
+      "path": "route.speakers.new",
+      "text": "New speaker",
+      "var": "L10nSpeakersNew"
+    },
+    {
+      "key": "route.speakers.create",
+      "path": "route.speakers.create",
+      "text": "Create a speaker",
+      "var": "L10nSpeakersCreate"
+    },
+    {
+      "key": "route.speakers.edit",
+      "path": "route.speakers.edit",
+      "text": "Edit a speaker",
+      "var": "L10nSpeakersEdit"
+    },
+    {
+      "key": "route_param.speakers.edit.id",
+      "path": "route_param.speakers.edit.id",
+      "text": "Speaker number",
+      "var": "L10nSpeakersEditId"
+    },
+    {
+      "key": "route.speakers.update",
+      "path": "route.speakers.update",
+      "text": "Save a speaker",
+      "var": "L10nSpeakersUpdate"
+    },
+    {
+      "key": "route_param.speakers.update.id",
+      "path": "route_param.speakers.update.id",
+      "text": "Speaker number",
+      "var": "L10nSpeakersUpdateId"
+    },
+    {
+      "key": "route.speakers.delete",
+      "path": "route.speakers.delete",
+      "text": "Delete a speaker",
+      "var": "L10nSpeakersDelete"
+    },
+    {
+      "key": "route_param.speakers.delete.id",
+      "path": "route_param.speakers.delete.id",
+      "text": "Speaker number",
+      "var": "L10nSpeakersDeleteId"
+    },
+    {
+      "key": "route.speakers.import",
+      "path": "route.speakers.import",
+      "text": "Import speakers",
+      "var": "L10nSpeakersImport"
+    },
+    {
+      "key": "route.speakers.import_post",
+      "path": "route.speakers.import_post",
+      "text": "Read an import",
+      "var": "L10nSpeakersImportPost"
+    },
+    {
+      "key": "route.talks",
+      "path": "route.talks",
+      "text": "Talks",
+      "var": "L10nTalks"
+    },
+    {
+      "key": "route.talks.new",
+      "path": "route.talks.new",
+      "text": "New talk",
+      "var": "L10nTalksNew"
+    },
+    {
+      "key": "route.talks.create",
+      "path": "route.talks.create",
+      "text": "Create a talk",
+      "var": "L10nTalksCreate"
+    },
+    {
+      "key": "route.talks.edit",
+      "path": "route.talks.edit",
+      "text": "Edit a talk",
+      "var": "L10nTalksEdit"
+    },
+    {
+      "key": "route_param.talks.edit.id",
+      "path": "route_param.talks.edit.id",
+      "text": "Talk number",
+      "var": "L10nTalksEditId"
+    },
+    {
+      "key": "route.talks.update",
+      "path": "route.talks.update",
+      "text": "Save a talk",
+      "var": "L10nTalksUpdate"
+    },
+    {
+      "key": "route_param.talks.update.id",
+      "path": "route_param.talks.update.id",
+      "text": "Talk number",
+      "var": "L10nTalksUpdateId"
+    },
+    {
+      "key": "route.talks.review",
+      "path": "route.talks.review",
+      "text": "Accept, reject or schedule a talk",
+      "var": "L10nTalksReview"
+    },
+    {
+      "key": "route_param.talks.review.id",
+      "path": "route_param.talks.review.id",
+      "text": "Talk number",
+      "var": "L10nTalksReviewId"
+    },
+    {
+      "key": "route_param.talks.review.state",
+      "path": "route_param.talks.review.state",
+      "text": "New state",
+      "var": "L10nTalksReviewState"
+    },
+    {
+      "key": "route.talks.review_many",
+      "path": "route.talks.review_many",
+      "text": "Accept or reject the chosen talks",
+      "var": "L10nTalksReviewMany"
+    },
+    {
+      "key": "route_param.talks.review_many.state",
+      "path": "route_param.talks.review_many.state",
+      "text": "New state",
+      "var": "L10nTalksReviewManyState"
+    },
+    {
+      "key": "route.talks.move",
+      "path": "route.talks.move",
+      "text": "Change a talk's state",
+      "var": "L10nTalksMove"
+    },
+    {
+      "key": "route_param.talks.move.id",
+      "path": "route_param.talks.move.id",
+      "text": "Talk number",
+      "var": "L10nTalksMoveId"
+    },
+    {
+      "key": "route.talks.move_put",
+      "path": "route.talks.move_put",
+      "text": "Save a talk's state",
+      "var": "L10nTalksMovePut"
+    },
+    {
+      "key": "route_param.talks.move_put.id",
+      "path": "route_param.talks.move_put.id",
+      "text": "Talk number",
+      "var": "L10nTalksMovePutId"
+    },
+    {
+      "key": "route.talks.delete",
+      "path": "route.talks.delete",
+      "text": "Delete a talk",
+      "var": "L10nTalksDelete"
+    },
+    {
+      "key": "route_param.talks.delete.id",
+      "path": "route_param.talks.delete.id",
+      "text": "Talk number",
+      "var": "L10nTalksDeleteId"
+    }
+  ],
+  "package": {
+    "dir": "internal/admin/adminroutes",
+    "name": "adminroutes"
+  },
+  "producer": "handlers"
+}

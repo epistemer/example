@@ -235,41 +235,6 @@
           },
           "type": "object"
         },
-        "passkey": {
-          "additionalProperties": false,
-          "description": "Passkeys",
-          "properties": {
-            "domain": {
-              "description": "Domain passkeys are bound to: the site's, without scheme or port",
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "origins": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": [
-                      "string",
-                      "number",
-                      "boolean"
-                    ]
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Origins passkeys may be used from; https://<domain> when empty"
-            }
-          },
-          "type": "object"
-        },
         "password": {
           "additionalProperties": false,
           "description": "Passwords",

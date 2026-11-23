@@ -35,7 +35,21 @@ type Store struct {
 }
 
 func Open(ctx context.Context, url string) (*Store, error) {
-	pool, err := pgxpool.New(ctx, url)
+	cfg, err := pgxpool.ParseConfig(url)
+	if err != nil {
+		return nil, fmt.Errorf("database url: %w", err)
+	}
+	// pgx encodes an array of an enum only once it knows the types
+	// (findings F15): talk.topics is talk_topic[].
+	cfg.AfterConnect = func(ctx context.Context, c *pgx.Conn) error {
+		ts, err := c.LoadTypes(ctx, []string{"talk_topic", "_talk_topic"})
+		if err != nil {
+			return err
+		}
+		c.TypeMap().RegisterTypes(ts)
+		return nil
+	}
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}

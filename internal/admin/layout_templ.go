@@ -68,7 +68,7 @@ func scripts() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" defer></script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -78,7 +78,7 @@ func scripts() templ.Component {
 
 // navItem is a nav link shown only when the request's guard admits its
 // route: layout.NavItem doesn't ask the actions gate (see findings).
-func navItem(ctx context.Context, r *http.Request, to ui.Link, label i18n.Ter) templ.Component {
+func navItem(r *http.Request, to ui.Link, label i18n.Ter) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -208,7 +208,7 @@ func shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) templ.Co
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Dashboard(), adminroutes.L10nDashboard).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = navItem(r, adminroutes.Dashboard(), adminroutes.L10nDashboard).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -224,15 +224,15 @@ func shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) templ.Co
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Events(), adminroutes.L10nEvents).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = navItem(r, adminroutes.Events(), adminroutes.L10nEvents).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Talks(), adminroutes.L10nTalks).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = navItem(r, adminroutes.Talks(), adminroutes.L10nTalks).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Speakers(), adminroutes.L10nSpeakers).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = navItem(r, adminroutes.Speakers(), adminroutes.L10nSpeakers).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -254,11 +254,11 @@ func shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) templ.Co
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Settings(), adminroutes.L10nSettings).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = navItem(r, adminroutes.SettingsEdit(), adminroutes.L10nSettingsEdit).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = navItem(ctx, r, adminroutes.Translations(ids.Locale(h.Tr.Default().Code)), adminroutes.L10nTranslations).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = navItem(r, adminroutes.Translations(ids.Locale(h.Tr.Default().Code)), adminroutes.L10nTranslations).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -417,7 +417,7 @@ func shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) templ.Co
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layout.Document(title).Head(themeHead(ctx), scripts()).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Document(title).Head(scripts(), themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -41,9 +41,9 @@ var Mail = dsl.Group("mail", "Outgoing mail",
 )
 
 // The library groups: each pins its own names, so the generated settings
-// satisfy auth.Config, passkey.Config, theme.Config and i18n.Config.
+// satisfy auth.Config, theme.Config and i18n.Config.
 var (
-	Auth  = authschema.Group(authschema.Passkey())
+	Auth  = authschema.Group()
 	Theme = themeschema.Group()
 	I18n  = i18nschema.Group()
 )

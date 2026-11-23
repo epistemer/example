@@ -107,7 +107,7 @@ func talkFormPage(f *TalkForm, id ids.TalkID) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		title := L10nNewTalk
+		var title i18n.Ter = L10nNewTalk
 		action := adminroutes.TalksCreate().URL()
 		if id != 0 {
 			title = i18n.Static(f.Title.Value())

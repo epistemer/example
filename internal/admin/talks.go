@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/epistemer/errors"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/models/option"
@@ -15,7 +16,6 @@ import (
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/files"
 	"github.com/epistemer/ui/forms/rule"
-	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
@@ -186,6 +186,7 @@ func (h *H) talksTable() *tables.Table[models.TalkView] {
 			tables.Col(tc.StartsAt).Sortable().Filter(),
 			tables.Col(tc.DurationMinutes).Sortable(),
 			tables.Col(tc.Recorded).Filter(),
+			tables.Col(tc.CreatedAt).Sortable(),
 		).
 			Label(adminroutes.L10nTalks).
 			RowLabel(tc.Title).
@@ -199,7 +200,7 @@ func (h *H) talksTable() *tables.Table[models.TalkView] {
 }
 
 var (
-	EditTalk     = actions.New(L10nEdit).Icon(icons.Pencil())
+	EditTalk     = actions.New(L10nEdit)
 	AcceptTalk   = actions.New(L10nAccept).Primary()
 	RejectTalk   = actions.New(L10nReject).Danger().Confirm(L10nRejectQ)
 	ScheduleTalk = actions.New(L10nScheduleTalk)
@@ -336,7 +337,7 @@ func (h *H) TalksUpdate(w http.ResponseWriter, r *http.Request, id ids.TalkID) e
 
 func (h *H) saveTalk(w http.ResponseWriter, r *http.Request, id ids.TalkID) error {
 	ctx := r.Context()
-	title := L10nNewTalk
+	var title i18n.Ter = L10nNewTalk
 	f, err := h.newTalkForm(ctx, id)
 	if err != nil {
 		return err
@@ -357,13 +358,17 @@ func (h *H) saveTalk(w http.ResponseWriter, r *http.Request, id ids.TalkID) erro
 		}
 		added = append(added, stored)
 	}
-	saved, dropped, err := h.Store.SaveTalk(ctx, h.Settings, id, f.Input(), up.Kept, added)
+	kept := make([]string, len(up.Kept))
+	for i, k := range up.Kept {
+		kept[i] = k.Key
+	}
+	saved, dropped, err := h.Store.SaveTalk(ctx, h.Settings, id, f.Input(), kept, added)
 	if err != nil {
 		for _, a := range added {
 			_ = h.Files.Delete(a.Key)
 		}
 		f.fail(err)
-		return h.page(w, r, handlersStatus(err), title, talkFormPage(f, id))
+		return h.page(w, r, http.StatusUnprocessableEntity, title, talkFormPage(f, id))
 	}
 	_ = h.Files.Delete(dropped...)
 	return components.Reply(w, r).Toast(L10nTalkSaved).Go(adminroutes.TalksEdit(saved))

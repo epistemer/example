@@ -566,7 +566,7 @@ func settingsPage(f *SettingsForm) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = layout.PageHeader(adminroutes.L10nSettings).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.PageHeader(adminroutes.L10nSettingsEdit).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

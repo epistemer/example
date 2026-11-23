@@ -17,7 +17,6 @@ import (
 	"github.com/epistemer/ui/components"
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/rule"
-	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
 	"github.com/epistemer/ui/theme"
 
@@ -212,7 +211,7 @@ func (f *SettingsForm) apply(u *settings.Update) error {
 func (h *H) SettingsEdit(w http.ResponseWriter, r *http.Request) error {
 	f := NewSettingsForm()
 	f.Fill(h.Settings)
-	return h.page(w, r, http.StatusOK, adminroutes.L10nSettings, settingsPage(f))
+	return h.page(w, r, http.StatusOK, adminroutes.L10nSettingsEdit, settingsPage(f))
 }
 
 //h:key settings.save
@@ -224,7 +223,7 @@ func (h *H) SettingsSave(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 	f := NewSettingsForm()
 	if !f.Submit(ctx, r) {
-		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettings, settingsPage(f))
+		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettingsEdit, settingsPage(f))
 	}
 	who := "unknown"
 	if s, ok := auth.From(ctx); ok {
@@ -238,9 +237,9 @@ func (h *H) SettingsSave(w http.ResponseWriter, r *http.Request) error {
 		} else {
 			f.Fail(err)
 		}
-		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettings, settingsPage(f))
+		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettingsEdit, settingsPage(f))
 	}
-	return components.Reply(w, r).Toast(L10nSettingsSaved).Go(adminroutes.Settings())
+	return components.Reply(w, r).Toast(L10nSettingsSaved).Go(adminroutes.SettingsEdit())
 }
 
 var ErrSettingsRefused = errors.Key1[string]("errors.confab.settings_refused", "the settings were refused: %s", errors.Invalid)
@@ -275,7 +274,7 @@ var TranslationsTable = tables.New("translations", trKey,
 var TranslationsView = components.TableOf(TranslationsTable)
 
 var (
-	EditTranslation  = actions.New(L10nEdit).Icon(icons.Pencil()).Dialog()
+	EditTranslation  = actions.New(L10nEdit).Dialog()
 	ResetTranslation = actions.New(L10nTransReset).Confirm(L10nResetQ)
 )
 
@@ -341,12 +340,12 @@ func (h *H) Translations(w http.ResponseWriter, r *http.Request, locale ids.Loca
 // TranslationForm edits one key in one locale.
 type TranslationForm struct {
 	*forms.Form
-	Text *forms.Field[string]
+	Body *forms.Field[string] // not Text: the embedded Form has a method Text (findings)
 }
 
 func NewTranslationForm(e i18n.Entry) *TranslationForm {
 	f := &TranslationForm{Form: forms.New()}
-	f.Text = f.Text("text").Raw().Hint(forms.KindMultiline).Label(L10nTranslation).Help(i18n.Static(e.Source)).Required()
+	f.Body = f.Text("text").Raw().Hint(forms.KindMultiline).Label(L10nTranslation).Help(i18n.Static(e.Source)).Required()
 	return f
 }
 
@@ -376,7 +375,7 @@ func (h *H) TranslationsEdit(w http.ResponseWriter, r *http.Request, locale ids.
 		return err
 	}
 	f := NewTranslationForm(e)
-	f.Text.Set(e.Text)
+	f.Body.Set(e.Text)
 	return h.dialogOrPage(w, r, http.StatusOK, i18n.Static(key), translationBody(locale, e, f))
 }
 
@@ -397,8 +396,8 @@ func (h *H) TranslationsSave(w http.ResponseWriter, r *http.Request, locale ids.
 	if !f.Submit(ctx, r) {
 		return h.dialogOrPage(w, r, http.StatusUnprocessableEntity, i18n.Static(key), translationBody(locale, e, f))
 	}
-	if err := h.Tr.Set(string(locale), key, f.Text.Value()); err != nil {
-		f.Text.Fail(err)
+	if err := h.Tr.Set(string(locale), key, f.Body.Value()); err != nil {
+		f.Body.Fail(err)
 		return h.dialogOrPage(w, r, http.StatusUnprocessableEntity, i18n.Static(key), translationBody(locale, e, f))
 	}
 	return components.Reply(w, r).Toast(L10nTransSaved).Refresh(TranslationsTable.ID()).Else(adminroutes.Translations(locale))

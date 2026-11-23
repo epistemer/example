@@ -22,7 +22,7 @@ templ speakersPage(table templ.Component) {
 }
 
 templ speakerFormPage(f *SpeakerForm, id ids.SpeakerID) {
-	{{ title := L10nNewSpeaker }}
+	{{ var title i18n.Ter = L10nNewSpeaker }}
 	{{ action := adminroutes.SpeakersCreate().URL() }}
 	if id != 0 {
 		{{ title = i18n.Static(f.Name.Value()) }}

@@ -53,6 +53,18 @@ type H struct {
 	talksView *components.TableView[models.TalkView]
 }
 
+// Check builds the tables that need the store and checks every table, so
+// a mistake in a declaration stops the start, not a request.
+func (h *H) Check() error {
+	h.talksTable()
+	for _, err := range []error{h.talks.Check(), EventsTable.Check(), SpeakersTable.Check(), TranslationsTable.Check()} {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 //go:embed assets
 var assets embed.FS
 

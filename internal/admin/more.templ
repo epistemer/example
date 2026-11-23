@@ -110,7 +110,7 @@ templ searchPage(q string, hits []handlers.Hit) {
 }
 
 templ settingsPage(f *SettingsForm) {
-	@layout.PageHeader(adminroutes.L10nSettings)
+	@layout.PageHeader(adminroutes.L10nSettingsEdit)
 	<form method="post" action={ templ.SafeURL(adminroutes.SettingsSave().URL()) } novalidate>
 		@formErrors(f.Form)
 		@fields(f.Form)

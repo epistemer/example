@@ -361,8 +361,10 @@ type Staff struct {
 
 // Talk
 type Talk struct {
-	ID        int64
-	EventID   int64
+	ID int64
+	// Event
+	EventID int64
+	// Speaker
 	SpeakerID int64
 	Title     string
 	Abstract  string

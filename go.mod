@@ -11,11 +11,13 @@ tool (
 )
 
 require (
+	github.com/a-h/templ v0.3.1118
 	github.com/epistemer/auth v0.3.0
 	github.com/epistemer/auth/authschema v0.3.0
 	github.com/epistemer/cfgx v0.2.0
 	github.com/epistemer/errors v0.1.0
 	github.com/epistemer/handlers v0.3.0
+	github.com/epistemer/handlers/authguard v0.3.0
 	github.com/epistemer/i18n v0.3.1
 	github.com/epistemer/i18n/i18nschema v0.1.0
 	github.com/epistemer/models v0.4.0
@@ -31,7 +33,6 @@ require (
 	cel.dev/expr v0.19.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/a-h/parse v0.0.42 // indirect
-	github.com/a-h/templ v0.3.1118 // indirect
 	github.com/andybalholm/brotli v1.3.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

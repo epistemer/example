@@ -17,7 +17,6 @@ import (
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/files"
 	"github.com/epistemer/ui/forms/rule"
-	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
@@ -108,7 +107,7 @@ func (f *SpeakerForm) save(fs *confab.Files, old models.Speaker) (confab.Speaker
 		}
 		in.Photo = &confab.StoredFile{Key: stored.Key, Name: stored.Name}
 	case len(up.Kept) == 1:
-		in.Photo = &confab.StoredFile{Key: up.Kept[0], Name: old.PhotoName.String}
+		in.Photo = &confab.StoredFile{Key: up.Kept[0].Key, Name: up.Kept[0].Name}
 	}
 	if old.PhotoKey.Valid && (in.Photo == nil || in.Photo.Key != old.PhotoKey.String) {
 		drop = append(drop, old.PhotoKey.String)
@@ -143,7 +142,7 @@ var SpeakersTable = tables.New("speakers", sc.ID,
 var SpeakersView = components.TableOf(SpeakersTable)
 
 var (
-	EditSpeaker   = actions.New(L10nEdit).Icon(icons.Pencil())
+	EditSpeaker   = actions.New(L10nEdit)
 	DeleteSpeaker = actions.New(L10nDelete).Danger().Confirm(L10nDeleteSpeakerQ)
 )
 
@@ -276,7 +275,7 @@ func (h *H) SpeakersUpdate(w http.ResponseWriter, r *http.Request, id ids.Speake
 
 func (h *H) saveSpeaker(w http.ResponseWriter, r *http.Request, id ids.SpeakerID, old models.Speaker) error {
 	ctx := r.Context()
-	title := L10nNewSpeaker
+	var title i18n.Ter = L10nNewSpeaker
 	if id != 0 {
 		title = i18n.Static(old.Name)
 	}
@@ -301,7 +300,7 @@ func (h *H) saveSpeaker(w http.ResponseWriter, r *http.Request, id ids.SpeakerID
 			_ = h.Files.Delete(in.Photo.Key)
 		}
 		f.fail(err)
-		return h.page(w, r, handlersStatus(err), title, speakerFormPage(f, id))
+		return h.page(w, r, http.StatusUnprocessableEntity, title, speakerFormPage(f, id))
 	}
 	_ = h.Files.Delete(drop...)
 	return components.Reply(w, r).Toast(L10nSpeakerSaved).Go(adminroutes.SpeakersEdit(id))
@@ -411,7 +410,7 @@ func (h *H) SpeakersImportPost(w http.ResponseWriter, r *http.Request) error {
 		}
 		if _, err := h.Store.CreateSpeaker(ctx, in); err != nil {
 			f.CSV.Fail(err)
-			return h.page(w, r, handlersStatus(err), L10nImport, importPage(f, people, withPhoto))
+			return h.page(w, r, http.StatusUnprocessableEntity, L10nImport, importPage(f, people, withPhoto))
 		}
 		people++
 	}
