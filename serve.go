@@ -173,17 +173,17 @@ func seedArabic(tr *i18n.Translator) error {
 		return err
 	}
 	for k, v := range map[string]string{
-		"branding.title":         "كونفاب",
-		"route.dashboard":        "لوحة التحكم",
-		"route.events":           "الفعاليات",
-		"route.talks":            "المحاضرات",
-		"route.speakers":         "المتحدثون",
-		"route.settings":         "الإعدادات",
-		"route.translations":     "الترجمات",
-		"page.nav.programme":     "البرنامج",
-		"page.nav.admin":         "الإدارة",
-		"page.nav.sign_out":      "تسجيل الخروج",
-		"page.dashboard.welcome": "مرحبًا بعودتك",
+		"branding.title":           "كونفاب",
+		"route.dashboard":          "لوحة التحكم",
+		"route.events":             "الفعاليات",
+		"route.talks":              "المحاضرات",
+		"route.speakers":           "المتحدثون",
+		"route.settings":           "الإعدادات",
+		"route.translations":       "الترجمات",
+		"page.nav.programme":       "البرنامج",
+		"page.nav.admin":           "الإدارة",
+		"page.nav.sign_out":        "تسجيل الخروج",
+		"page.dashboard.welcome":   "مرحبًا بعودتك",
 		"enum.talk_state.accepted": "مقبولة",
 	} {
 		if err := tr.Set(arabic.Code, k, v); err != nil {

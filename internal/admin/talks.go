@@ -52,8 +52,8 @@ type eventOption struct {
 	name string
 }
 
-func (o eventOption) Value() string                        { return strconv.FormatInt(o.id, 10) }
-func (o eventOption) Label() i18n.TKer                     { return dataLabel(o.name) }
+func (o eventOption) Value() string    { return strconv.FormatInt(o.id, 10) }
+func (o eventOption) Label() i18n.TKer { return dataLabel(o.name) }
 func eventOptions(rows []models.ListEventOptionsRow) []option.SelectOption {
 	out := make([]option.SelectOption, len(rows))
 	for i, r := range rows {

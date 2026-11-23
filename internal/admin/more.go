@@ -61,9 +61,18 @@ func (h *H) Dashboard(w http.ResponseWriter, r *http.Request) error {
 		n, _ := f(ctx, listing.Query{Limit: 1})
 		return n
 	}
-	ev := count(func(ctx context.Context, s listing.Source) (int64, error) { _, n, err := h.Store.ListEventView(ctx, s); return n, err })
-	tk := count(func(ctx context.Context, s listing.Source) (int64, error) { _, n, err := h.Store.ListTalkView(ctx, s); return n, err })
-	sp := count(func(ctx context.Context, s listing.Source) (int64, error) { _, n, err := h.Store.ListSpeakerView(ctx, s); return n, err })
+	ev := count(func(ctx context.Context, s listing.Source) (int64, error) {
+		_, n, err := h.Store.ListEventView(ctx, s)
+		return n, err
+	})
+	tk := count(func(ctx context.Context, s listing.Source) (int64, error) {
+		_, n, err := h.Store.ListTalkView(ctx, s)
+		return n, err
+	})
+	sp := count(func(ctx context.Context, s listing.Source) (int64, error) {
+		_, n, err := h.Store.ListSpeakerView(ctx, s)
+		return n, err
+	})
 	sess, _ := auth.From(ctx)
 	return h.page(w, r, http.StatusOK, adminroutes.L10nDashboard, dashboardPage(sess, h.Settings.CFPClosed(), ev, tk, sp))
 }

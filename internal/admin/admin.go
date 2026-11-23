@@ -23,8 +23,8 @@ import (
 	"github.com/epistemer/ui"
 	"github.com/epistemer/ui/actions"
 	"github.com/epistemer/ui/components"
-	"github.com/epistemer/ui/tables"
 	"github.com/epistemer/ui/inputs"
+	"github.com/epistemer/ui/tables"
 	"github.com/epistemer/ui/theme"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
