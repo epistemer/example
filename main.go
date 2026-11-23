@@ -3,6 +3,8 @@
 // internal/settings/schema; run go generate after changing them.
 package main
 
+// templ first: handlers gen type-checks the admin package, templates included.
+//go:generate go tool templ generate
 //go:generate go tool genx
 
 import (

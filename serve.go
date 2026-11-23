@@ -13,12 +13,15 @@ import (
 	"github.com/epistemer/auth/access"
 	"github.com/epistemer/handlers"
 	"github.com/epistemer/handlers/authguard"
+	"github.com/epistemer/handlers/openapi"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/ui/theme"
 	"github.com/sirupsen/logrus"
 
 	"github.com/epistemer/example/internal/admin"
 	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/api"
+	"github.com/epistemer/example/internal/api/apiroutes"
 	"github.com/epistemer/example/internal/confab"
 	"github.com/epistemer/example/internal/settings"
 )
@@ -83,7 +86,6 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 	}
 	guard := authguard.New(a, ac)
 	h.Auth, h.Guard = a, guard
-	h.Routes = handlers.NewTable(adminroutes.Routes)
 	if err := h.Check(); err != nil {
 		return err
 	}
@@ -91,10 +93,30 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 	mux := http.NewServeMux()
 	adminroutes.Register(mux, h, guard,
 		handlers.WithErrors(h.ErrorPage),
-		handlers.WithMiddleware(h.Middleware),
+		handlers.WithMiddleware(h.Recover, h.Middleware),
 	)
 
+	// The JSON API: its own mux and the bearer carrier, so a cookie never
+	// reaches it and a token never reaches the admin.
+	spec, err := api.GetSpec()
+	if err != nil {
+		return err
+	}
+	apiMux := http.NewServeMux()
+	apiSrv := &api.Server{Auth: a, Store: store, Files: files}
+	apiroutes.Mount(apiMux, guard, spec, func(rt *openapi.Router) {
+		api.HandlerWithOptions(
+			api.NewStrictHandlerWithOptions(apiSrv, nil, api.StrictHTTPServerOptions{
+				RequestErrorHandlerFunc:  rt.RequestError,
+				ResponseErrorHandlerFunc: rt.WriteError,
+			}),
+			api.StdHTTPServerOptions{BaseURL: apiroutes.Prefix, BaseRouter: rt, ErrorHandlerFunc: rt.RequestError},
+		)
+	})
+	h.Routes = handlers.NewTable(adminroutes.Routes, apiroutes.Routes)
+
 	root := http.NewServeMux()
+	root.Handle(apiroutes.Prefix+"/", a.Load(auth.Bearer())(apiMux))
 	root.Handle(adminroutes.Prefix+"/", a.Load(auth.Cookie())(mux))
 	root.Handle(adminroutes.Prefix+"/ui/", th)
 	root.Handle(adminroutes.Prefix+"/assets/", admin.Assets())

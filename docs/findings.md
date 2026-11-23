@@ -249,3 +249,182 @@ talk_state IS 'submitted: Submitted; accepted: Accepted'`.
 
 There is no pencil, trash, external-link, upload, download or calendar
 icon; the actions here carry no icons except the public page's eye.
+
+### F21 — a shared permission's text is its key made readable (friction, low; handlers)
+
+Permissions shared by several routes get the readable key as text:
+"Events Manage", "Talks Review", "Api Talks Read". These are the names an
+admin sees when granting permissions to a group. There's no directive or
+extension to name a permission (`//h:desc` names the route).
+
+*Would help:* `//h:perm events.manage Manage events` (a text after the key)
+and the same in `x-permission`.
+
+### F22 — the API and the admin can't share a permission (contradiction, medium; handlers)
+
+"One routes package per permission": declaring `talks.review` in both the
+admin's `//h:perm` and the spec's `x-permission` fails generation. So a
+reviewer needs `talks.review` *and* `api.talks.review`, granted separately
+(seed.go grants both). Both surfaces feed one `routes/v1` domain, so the
+permission could be declared once and used by both.
+
+*Would help:* permissions generated once per app (a merged permissions
+package), or a route allowed to name a permission another routes package
+declares.
+
+### F23 — hidden labels escape a table's scroller and widen the page (bug, medium; ui)
+
+A wide table scrolls inside `.ui-table-scroll`, but the visually hidden
+spans in its cells are absolutely positioned and the scroller isn't their
+containing block, so they stretch the document: 1747 px of scroll width
+in a 1265 px window. In RTL the whole page shifts and the nav goes off
+screen. `.ui-table-scroll { position: relative }` fixes it (in
+`internal/admin/assets/confab.css`).
+
+### F24 — after a boosted language change, `<html lang dir>` stay the old ones (bug, medium; ui + htmx)
+
+`layout.Document` sets `lang` and `dir` from the locale, and `BodyAttrs`
+takes `hx-boost`. With boost on, switching to Arabic swapped the body,
+showed Arabic text, and kept `<html dir="ltr" lang="en">`: an Arabic page
+laid out left to right until a full reload.
+
+*Would help:* ui's script copying `lang` and `dir` from a boosted
+response's `<html>` (htmx swaps the body only), or the docs saying to mark
+the language switcher `hx-boost="false"`.
+
+### F25 — `Reply.Go` after a toast panics, after the save committed (friction, medium; ui)
+
+`components.Reply(w, r).Toast(saved).Go(link)` panics by design ("the
+redirect drops them; the app's flash carries a message"), but:
+
+- it panics after the handler saved, and with no recovering wrapper (F16)
+  the connection dropped; Chrome sent the POST again, and the second save
+  failed the version check with "someone changed this event while you
+  edited it". The real cause took a while to find.
+- there is no flash: "the app's flash" is the app's to write
+  (`internal/admin/flash.go`, a cookie with an i18n key).
+
+*Would help:* make it a compile error: `Toast`, `Replace`, `Remove` and
+`Refresh` return a type without `Go`; and a flash in ui (the toast survives
+the redirect).
+
+### F26 — `KindToggle` is a three-state select, not a switch (doc, low; ui/forms)
+
+The name reads as an on/off switch. It's `Bool`'s Yes/No/unset select.
+`Checkbox().Hint(KindToggle)` is accepted and silently turns a two-state
+checkbox into a select with an empty "Choose…" choice.
+
+*Would help:* naming it `KindYesNo`, and Hint refusing it on a Checkbox.
+
+### F27 — left-to-right values read backwards in right-to-left pages (bug, low; ui/inputs)
+
+In Arabic the settings page shows `c62828#` for `#c62828`. Colours, emails,
+URLs, phone numbers, codes and slugs are left to right whatever the page;
+the rules know which fields hold them (`Email`, `URL`, `Phone`, `Matches`)
+but inputs get no `dir`.
+
+*Would help:* `dir="ltr"` (or `dir="auto"`) from those rules through
+`Control.Attrs`.
+
+### F28 — an enum path parameter takes any string (gap, medium; handlers + models)
+
+`EventsStatus(id ids.EventID, status models.EventStatus)` gives a typed
+builder, which is excellent; but reading the path, handlers converts any
+string to the named type, so `/events/3/status/bogus` reaches PostgreSQL
+and answers 500. The API side validates against the spec's enum; the HTML
+side doesn't.
+
+*Would help:* models generating `UnmarshalText` on enum types (refusing
+other values), which handlers already prefers.
+
+### F29 — i18n's errors aren't public (gap, medium; i18n + errors)
+
+`/admin/translations/xx` answers 500 "something went wrong":
+`i18n.ErrUnknownLocale` has no kind and no message for people (i18n can't
+import errors, which imports i18n). The same goes for `ErrFormat`: a
+translation whose verbs don't fit is refused with "something went wrong"
+on the field, when the person needs to be told to keep `%d`.
+
+*Workaround:* none yet in the app (the page should map them).
+
+*Would help:* i18n's sentinels implementing `i18n.Ter` and a `Kind()`
+(errors reads them structurally, no import needed).
+
+### F30 — `AssertLabelled` wants a label on a hidden field (friction, low; ui/forms)
+
+The event's `version` is a hidden input nobody sees; `formstest.AssertLabelled`
+fails until it has a label.
+
+### F31 — templ isn't part of genx (friction, low; genx + templ)
+
+`handlers gen` type-checks the admin package, templates included, so
+`templ generate` must run first; `genx check` can't see a stale
+`_templ.go`. main.go runs `templ generate` then `genx` from `go:generate`.
+
+### F32 — genx can't run one producer (friction, low; genx)
+
+Bootstrapping (F4) meant commenting producers out of `genx.yaml`. A
+`genx run <producer>` would have helped, as would a way to declare that a
+producer's input may not type-check yet.
+
+## What worked well
+
+Not every note is a problem. These were better than expected:
+
+- **Typed links everywhere.** `adminroutes.EventsStatus(id,
+  models.EventStatusPublished)` can't be built with a talk's id or a
+  misspelled status; actions, nav items, table links and redirects all take
+  the same value, and a route the user can't reach makes its action vanish
+  without a second permission check.
+- **An sqlc enum as a cfgx setting.** `CFPDefaultLevel() models.TalkLevel`
+  flows straight into the talk form's `Set`.
+- **`Parsed[ids.Slug]`** reports the type's own error (`errors.confab.bad_slug`),
+  so a domain type validates itself in forms and in route parameters.
+- **`As`** turned an `Int` into a `time.Duration` and a `Texts` into
+  `[]models.TalkTopic`, with rules on the first stage and the typed value
+  on the second.
+- **One translations page for everything.** Route labels, table and enum
+  labels, settings labels, form texts and errors all land in one catalogue;
+  the page is a ui table over `i18n.Search` with hand-made columns.
+- **The API's errors.** Domain errors declared once come out of the API as
+  `{"code": "errors.confab.not_scheduled", "message": …}` with a 409, and
+  the spec's validation answers 400 before the handler runs.
+- **Conditions run on both sides.** The workshop's seats appear in the
+  browser and are cleared on the server from one `When`.
+
+## Summary
+
+| # | Package | Kind | Severity |
+|---|---|---|---|
+| F1 | cfgx | friction | low |
+| F2 | models + sqlc | friction | medium |
+| F3 | cfgx + models | friction | low |
+| F4 | handlers | friction | **high** |
+| F5 | ui/forms + models | contradiction | medium |
+| F6 | ui | gap | medium |
+| F7 | ui | friction | low |
+| F8 | models + ui/forms | friction | low |
+| F9 | ui/forms | bug | medium |
+| F10 | ui/forms | friction | low |
+| F11 | ui/tables | friction | medium |
+| F12 | cfgx + errors | contradiction | medium |
+| F13 | handlers | friction | low |
+| F14 | cfgx init | friction | low |
+| F15 | models | gap | medium |
+| F16 | handlers | gap | medium |
+| F17 | ui | contradiction | medium |
+| F18 | ui + handlers | contradiction | low |
+| F19 | models | friction | low |
+| F20 | ui | gap | low |
+| F21 | handlers | friction | low |
+| F22 | handlers | contradiction | medium |
+| F23 | ui | bug | medium |
+| F24 | ui | bug | medium |
+| F25 | ui | friction | medium |
+| F26 | ui/forms | doc | low |
+| F27 | ui/inputs | bug | low |
+| F28 | handlers + models | gap | medium |
+| F29 | i18n + errors | gap | medium |
+| F30 | ui/forms | friction | low |
+| F31 | genx + templ | friction | low |
+| F32 | genx | friction | low |

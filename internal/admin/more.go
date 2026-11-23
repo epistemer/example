@@ -152,7 +152,7 @@ func checked(check func(string) error) rule.Rule[string] {
 func NewSettingsForm() *SettingsForm {
 	f := &SettingsForm{Form: forms.New()}
 	// Labels are cfgx's: settings.<path>, generated from the schema.
-	f.Closed = f.Checkbox("cfp_closed").Hint(forms.KindToggle).Label(settings.L10nCFPClosed)
+	f.Closed = f.Checkbox("cfp_closed").Label(settings.L10nCFPClosed)
 	f.MaxTalks = f.Int("cfp_max_talks").Label(settings.L10nCFPMaxTalks).Required().Is(rule.Between(1, 10))
 	f.DefaultLevel = f.Enum("cfp_default_level", models.AllTalkLevelValues()).Label(settings.L10nCFPDefaultLevel).Required()
 	f.DefaultDuration = f.Int("cfp_default_duration").Label(settings.L10nCFPDefaultDuration).Required().
@@ -239,7 +239,7 @@ func (h *H) SettingsSave(w http.ResponseWriter, r *http.Request) error {
 		}
 		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettingsEdit, settingsPage(f))
 	}
-	return components.Reply(w, r).Toast(L10nSettingsSaved).Go(adminroutes.SettingsEdit())
+	return goWith(w, r, L10nSettingsSaved, adminroutes.SettingsEdit())
 }
 
 var ErrSettingsRefused = errors.Key1[string]("errors.confab.settings_refused", "the settings were refused: %s", errors.Invalid)

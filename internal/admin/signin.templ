@@ -25,7 +25,7 @@ templ formErrors(f *forms.Form) {
 }
 
 templ authPage(r *http.Request, title i18n.Ter, body templ.Component) {
-	@layout.Document(title).Head(themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)) {
+	@layout.Document(title).Head(themeHead(ctx), appCSS()).ColorScheme(layout.ColorSchemeOf(r)) {
 		@layout.Auth(title) {
 			@layout.AuthBrand {
 				{ L10nBrand.T(ctx) }

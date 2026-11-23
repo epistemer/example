@@ -34,6 +34,10 @@ templ scripts() {
 	<script src={ adminroutes.Prefix + "/assets/htmx.min.js" }></script>
 }
 
+templ appCSS() {
+	<link rel="stylesheet" href={ adminroutes.Prefix + "/assets/confab.css" }/>
+}
+
 // navItem is a nav link shown only when the request's guard admits its
 // route: layout.NavItem doesn't ask the actions gate (see findings).
 templ navItem(r *http.Request, to ui.Link, label i18n.Ter) {
@@ -44,8 +48,8 @@ templ navItem(r *http.Request, to ui.Link, label i18n.Ter) {
 	}
 }
 
-templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
-	@layout.Document(title).Head(scripts(), themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
+templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component, flash i18n.Ter) {
+	@layout.Document(title).Head(scripts(), themeHead(ctx), appCSS()).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
 		@layout.App() {
 			@layout.AppBrand {
 				{ L10nBrand.T(ctx) }
@@ -66,6 +70,15 @@ templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
 				<form method="get" action={ templ.SafeURL(adminroutes.Search().URL()) } role="search">
 					<input type="search" name="q" aria-label={ L10nSearchHere.T(ctx) } placeholder={ L10nSearchHere.T(ctx) }/>
 				</form>
+				<form method="post" action={ templ.SafeURL(adminroutes.Locale().URL()) } class="confab-locales">
+					for _, l := range i18n.Codes(ctx) {
+						if l.Code != i18n.Code(ctx).Code {
+							@elements.Button().Variant(elements.Ghost).Size(elements.Small).Submit().Attrs(templ.Attributes{"name": "code", "value": l.Code, "lang": l.Code}) {
+								{ l.NativeName }
+							}
+						}
+					}
+				</form>
 				@layout.ColorSchemeMenu(layout.ColorSchemeOf(r))
 				<form method="post" action={ templ.SafeURL(adminroutes.SignOut().URL()) }>
 					@elements.Button().Variant(elements.Ghost).Submit() {
@@ -74,6 +87,11 @@ templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
 				</form>
 			}
 			@layout.AppMain {
+				if flash != nil {
+					@elements.Alert().Tone(elements.Success) {
+						{ flash.T(ctx) }
+					}
+				}
 				@body
 			}
 		}
@@ -88,10 +106,6 @@ templ errorBody(status int, err error) {
 	@elements.Button().Href(adminroutes.Dashboard()) {
 		{ L10nBack.T(ctx) }
 	}
-}
-
-templ errorShell(h *H, r *http.Request, status int, err error) {
-	@shell(h, r, L10nErrorTitle, errorBody(status, err))
 }
 
 templ errorToast(err error) {

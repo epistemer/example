@@ -86,7 +86,7 @@ templ eventFormPage(f *EventForm, id ids.EventID) {
 }
 
 templ publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks []models.PublicScheduleRow) {
-	@layout.Document(i18n.Static(e.Name)).Head(themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)) {
+	@layout.Document(i18n.Static(e.Name)).Head(themeHead(ctx), appCSS()).ColorScheme(layout.ColorSchemeOf(r)) {
 		<main class="confab-public">
 			@layout.PageHeader(i18n.Static(e.Name)).Description(i18n.Static(e.Summary))
 			@components.DetailList() {

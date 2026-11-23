@@ -38,6 +38,11 @@ func (f *Files) Put(h *multipart.FileHeader) (File, error) {
 		return File{}, err
 	}
 	defer src.Close()
+	return f.PutReader(h.Filename, src)
+}
+
+// PutReader stores what src holds under name.
+func (f *Files) PutReader(filename string, src io.Reader) (File, error) {
 	b := make([]byte, 16)
 	_, _ = rand.Read(b)
 	key := hex.EncodeToString(b)
@@ -56,7 +61,7 @@ func (f *Files) Put(h *multipart.FileHeader) (File, error) {
 		os.Remove(dst.Name())
 		return File{}, err
 	}
-	return File{Key: key, Name: filepath.Base(h.Filename), ContentType: ct, Size: size}, nil
+	return File{Key: key, Name: filepath.Base(filename), ContentType: ct, Size: size}, nil
 }
 
 // Open opens a stored file; ErrNotFound for a key that isn't one.

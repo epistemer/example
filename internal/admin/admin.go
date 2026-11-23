@@ -109,7 +109,7 @@ func render(w http.ResponseWriter, r *http.Request, status int, c templ.Componen
 
 // page renders body in the app shell.
 func (h *H) page(w http.ResponseWriter, r *http.Request, status int, title i18n.Ter, body templ.Component) error {
-	return render(w, r, status, shell(h, r, title, body))
+	return render(w, r, status, shell(h, r, title, body, takeFlash(w, r)))
 }
 
 // ErrorPage answers every error of the admin: the guard's refusals, auth's,
@@ -134,7 +134,7 @@ func (h *H) ErrorPage(w http.ResponseWriter, r *http.Request, err error) {
 		_ = render(w, r, status, errorToast(err))
 		return
 	}
-	if rerr := render(w, r, status, errorShell(h, r, status, err)); rerr != nil {
+	if rerr := render(w, r, status, shell(h, r, L10nErrorTitle, errorBody(status, err), nil)); rerr != nil {
 		handlers.WriteText(w, r, err)
 	}
 }
@@ -148,3 +148,24 @@ func themeHead(ctx context.Context) templ.Component { return CurrentTheme.Value(
 func errorsT(ctx context.Context, err error) string { return errors.T(ctx, err) }
 
 func handlersStatus(err error) int { return handlers.Status(err) }
+
+// ErrPanic is what people see when a handler panicked.
+var ErrPanic = errors.Key("errors.confab.panic", "the page failed; the error was logged")
+
+// Recover turns a handler's panic into a 500 page. handlers has none yet
+// (findings F16): without it the connection drops, and a browser may send
+// the POST again.
+func (h *H) Recover(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if v := recover(); v != nil {
+				if v == http.ErrAbortHandler {
+					panic(v)
+				}
+				slog.ErrorContext(r.Context(), "admin: panic", "panic", v, "path", r.URL.Path)
+				h.ErrorPage(w, r, ErrPanic)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}

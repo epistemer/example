@@ -4,6 +4,10 @@ internal/admin/adminroutes/zz_adminroutes.labels.json github.com/epistemer/handl
 internal/admin/adminroutes/zz_adminroutes_i18n.go github.com/epistemer/i18n:labels
 internal/admin/adminroutes/zz_adminroutes_permissions.go github.com/epistemer/handlers:permissions
 internal/admin/adminroutes/zz_adminroutes_routes.go github.com/epistemer/handlers:routes
+internal/api/apiroutes/zz_apiroutes.labels.json github.com/epistemer/handlers:labels
+internal/api/apiroutes/zz_apiroutes_i18n.go github.com/epistemer/i18n:labels
+internal/api/apiroutes/zz_apiroutes_permissions.go github.com/epistemer/handlers:permissions
+internal/api/apiroutes/zz_apiroutes_routes.go github.com/epistemer/handlers:routes
 internal/models/zz_models.labels.json github.com/epistemer/models:labels
 internal/models/zz_models_enums.go github.com/epistemer/models:enums
 internal/models/zz_models_i18n.go github.com/epistemer/i18n:labels

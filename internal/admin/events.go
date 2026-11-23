@@ -69,7 +69,9 @@ func newVenue(g *forms.Form) *VenueForm {
 		Placeholder(i18n.Static("NL"))
 	v.PostCode = g.Text("post_code").Label(models.L10nEvent_VenuePostCode)
 	v.Latitude = g.Float("latitude").Label(models.L10nEvent_Latitude).Is(rule.Between(-90.0, 90.0))
-	v.Longitude = g.Float("longitude").Label(models.L10nEvent_Longitude).Is(rule.Between(-180.0, 180.0))
+	// Longitude is asked for once a latitude is given (a Filled condition).
+	v.Longitude = g.Float("longitude").Label(models.L10nEvent_Longitude).When(v.Latitude.Filled()).
+		Required().Is(rule.Between(-180.0, 180.0))
 	// The post code's pattern depends on the country the person chose:
 	// a check of the group, since a rule takes a fixed country.
 	g.Check(func(ctx context.Context) error {
@@ -110,10 +112,20 @@ func newTier(g *forms.Form) *TierForm {
 	t.Name = g.Text("name").Label(models.L10nTicketTier_Name).Required().Is(rule.MaxLen(60))
 	t.Price = g.Parsed[decimal.Decimal]("price").Label(models.L10nTicketTier_Price).Required().
 		Is(rule.AtLeast(decimal.Zero), rule.AtMost(decimal.NewFromInt(10000)))
-	t.Quantity = g.Int("quantity").Label(models.L10nTicketTier_Quantity).Required().Is(rule.Min(1))
-	t.SaleEndsOn = g.Date("sale_ends_on").Label(models.L10nTicketTier_SaleEndsOn)
+	t.Quantity = g.Int("quantity").Label(models.L10nTicketTier_Quantity).Required().Is(rule.Min(1), rule.Max(100_000))
+	t.SaleEndsOn = g.Date("sale_ends_on").Label(models.L10nTicketTier_SaleEndsOn).Is(rule.NotBefore(firstDay))
 	return t
 }
+
+// The dates an event may start between.
+var (
+	firstDay = time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+	lastDay  = time.Date(2099, 12, 31, 0, 0, 0, 0, time.UTC)
+)
+
+// ErrCurrencyNotTaken overrides OneOf's own error: a catalogue rule's
+// error is replaced with .Err.
+var ErrCurrencyNotTaken = errors.Key("errors.confab.currency", "tickets are sold in EUR, USD, GBP or EGP", errors.Invalid)
 
 // EventForm declares the event's form once: the new page, the edit page
 // and their handlers share it.
@@ -139,16 +151,17 @@ func NewEventForm() *EventForm {
 	f.Slug = f.Parsed[ids.Slug]("slug").Label(models.L10nEvent_Slug).Help(L10nSlugHelp).Required()
 	f.Summary = f.Text("summary").Hint(forms.KindMultiline).Label(models.L10nEvent_Summary).Is(rule.MaxLen(2000))
 	f.Status = f.Enum("status", models.AllEventStatusValues()).Label(models.L10nEvent_Status).Required()
-	f.StartsOn = f.Date("starts_on").Label(models.L10nEvent_StartsOn).Required()
+	f.StartsOn = f.Date("starts_on").Label(models.L10nEvent_StartsOn).Required().Is(rule.NotBefore(firstDay), rule.NotAfter(lastDay))
 	f.EndsOn = f.Date("ends_on").Label(models.L10nEvent_EndsOn).Required()
-	f.Online = f.Checkbox("online").Hint(forms.KindToggle).Label(models.L10nEvent_Online)
+	f.Online = f.Checkbox("online").Label(models.L10nEvent_Online)
 	f.Capacity = f.Number[int32]("capacity").Label(models.L10nEvent_Capacity).Required().
 		Is(rule.Between[int32](1, 100_000))
 	f.Venue = f.Group("venue", newVenue)
 	f.Venue.Label(L10nVenue).When(f.Online.Eq(false))
-	f.Currency = f.Text("currency").Label(models.L10nEvent_Currency).Required().Is(rule.CurrencyCode())
+	f.Currency = f.Text("currency").Label(models.L10nEvent_Currency).Required().
+		Is(rule.CurrencyCode(), rule.OneOf("EUR", "USD", "GBP", "EGP").Err(ErrCurrencyNotTaken))
 	f.Tiers = f.List("tiers", newTier).Label(L10nTiers).MinItems(1).MaxItems(8)
-	f.Version = f.Int("version").Hint(forms.KindHidden)
+	f.Version = f.Int("version").Hint(forms.KindHidden).Label(models.L10nEvent_Version) // a label nobody sees: formstest.AssertLabelled asks for one
 	f.Check(func(context.Context) error {
 		if f.EndsOn.Value().Before(f.StartsOn.Value()) {
 			f.EndsOn.Fail(confab.ErrEndsFirst)
@@ -341,7 +354,7 @@ func (h *H) EventsCreate(w http.ResponseWriter, r *http.Request) error {
 		f.fail(err)
 		return h.page(w, r, http.StatusUnprocessableEntity, L10nNewEvent, eventFormPage(f, 0))
 	}
-	return components.Reply(w, r).Toast(L10nCreated).Go(adminroutes.EventsEdit(id))
+	return goWith(w, r, L10nCreated, adminroutes.EventsEdit(id))
 }
 
 //h:key events.edit
@@ -382,7 +395,7 @@ func (h *H) EventsUpdate(w http.ResponseWriter, r *http.Request, id ids.EventID)
 		f.fail(err)
 		return h.page(w, r, http.StatusUnprocessableEntity, i18n.Static(f.Name.Value()), eventFormPage(f, id))
 	}
-	return components.Reply(w, r).Toast(L10nSaved).Go(adminroutes.EventsEdit(id))
+	return goWith(w, r, L10nSaved, adminroutes.EventsEdit(id))
 }
 
 //h:key events.status

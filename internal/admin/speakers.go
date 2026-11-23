@@ -303,7 +303,7 @@ func (h *H) saveSpeaker(w http.ResponseWriter, r *http.Request, id ids.SpeakerID
 		return h.page(w, r, http.StatusUnprocessableEntity, title, speakerFormPage(f, id))
 	}
 	_ = h.Files.Delete(drop...)
-	return components.Reply(w, r).Toast(L10nSpeakerSaved).Go(adminroutes.SpeakersEdit(id))
+	return goWith(w, r, L10nSpeakerSaved, adminroutes.SpeakersEdit(id))
 }
 
 //h:key speakers.delete
@@ -339,7 +339,7 @@ type ImportForm struct {
 func NewImportForm() *ImportForm {
 	f := &ImportForm{Form: forms.New()}
 	f.CSV = f.File("speakers").Label(L10nImportCSV).Help(L10nImportCSVHelp).Required().
-		Is(rule.MaxSize(1<<20), rule.ContentType("text/plain"))
+		Is(rule.MinSize(8), rule.MaxSize(1<<20), rule.ContentType("text/plain"))
 	f.Photos = f.Files("photos").Label(L10nImportPhotos).Help(L10nImportPhotosH).
 		Is(rule.MaxItems[*multipart.FileHeader](50), rule.Each(rule.MaxSize(2<<20), rule.ContentType("image/*")))
 	return f

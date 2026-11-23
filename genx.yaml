@@ -21,6 +21,12 @@ producers:
     emits:
       - internal/admin/adminroutes/zz_adminroutes.routes.json
 
+  - name: api-routes
+    run:   [go, tool, handlers, openapi, -key-prefix, api, -out, internal/api/apiroutes, api/openapi.yaml]
+    check: [go, tool, handlers, openapi, -check, -key-prefix, api, -out, internal/api/apiroutes, api/openapi.yaml]
+    emits:
+      - internal/api/apiroutes/zz_apiroutes.routes.json
+
 use:
   - github.com/epistemer/models:
       generators: [labels, enums, views]

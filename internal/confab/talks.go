@@ -162,3 +162,10 @@ func CanSchedule(t models.TalkView) error {
 func (s *Store) SetState(ctx context.Context, ids []int64, state models.TalkState) (int64, error) {
 	return s.SetTalksState(ctx, models.SetTalksStateParams{State: state, Ids: ids})
 }
+
+// AddSlides stores one more file of a talk's slides.
+func (s *Store) AddSlides(ctx context.Context, talk ids.TalkID, f File) error {
+	return s.CreateTalkFile(ctx, models.CreateTalkFileParams{
+		TalkID: int64(talk), Key: f.Key, Name: f.Name, ContentType: f.ContentType, Size: f.Size,
+	})
+}

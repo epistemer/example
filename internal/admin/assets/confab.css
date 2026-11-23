@@ -1,0 +1,7 @@
+/* Confab's own styles. ui's layers come first, so these win.
+ * Workaround (findings F23): visually hidden labels in table cells are
+ * absolutely positioned and escape the table's scroller, widening the page. */
+.ui-table-scroll { position: relative; }
+
+.confab-locales { display: flex; gap: var(--ui-space-1, 0.25rem); }
+.confab-public { max-inline-size: 60rem; margin-inline: auto; padding: 2rem 1rem; }

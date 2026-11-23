@@ -1,0 +1,70 @@
+{
+  "domain": "labels/v1",
+  "labels": [
+    {
+      "key": "route.api.get_schedule",
+      "path": "route.api.get_schedule",
+      "text": "An event's public schedule",
+      "var": "L10nGetSchedule"
+    },
+    {
+      "key": "route_param.api.get_schedule.slug",
+      "path": "route_param.api.get_schedule.slug",
+      "text": "Slug",
+      "var": "L10nGetScheduleSlug"
+    },
+    {
+      "key": "route.api.get_me",
+      "path": "route.api.get_me",
+      "text": "Who is signed in",
+      "var": "L10nGetMe"
+    },
+    {
+      "key": "route.api.refresh",
+      "path": "route.api.refresh",
+      "text": "Refresh tokens",
+      "var": "L10nRefresh"
+    },
+    {
+      "key": "route.api.sign_in",
+      "path": "route.api.sign_in",
+      "text": "Sign in",
+      "var": "L10nSignIn"
+    },
+    {
+      "key": "route.api.list_talks",
+      "path": "route.api.list_talks",
+      "text": "List talks",
+      "var": "L10nListTalks"
+    },
+    {
+      "key": "route.api.upload_slides",
+      "path": "route.api.upload_slides",
+      "text": "Add slides to a talk",
+      "var": "L10nUploadSlides"
+    },
+    {
+      "key": "route_param.api.upload_slides.id",
+      "path": "route_param.api.upload_slides.id",
+      "text": "Id",
+      "var": "L10nUploadSlidesId"
+    },
+    {
+      "key": "route.api.talks.review",
+      "path": "route.api.talks.review",
+      "text": "Change a talk's state",
+      "var": "L10nSetTalkState"
+    },
+    {
+      "key": "route_param.api.talks.review.id",
+      "path": "route_param.api.talks.review.id",
+      "text": "Id",
+      "var": "L10nSetTalkStateId"
+    }
+  ],
+  "package": {
+    "dir": "internal/api/apiroutes",
+    "name": "apiroutes"
+  },
+  "producer": "handlers"
+}

@@ -62,6 +62,11 @@ func eventOptions(rows []models.ListEventOptionsRow) []option.SelectOption {
 	return out
 }
 
+var (
+	ErrNoDuration     = errors.Key("errors.confab.no_duration", "say how long the talk is", errors.Invalid)
+	ErrDurationNumber = errors.Key("errors.confab.duration_number", "the duration is a number of minutes", errors.Invalid)
+)
+
 // dataLabel is text that comes from data, posing as a key so it fits
 // option.SelectOption: K is empty.
 type dataLabel string
@@ -123,15 +128,21 @@ func NewTalkForm(events []option.SelectOption, speakers speakerLabels, slides []
 	f.Level = f.Enum("level", models.AllTalkLevelValues()).Label(models.L10nTalk_Level).Required()
 	f.Format = f.Enum("format", models.AllTalkFormatValues()).Label(models.L10nTalk_Format).Required()
 	f.Topics = f.Texts("topics").Label(models.L10nTalk_Topics).Help(L10nTopicsHelp).
-		Options(models.AllTalkTopicOptions()...).Is(rule.MaxItems[string](3)).As(topics)
-	f.StartsAt = f.Time("starts_at", "2006-01-02T15:04").Label(models.L10nTalk_StartsAt).Help(L10nStartsAtHelp).
-		When(f.Format.In(models.TalkFormatTalk, models.TalkFormatWorkshop, models.TalkFormatLightning, models.TalkFormatPanel))
-	f.Duration = f.Int("duration").Label(L10nDurationLabel).Required().Is(rule.Between(5, 240)).As(minutes)
+		Options(models.AllTalkTopicOptions()...).Is(rule.MinItems[string](1), rule.MaxItems[string](3)).As(topics)
+	f.Duration = f.Int("duration").Label(L10nDurationLabel).RequiredWith(ErrNoDuration).
+		InvalidWith(ErrDurationNumber).Is(rule.Between(5, 240)).As(minutes)
 	f.Seats = f.Int("seats").Label(models.L10nTalk_Seats).When(f.Format.Eq(models.TalkFormatWorkshop)).
 		Required().Is(rule.Between(1, 200))
-	f.Recorded = f.Bool("recorded").Label(models.L10nTalk_Recorded)
+	// A workshop gets a time once its seats are known; other formats at once.
+	f.StartsAt = f.Time("starts_at", "2006-01-02T15:04").Label(models.L10nTalk_StartsAt).Help(L10nStartsAtHelp).
+		When(forms.Any(
+			f.Format.In(models.TalkFormatTalk, models.TalkFormatLightning, models.TalkFormatPanel),
+			forms.All(f.Format.Eq(models.TalkFormatWorkshop), f.Seats.Filled()),
+		))
+	// Lightning talks aren't recorded: the question doesn't arise.
+	f.Recorded = f.Bool("recorded").Label(models.L10nTalk_Recorded).When(forms.Not(f.Format.Eq(models.TalkFormatLightning)))
 	f.Slides = f.Uploads("slides", slides).Label(L10nSlides).Help(L10nSlidesHelp).
-		Is(rule.Files(rule.MaxSize(20<<20), rule.ContentType("application/pdf")), rule.MaxFiles(5))
+		Is(rule.Files(rule.MinSize(5), rule.MaxSize(20<<20), rule.ContentType("application/pdf")), rule.MaxFiles(5))
 	return f
 }
 
@@ -371,7 +382,7 @@ func (h *H) saveTalk(w http.ResponseWriter, r *http.Request, id ids.TalkID) erro
 		return h.page(w, r, http.StatusUnprocessableEntity, title, talkFormPage(f, id))
 	}
 	_ = h.Files.Delete(dropped...)
-	return components.Reply(w, r).Toast(L10nTalkSaved).Go(adminroutes.TalksEdit(saved))
+	return goWith(w, r, L10nTalkSaved, adminroutes.TalksEdit(saved))
 }
 
 //h:key talks.review

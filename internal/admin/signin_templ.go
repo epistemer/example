@@ -173,7 +173,7 @@ func authPage(r *http.Request, title i18n.Ter, body templ.Component) templ.Compo
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layout.Document(title).Head(themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout.Document(title).Head(themeHead(ctx), appCSS()).ColorScheme(layout.ColorSchemeOf(r)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

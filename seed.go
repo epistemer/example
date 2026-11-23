@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/api/apiroutes"
 	"github.com/epistemer/example/internal/confab"
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
@@ -48,7 +49,7 @@ func seed(ctx context.Context, s *settings.Seed, log *logrus.Logger) error {
 	}
 	g, err := ac.CreateGroup(ctx, "Reviewers")
 	if err == nil {
-		for _, p := range []*access.Perm{adminroutes.PermStaff, adminroutes.PermTalksManage, adminroutes.PermTalksReview} {
+		for _, p := range []*access.Perm{adminroutes.PermStaff, adminroutes.PermTalksManage, adminroutes.PermTalksReview, apiroutes.PermApiTalksRead, apiroutes.PermApiTalksReview} {
 			if err := ac.Grant(ctx, g.ID, p); err != nil {
 				return err
 			}

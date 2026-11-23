@@ -1,0 +1,155 @@
+{
+  "domain": "routes/v1",
+  "producer": "handlers",
+  "source": "api/openapi.yaml",
+  "package": {
+    "name": "apiroutes",
+    "dir": "internal/api/apiroutes"
+  },
+  "surface": "json",
+  "prefix": "/api/v1",
+  "routes": [
+    {
+      "key": "api.get_schedule",
+      "method": "GET",
+      "pattern": "/events/{slug}/schedule",
+      "name": "GetSchedule",
+      "var": "L10nGetSchedule",
+      "text": "An event's public schedule",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "slug",
+          "go": "slug",
+          "var": "L10nGetScheduleSlug",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "segment",
+          "label": "Slug"
+        }
+      ],
+      "operation": "getSchedule"
+    },
+    {
+      "key": "api.get_me",
+      "method": "GET",
+      "pattern": "/me",
+      "name": "GetMe",
+      "var": "L10nGetMe",
+      "text": "Who is signed in",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": [],
+      "operation": "getMe"
+    },
+    {
+      "key": "api.refresh",
+      "method": "POST",
+      "pattern": "/refresh",
+      "name": "Refresh",
+      "var": "L10nRefresh",
+      "text": "Refresh tokens",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": [],
+      "operation": "refresh"
+    },
+    {
+      "key": "api.sign_in",
+      "method": "POST",
+      "pattern": "/sign-in",
+      "name": "SignIn",
+      "var": "L10nSignIn",
+      "text": "Sign in",
+      "auth": "public",
+      "view": false,
+      "search": false,
+      "params": [],
+      "operation": "signIn"
+    },
+    {
+      "key": "api.list_talks",
+      "method": "GET",
+      "pattern": "/talks",
+      "name": "ListTalks",
+      "var": "L10nListTalks",
+      "text": "List talks",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "api.talks.read",
+      "operation": "listTalks"
+    },
+    {
+      "key": "api.upload_slides",
+      "method": "POST",
+      "pattern": "/talks/{id}/slides",
+      "name": "UploadSlides",
+      "var": "L10nUploadSlides",
+      "text": "Add slides to a talk",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nUploadSlidesId",
+          "type": "int64",
+          "import": "",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Id"
+        }
+      ],
+      "permission": "api.talks.read",
+      "maxBody": 26214400,
+      "operation": "uploadSlides"
+    },
+    {
+      "key": "api.talks.review",
+      "method": "PATCH",
+      "pattern": "/talks/{id}/state",
+      "name": "SetTalkState",
+      "var": "L10nSetTalkState",
+      "text": "Change a talk's state",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "id",
+          "go": "id",
+          "var": "L10nSetTalkStateId",
+          "type": "int64",
+          "import": "",
+          "parse": "int64",
+          "kind": "segment",
+          "label": "Id"
+        }
+      ],
+      "permission": "api.talks.review",
+      "operation": "setTalkState"
+    }
+  ],
+  "permissions": [
+    {
+      "key": "api.talks.read",
+      "var": "PermApiTalksRead",
+      "text": "Api Talks Read",
+      "level": "verified"
+    },
+    {
+      "key": "api.talks.review",
+      "var": "PermApiTalksReview",
+      "text": "Change a talk's state",
+      "level": "verified"
+    }
+  ]
+}
