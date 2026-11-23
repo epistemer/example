@@ -1,0 +1,778 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Confab, a conference organiser's back office",
+  "properties": {
+    "auth": {
+      "additionalProperties": false,
+      "description": "Sign-in and sessions",
+      "properties": {
+        "access": {
+          "additionalProperties": false,
+          "description": "Access tokens",
+          "properties": {
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "10m0s",
+              "description": "Lifetime of an access token"
+            }
+          },
+          "type": "object"
+        },
+        "code": {
+          "additionalProperties": false,
+          "description": "Codes sent by email or SMS",
+          "properties": {
+            "hourly": {
+              "default": 5,
+              "description": "Codes a user may be sent in an hour",
+              "maximum": 20,
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "length": {
+              "default": 6,
+              "description": "Digits in a code",
+              "maximum": 10,
+              "minimum": 6,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "5m0s",
+              "description": "Lifetime of a code"
+            },
+            "resend": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "1m0s",
+              "description": "Wait before another code may be sent"
+            },
+            "tries": {
+              "default": 5,
+              "description": "Wrong tries a code allows",
+              "maximum": 10,
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "cookie": {
+          "additionalProperties": false,
+          "description": "Cookies",
+          "properties": {
+            "insecure": {
+              "description": "Drop Secure and the __Host- prefix, for development over plain HTTP",
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "device": {
+          "additionalProperties": false,
+          "description": "Registered devices",
+          "properties": {
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "2160h0m0s",
+              "description": "Lifetime of a registered device"
+            }
+          },
+          "type": "object"
+        },
+        "flow": {
+          "additionalProperties": false,
+          "description": "Sign-in flows",
+          "properties": {
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "15m0s",
+              "description": "Lifetime of a sign-in flow"
+            }
+          },
+          "type": "object"
+        },
+        "fresh": {
+          "additionalProperties": false,
+          "description": "Fresh proofs",
+          "properties": {
+            "window": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "10m0s",
+              "description": "How recent a proof must be to change a factor"
+            }
+          },
+          "type": "object"
+        },
+        "invitation": {
+          "additionalProperties": false,
+          "description": "Invitations",
+          "properties": {
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "72h0m0s",
+              "description": "Lifetime of an invitation"
+            }
+          },
+          "type": "object"
+        },
+        "issuer": {
+          "description": "Issuer: the name in tokens and authenticator apps",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "link": {
+          "additionalProperties": false,
+          "description": "Links sent by email",
+          "properties": {
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "30m0s",
+              "description": "Lifetime of a recovery link"
+            }
+          },
+          "type": "object"
+        },
+        "passkey": {
+          "additionalProperties": false,
+          "description": "Passkeys",
+          "properties": {
+            "domain": {
+              "description": "Domain passkeys are bound to: the site's, without scheme or port",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "origins": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Origins passkeys may be used from; https://<domain> when empty"
+            }
+          },
+          "type": "object"
+        },
+        "password": {
+          "additionalProperties": false,
+          "description": "Passwords",
+          "properties": {
+            "concurrency": {
+              "description": "Password hashes at once",
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "memory": {
+              "default": 64,
+              "description": "Memory for each password hash, in MiB",
+              "maximum": 4096,
+              "minimum": 19,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "min_length": {
+              "default": 12,
+              "description": "Fewest characters in a password",
+              "minimum": 8,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "min_score": {
+              "default": 4,
+              "description": "Least strength a new password needs, 3 or 4",
+              "maximum": 4,
+              "minimum": 3,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "time": {
+              "default": 2,
+              "description": "Passes of each password hash",
+              "maximum": 64,
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "refresh": {
+          "additionalProperties": false,
+          "description": "Refresh tokens",
+          "properties": {
+            "grace": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "10s",
+              "description": "How long a replaced refresh token still returns its successor"
+            }
+          },
+          "type": "object"
+        },
+        "secret": {
+          "description": "Master secret, at least 32 bytes; every key is derived from it",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "secret_previous": {
+          "description": "Previous master secret, while rotating",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "session": {
+          "additionalProperties": false,
+          "description": "Sessions",
+          "properties": {
+            "idle": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "24h0m0s",
+              "description": "Idle lifetime of a session"
+            },
+            "lifetime": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "2160h0m0s",
+              "description": "Longest lifetime of a session, whatever its use"
+            },
+            "remembered_idle": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "720h0m0s",
+              "description": "Idle lifetime of a remembered session"
+            }
+          },
+          "type": "object"
+        },
+        "throttle": {
+          "additionalProperties": false,
+          "description": "Throttling of wrong proofs",
+          "properties": {
+            "ceiling": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "15m0s",
+              "description": "Longest wait"
+            },
+            "free": {
+              "default": 5,
+              "description": "Failures before waits start",
+              "maximum": 20,
+              "minimum": 1,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "window": {
+              "anyOf": [
+                {
+                  "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+                  "type": "string"
+                },
+                {
+                  "const": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "1h0m0s",
+              "description": "Time without a failure after which a counter starts again"
+            }
+          },
+          "type": "object"
+        },
+        "trusted_origins": {
+          "anyOf": [
+            {
+              "items": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Origins whose cross-origin requests are trusted"
+        }
+      },
+      "type": "object"
+    },
+    "cfp": {
+      "additionalProperties": false,
+      "description": "Call for papers",
+      "properties": {
+        "closed": {
+          "description": "Refuse new talks",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "default_duration": {
+          "anyOf": [
+            {
+              "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+              "type": "string"
+            },
+            {
+              "const": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "30m0s",
+          "description": "Length a new talk starts at"
+        },
+        "default_level": {
+          "default": "beginner",
+          "description": "Level a new talk starts at",
+          "enum": [
+            "beginner",
+            "intermediate",
+            "advanced",
+            null
+          ]
+        },
+        "max_talks": {
+          "default": 3,
+          "description": "Talks a speaker may give at one event",
+          "maximum": 10,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "db": {
+      "additionalProperties": false,
+      "description": "Database",
+      "properties": {
+        "url": {
+          "description": "PostgreSQL connection URL",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "demo": {
+      "additionalProperties": false,
+      "description": "Demo data",
+      "properties": {
+        "email": {
+          "default": "ada@confab.example",
+          "description": "Organiser's email address",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "default": "Ada Organiser",
+          "description": "Organiser's name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "password": {
+          "description": "Organiser's password",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "i18n": {
+      "additionalProperties": false,
+      "description": "Translations",
+      "properties": {
+        "default_locale": {
+          "description": "Locale for visitors without a chosen locale; empty means the source locale",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "log": {
+      "additionalProperties": false,
+      "description": "Logging",
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output format",
+          "enum": [
+            "text",
+            "json",
+            null
+          ]
+        },
+        "level": {
+          "default": "info",
+          "description": "Minimum log level",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error",
+            null
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "mail": {
+      "additionalProperties": false,
+      "description": "Outgoing mail",
+      "properties": {
+        "outbox": {
+          "default": "outbox",
+          "description": "Directory each message is written to, one file per message",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "server": {
+      "additionalProperties": false,
+      "description": "HTTP server",
+      "properties": {
+        "addr": {
+          "default": "localhost:8080",
+          "description": "Address to listen on",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "public_url": {
+          "default": "http://localhost:8080",
+          "description": "Address people reach the app at",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "shutdown_timeout": {
+          "anyOf": [
+            {
+              "pattern": "^([-+]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)(ns|us|µs|ms|s|m|h))+$|^0$",
+              "type": "string"
+            },
+            {
+              "const": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "10s",
+          "description": "How long to wait for requests to finish when stopping"
+        }
+      },
+      "type": "object"
+    },
+    "storage": {
+      "additionalProperties": false,
+      "description": "Storage",
+      "properties": {
+        "bolt": {
+          "default": "confab.db",
+          "description": "Store file: settings, translations and sign-ins",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "files": {
+          "default": "files",
+          "description": "Directory of uploaded files",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "theme": {
+      "additionalProperties": false,
+      "description": "Theme",
+      "properties": {
+        "brand_color": {
+          "default": "#2f5bd3",
+          "description": "Brand colour",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "danger_color": {
+          "default": "#c62828",
+          "description": "Danger colour",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "font_mono": {
+          "default": "ui-monospace, \"SFMono-Regular\", \"Menlo\", \"Consolas\", monospace",
+          "description": "Code font",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "font_sans": {
+          "default": "system-ui, \"Segoe UI\", \"Roboto\", \"Noto Sans\", \"Noto Sans Arabic\", sans-serif",
+          "description": "Text font",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "info_color": {
+          "default": "#0f7c9e",
+          "description": "Information colour",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "radius": {
+          "default": "0.5rem",
+          "description": "Corner radius",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "success_color": {
+          "default": "#1e8a4c",
+          "description": "Success colour",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "warning_color": {
+          "default": "#f2b01e",
+          "description": "Warning colour",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    }
+  },
+  "title": "confab configuration",
+  "type": "object"
+}

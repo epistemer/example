@@ -1,0 +1,929 @@
+{
+  "commands": [
+    {
+      "name": "Serve",
+      "uses": [
+        "server",
+        "storage",
+        "db",
+        "mail",
+        "auth",
+        "theme",
+        "i18n",
+        "cfp"
+      ]
+    },
+    {
+      "name": "Migrate",
+      "uses": [
+        "db"
+      ]
+    },
+    {
+      "name": "Seed",
+      "uses": [
+        "storage",
+        "db",
+        "mail",
+        "auth",
+        "demo"
+      ],
+      "withStore": true
+    }
+  ],
+  "configFile": "confab",
+  "desc": "Confab, a conference organiser's back office",
+  "global": [
+    "log"
+  ],
+  "groups": [
+    {
+      "desc": "Logging",
+      "keys": [
+        {
+          "default": "info",
+          "desc": "Minimum log level",
+          "enum": [
+            {
+              "lit": "\"debug\"",
+              "text": "debug"
+            },
+            {
+              "lit": "\"info\"",
+              "text": "info"
+            },
+            {
+              "lit": "\"warn\"",
+              "text": "warn"
+            },
+            {
+              "lit": "\"error\"",
+              "text": "error"
+            }
+          ],
+          "kind": "enum",
+          "name": "level",
+          "type": {
+            "kind": "string",
+            "name": "string"
+          }
+        },
+        {
+          "default": "text",
+          "desc": "Output format",
+          "enum": [
+            {
+              "lit": "\"text\"",
+              "text": "text"
+            },
+            {
+              "lit": "\"json\"",
+              "text": "json"
+            }
+          ],
+          "kind": "enum",
+          "name": "format",
+          "type": {
+            "kind": "string",
+            "name": "string"
+          }
+        }
+      ],
+      "name": "log"
+    },
+    {
+      "desc": "HTTP server",
+      "keys": [
+        {
+          "default": "localhost:8080",
+          "desc": "Address to listen on",
+          "kind": "string",
+          "name": "addr"
+        },
+        {
+          "default": "http://localhost:8080",
+          "desc": "Address people reach the app at",
+          "kind": "string",
+          "name": "public_url"
+        },
+        {
+          "default": "10s",
+          "desc": "How long to wait for requests to finish when stopping",
+          "kind": "duration",
+          "name": "shutdown_timeout"
+        }
+      ],
+      "name": "server"
+    },
+    {
+      "desc": "Storage",
+      "keys": [
+        {
+          "default": "confab.db",
+          "desc": "Store file: settings, translations and sign-ins",
+          "kind": "path",
+          "name": "bolt"
+        },
+        {
+          "default": "files",
+          "desc": "Directory of uploaded files",
+          "kind": "path",
+          "name": "files"
+        }
+      ],
+      "name": "storage"
+    },
+    {
+      "desc": "Database",
+      "goName": "DB",
+      "keys": [
+        {
+          "desc": "PostgreSQL connection URL",
+          "kind": "secret",
+          "name": "url",
+          "required": true
+        }
+      ],
+      "name": "db"
+    },
+    {
+      "desc": "Outgoing mail",
+      "keys": [
+        {
+          "default": "outbox",
+          "desc": "Directory each message is written to, one file per message",
+          "kind": "path",
+          "name": "outbox"
+        }
+      ],
+      "name": "mail"
+    },
+    {
+      "desc": "Sign-in and sessions",
+      "goName": "Auth",
+      "groups": [
+        {
+          "desc": "Sessions",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "5m0s"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "24h0m0s",
+              "desc": "Idle lifetime of a session",
+              "kind": "duration",
+              "name": "idle"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "5m0s"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "720h0m0s",
+              "desc": "Idle lifetime of a remembered session",
+              "kind": "duration",
+              "name": "remembered_idle"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "5m0s"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "2160h0m0s",
+              "desc": "Longest lifetime of a session, whatever its use",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "session"
+        },
+        {
+          "desc": "Access tokens",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "1h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "10m0s",
+              "desc": "Lifetime of an access token",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "access"
+        },
+        {
+          "desc": "Refresh tokens",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "10s",
+              "desc": "How long a replaced refresh token still returns its successor",
+              "kind": "duration",
+              "name": "grace"
+            }
+          ],
+          "name": "refresh"
+        },
+        {
+          "desc": "Sign-in flows",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "1h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "15m0s",
+              "desc": "Lifetime of a sign-in flow",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "flow"
+        },
+        {
+          "desc": "Fresh proofs",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "1h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "10m0s",
+              "desc": "How recent a proof must be to change a factor",
+              "kind": "duration",
+              "name": "window"
+            }
+          ],
+          "name": "fresh"
+        },
+        {
+          "desc": "Codes sent by email or SMS",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "6"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "10"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "6",
+              "desc": "Digits in a code",
+              "kind": "int",
+              "name": "length"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "15m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "5m0s",
+              "desc": "Lifetime of a code",
+              "kind": "duration",
+              "name": "lifetime"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "10"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "5",
+              "desc": "Wrong tries a code allows",
+              "kind": "int",
+              "name": "tries"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "10s"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "1m0s",
+              "desc": "Wait before another code may be sent",
+              "kind": "duration",
+              "name": "resend"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "20"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "5",
+              "desc": "Codes a user may be sent in an hour",
+              "kind": "int",
+              "name": "hourly"
+            }
+          ],
+          "name": "code"
+        },
+        {
+          "desc": "Links sent by email",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "5m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "24h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "30m0s",
+              "desc": "Lifetime of a recovery link",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "link"
+        },
+        {
+          "desc": "Invitations",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1h0m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "720h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "72h0m0s",
+              "desc": "Lifetime of an invitation",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "invitation"
+        },
+        {
+          "desc": "Registered devices",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "24h0m0s"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "2160h0m0s",
+              "desc": "Lifetime of a registered device",
+              "kind": "duration",
+              "name": "lifetime"
+            }
+          ],
+          "name": "device"
+        },
+        {
+          "desc": "Passwords",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "8"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "default": "12",
+              "desc": "Fewest characters in a password",
+              "kind": "int",
+              "name": "min_length"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "3"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "4"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "4",
+              "desc": "Least strength a new password needs, 3 or 4",
+              "kind": "int",
+              "name": "min_score"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "19"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "4096"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "64",
+              "desc": "Memory for each password hash, in MiB",
+              "kind": "int",
+              "name": "memory"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "64"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "2",
+              "desc": "Passes of each password hash",
+              "kind": "int",
+              "name": "time"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1"
+                  ],
+                  "kind": "min"
+                }
+              ],
+              "defaultFunc": {
+                "name": "NumCPU",
+                "path": "runtime"
+              },
+              "desc": "Password hashes at once",
+              "kind": "int",
+              "name": "concurrency"
+            }
+          ],
+          "name": "password"
+        },
+        {
+          "desc": "Throttling of wrong proofs",
+          "keys": [
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "20"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "5",
+              "desc": "Failures before waits start",
+              "kind": "int",
+              "name": "free"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "24h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "15m0s",
+              "desc": "Longest wait",
+              "kind": "duration",
+              "name": "ceiling"
+            },
+            {
+              "checks": [
+                {
+                  "args": [
+                    "1m0s"
+                  ],
+                  "kind": "min"
+                },
+                {
+                  "args": [
+                    "24h0m0s"
+                  ],
+                  "kind": "max"
+                }
+              ],
+              "default": "1h0m0s",
+              "desc": "Time without a failure after which a counter starts again",
+              "kind": "duration",
+              "name": "window"
+            }
+          ],
+          "name": "throttle"
+        },
+        {
+          "desc": "Cookies",
+          "keys": [
+            {
+              "desc": "Drop Secure and the __Host- prefix, for development over plain HTTP",
+              "kind": "bool",
+              "name": "insecure"
+            }
+          ],
+          "name": "cookie"
+        },
+        {
+          "desc": "Passkeys",
+          "keys": [
+            {
+              "desc": "Domain passkeys are bound to: the site's, without scheme or port",
+              "kind": "string",
+              "name": "domain",
+              "required": true
+            },
+            {
+              "desc": "Origins passkeys may be used from; https://<domain> when empty",
+              "kind": "strings",
+              "name": "origins"
+            }
+          ],
+          "name": "passkey"
+        }
+      ],
+      "keys": [
+        {
+          "desc": "Issuer: the name in tokens and authenticator apps",
+          "kind": "string",
+          "name": "issuer",
+          "required": true
+        },
+        {
+          "desc": "Master secret, at least 32 bytes; every key is derived from it",
+          "kind": "secret",
+          "name": "secret",
+          "required": true
+        },
+        {
+          "desc": "Previous master secret, while rotating",
+          "kind": "secret",
+          "name": "secret_previous"
+        },
+        {
+          "desc": "Origins whose cross-origin requests are trusted",
+          "kind": "strings",
+          "name": "trusted_origins"
+        }
+      ],
+      "name": "auth"
+    },
+    {
+      "desc": "Theme",
+      "goName": "Theme",
+      "keys": [
+        {
+          "default": "#2f5bd3",
+          "desc": "Brand colour",
+          "kind": "string",
+          "mutable": true,
+          "name": "brand_color",
+          "validate": {
+            "name": "CheckColor",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "#c62828",
+          "desc": "Danger colour",
+          "kind": "string",
+          "mutable": true,
+          "name": "danger_color",
+          "validate": {
+            "name": "CheckColor",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "#f2b01e",
+          "desc": "Warning colour",
+          "kind": "string",
+          "mutable": true,
+          "name": "warning_color",
+          "validate": {
+            "name": "CheckColor",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "#1e8a4c",
+          "desc": "Success colour",
+          "kind": "string",
+          "mutable": true,
+          "name": "success_color",
+          "validate": {
+            "name": "CheckColor",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "#0f7c9e",
+          "desc": "Information colour",
+          "kind": "string",
+          "mutable": true,
+          "name": "info_color",
+          "validate": {
+            "name": "CheckColor",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "system-ui, \"Segoe UI\", \"Roboto\", \"Noto Sans\", \"Noto Sans Arabic\", sans-serif",
+          "desc": "Text font",
+          "kind": "string",
+          "mutable": true,
+          "name": "font_sans",
+          "validate": {
+            "name": "CheckFont",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "ui-monospace, \"SFMono-Regular\", \"Menlo\", \"Consolas\", monospace",
+          "desc": "Code font",
+          "kind": "string",
+          "mutable": true,
+          "name": "font_mono",
+          "validate": {
+            "name": "CheckFont",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        },
+        {
+          "default": "0.5rem",
+          "desc": "Corner radius",
+          "kind": "string",
+          "mutable": true,
+          "name": "radius",
+          "validate": {
+            "name": "CheckRadius",
+            "path": "github.com/epistemer/ui/theme"
+          }
+        }
+      ],
+      "name": "theme"
+    },
+    {
+      "desc": "Translations",
+      "goName": "I18n",
+      "keys": [
+        {
+          "desc": "Locale for visitors without a chosen locale; empty means the source locale",
+          "kind": "string",
+          "mutable": true,
+          "name": "default_locale"
+        }
+      ],
+      "name": "i18n"
+    },
+    {
+      "desc": "Call for papers",
+      "goName": "CFP",
+      "keys": [
+        {
+          "desc": "Refuse new talks",
+          "kind": "bool",
+          "mutable": true,
+          "name": "closed"
+        },
+        {
+          "checks": [
+            {
+              "args": [
+                "1"
+              ],
+              "kind": "min"
+            },
+            {
+              "args": [
+                "10"
+              ],
+              "kind": "max"
+            }
+          ],
+          "default": "3",
+          "desc": "Talks a speaker may give at one event",
+          "kind": "int",
+          "mutable": true,
+          "name": "max_talks"
+        },
+        {
+          "default": "beginner",
+          "desc": "Level a new talk starts at",
+          "enum": [
+            {
+              "lit": "\"beginner\"",
+              "text": "beginner"
+            },
+            {
+              "lit": "\"intermediate\"",
+              "text": "intermediate"
+            },
+            {
+              "lit": "\"advanced\"",
+              "text": "advanced"
+            }
+          ],
+          "kind": "enum",
+          "mutable": true,
+          "name": "default_level",
+          "type": {
+            "kind": "string",
+            "name": "TalkLevel",
+            "path": "github.com/epistemer/example/internal/models",
+            "pkg": "models"
+          }
+        },
+        {
+          "checks": [
+            {
+              "args": [
+                "5m0s"
+              ],
+              "kind": "min"
+            },
+            {
+              "args": [
+                "4h0m0s"
+              ],
+              "kind": "max"
+            }
+          ],
+          "default": "30m0s",
+          "desc": "Length a new talk starts at",
+          "kind": "duration",
+          "mutable": true,
+          "name": "default_duration"
+        }
+      ],
+      "name": "cfp"
+    },
+    {
+      "desc": "Demo data",
+      "keys": [
+        {
+          "default": "ada@confab.example",
+          "desc": "Organiser's email address",
+          "kind": "string",
+          "name": "email"
+        },
+        {
+          "default": "Ada Organiser",
+          "desc": "Organiser's name",
+          "kind": "string",
+          "name": "name"
+        },
+        {
+          "desc": "Organiser's password",
+          "kind": "secret",
+          "name": "password",
+          "required": true
+        }
+      ],
+      "name": "demo"
+    }
+  ],
+  "labels": true,
+  "name": "confab",
+  "searchPaths": [
+    "."
+  ],
+  "store": "storage.bolt",
+  "version": 19
+}

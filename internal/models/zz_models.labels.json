@@ -1,0 +1,766 @@
+{
+  "domain": "labels/v1",
+  "labels": [
+    {
+      "key": "enum.event_status.draft",
+      "path": "enum.event_status.draft",
+      "text": "draft",
+      "var": "L10nEventStatusDraft"
+    },
+    {
+      "key": "enum.event_status.published",
+      "path": "enum.event_status.published",
+      "text": "published",
+      "var": "L10nEventStatusPublished"
+    },
+    {
+      "key": "enum.event_status.archived",
+      "path": "enum.event_status.archived",
+      "text": "archived",
+      "var": "L10nEventStatusArchived"
+    },
+    {
+      "key": "enum.talk_level.beginner",
+      "path": "enum.talk_level.beginner",
+      "text": "beginner",
+      "var": "L10nTalkLevelBeginner"
+    },
+    {
+      "key": "enum.talk_level.intermediate",
+      "path": "enum.talk_level.intermediate",
+      "text": "intermediate",
+      "var": "L10nTalkLevelIntermediate"
+    },
+    {
+      "key": "enum.talk_level.advanced",
+      "path": "enum.talk_level.advanced",
+      "text": "advanced",
+      "var": "L10nTalkLevelAdvanced"
+    },
+    {
+      "key": "enum.talk_format.talk",
+      "path": "enum.talk_format.talk",
+      "text": "talk",
+      "var": "L10nTalkFormatTalk"
+    },
+    {
+      "key": "enum.talk_format.workshop",
+      "path": "enum.talk_format.workshop",
+      "text": "workshop",
+      "var": "L10nTalkFormatWorkshop"
+    },
+    {
+      "key": "enum.talk_format.lightning",
+      "path": "enum.talk_format.lightning",
+      "text": "lightning",
+      "var": "L10nTalkFormatLightning"
+    },
+    {
+      "key": "enum.talk_format.panel",
+      "path": "enum.talk_format.panel",
+      "text": "panel",
+      "var": "L10nTalkFormatPanel"
+    },
+    {
+      "key": "enum.talk_state.submitted",
+      "path": "enum.talk_state.submitted",
+      "text": "submitted",
+      "var": "L10nTalkStateSubmitted"
+    },
+    {
+      "key": "enum.talk_state.accepted",
+      "path": "enum.talk_state.accepted",
+      "text": "accepted",
+      "var": "L10nTalkStateAccepted"
+    },
+    {
+      "key": "enum.talk_state.rejected",
+      "path": "enum.talk_state.rejected",
+      "text": "rejected",
+      "var": "L10nTalkStateRejected"
+    },
+    {
+      "key": "enum.talk_state.scheduled",
+      "path": "enum.talk_state.scheduled",
+      "text": "scheduled",
+      "var": "L10nTalkStateScheduled"
+    },
+    {
+      "key": "enum.talk_topic.go",
+      "path": "enum.talk_topic.go",
+      "text": "go",
+      "var": "L10nTalkTopicGo"
+    },
+    {
+      "key": "enum.talk_topic.web",
+      "path": "enum.talk_topic.web",
+      "text": "web",
+      "var": "L10nTalkTopicWeb"
+    },
+    {
+      "key": "enum.talk_topic.data",
+      "path": "enum.talk_topic.data",
+      "text": "data",
+      "var": "L10nTalkTopicData"
+    },
+    {
+      "key": "enum.talk_topic.security",
+      "path": "enum.talk_topic.security",
+      "text": "security",
+      "var": "L10nTalkTopicSecurity"
+    },
+    {
+      "key": "enum.talk_topic.operations",
+      "path": "enum.talk_topic.operations",
+      "text": "operations",
+      "var": "L10nTalkTopicOperations"
+    },
+    {
+      "key": "enum.talk_topic.design",
+      "path": "enum.talk_topic.design",
+      "text": "design",
+      "var": "L10nTalkTopicDesign"
+    },
+    {
+      "key": "table.staff",
+      "path": "table.staff",
+      "text": "Staff member",
+      "var": "L10nStaff"
+    },
+    {
+      "key": "table.staff.Staff_Id",
+      "path": "table.staff.id",
+      "text": "Id",
+      "var": "L10nStaff_Id"
+    },
+    {
+      "key": "table.staff.Staff_Email",
+      "path": "table.staff.email",
+      "text": "Email address",
+      "var": "L10nStaff_Email"
+    },
+    {
+      "key": "table.staff.Staff_Name",
+      "path": "table.staff.name",
+      "text": "Name",
+      "var": "L10nStaff_Name"
+    },
+    {
+      "key": "table.staff.Staff_Disabled",
+      "path": "table.staff.disabled",
+      "text": "Disabled",
+      "var": "L10nStaff_Disabled"
+    },
+    {
+      "key": "table.staff.Staff_CreatedAt",
+      "path": "table.staff.created_at",
+      "text": "Created At",
+      "var": "L10nStaff_CreatedAt"
+    },
+    {
+      "key": "table.event",
+      "path": "table.event",
+      "text": "Event",
+      "var": "L10nEvent"
+    },
+    {
+      "key": "table.event.Event_Id",
+      "path": "table.event.id",
+      "text": "Id",
+      "var": "L10nEvent_Id"
+    },
+    {
+      "key": "table.event.Event_Name",
+      "path": "table.event.name",
+      "text": "Name",
+      "var": "L10nEvent_Name"
+    },
+    {
+      "key": "table.event.Event_Slug",
+      "path": "table.event.slug",
+      "text": "Slug",
+      "var": "L10nEvent_Slug"
+    },
+    {
+      "key": "table.event.Event_Summary",
+      "path": "table.event.summary",
+      "text": "Summary",
+      "var": "L10nEvent_Summary"
+    },
+    {
+      "key": "table.event.Event_Status",
+      "path": "table.event.status",
+      "text": "Status",
+      "var": "L10nEvent_Status"
+    },
+    {
+      "key": "table.event.Event_StartsOn",
+      "path": "table.event.starts_on",
+      "text": "First day",
+      "var": "L10nEvent_StartsOn"
+    },
+    {
+      "key": "table.event.Event_EndsOn",
+      "path": "table.event.ends_on",
+      "text": "Last day",
+      "var": "L10nEvent_EndsOn"
+    },
+    {
+      "key": "table.event.Event_Online",
+      "path": "table.event.online",
+      "text": "Online only",
+      "var": "L10nEvent_Online"
+    },
+    {
+      "key": "table.event.Event_Capacity",
+      "path": "table.event.capacity",
+      "text": "Capacity",
+      "var": "L10nEvent_Capacity"
+    },
+    {
+      "key": "table.event.Event_VenueName",
+      "path": "table.event.venue_name",
+      "text": "Venue Name",
+      "var": "L10nEvent_VenueName"
+    },
+    {
+      "key": "table.event.Event_VenueStreet",
+      "path": "table.event.venue_street",
+      "text": "Venue Street",
+      "var": "L10nEvent_VenueStreet"
+    },
+    {
+      "key": "table.event.Event_VenueCity",
+      "path": "table.event.venue_city",
+      "text": "Venue City",
+      "var": "L10nEvent_VenueCity"
+    },
+    {
+      "key": "table.event.Event_VenueCountry",
+      "path": "table.event.venue_country",
+      "text": "Venue Country",
+      "var": "L10nEvent_VenueCountry"
+    },
+    {
+      "key": "table.event.Event_VenuePostCode",
+      "path": "table.event.venue_post_code",
+      "text": "Post code",
+      "var": "L10nEvent_VenuePostCode"
+    },
+    {
+      "key": "table.event.Event_Latitude",
+      "path": "table.event.latitude",
+      "text": "Latitude",
+      "var": "L10nEvent_Latitude"
+    },
+    {
+      "key": "table.event.Event_Longitude",
+      "path": "table.event.longitude",
+      "text": "Longitude",
+      "var": "L10nEvent_Longitude"
+    },
+    {
+      "key": "table.event.Event_Currency",
+      "path": "table.event.currency",
+      "text": "Currency",
+      "var": "L10nEvent_Currency"
+    },
+    {
+      "key": "table.event.Event_Version",
+      "path": "table.event.version",
+      "text": "Version",
+      "var": "L10nEvent_Version"
+    },
+    {
+      "key": "table.event.Event_CreatedAt",
+      "path": "table.event.created_at",
+      "text": "Created At",
+      "var": "L10nEvent_CreatedAt"
+    },
+    {
+      "key": "table.event.Event_UpdatedAt",
+      "path": "table.event.updated_at",
+      "text": "Updated At",
+      "var": "L10nEvent_UpdatedAt"
+    },
+    {
+      "key": "table.ticket_tier",
+      "path": "table.ticket_tier",
+      "text": "Ticket tier",
+      "var": "L10nTicketTier"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_Id",
+      "path": "table.ticket_tier.id",
+      "text": "Id",
+      "var": "L10nTicketTier_Id"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_EventId",
+      "path": "table.ticket_tier.event_id",
+      "text": "Event Id",
+      "var": "L10nTicketTier_EventId"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_Position",
+      "path": "table.ticket_tier.position",
+      "text": "Position",
+      "var": "L10nTicketTier_Position"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_Name",
+      "path": "table.ticket_tier.name",
+      "text": "Name",
+      "var": "L10nTicketTier_Name"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_Price",
+      "path": "table.ticket_tier.price",
+      "text": "Price",
+      "var": "L10nTicketTier_Price"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_Quantity",
+      "path": "table.ticket_tier.quantity",
+      "text": "Quantity",
+      "var": "L10nTicketTier_Quantity"
+    },
+    {
+      "key": "table.ticket_tier.TicketTier_SaleEndsOn",
+      "path": "table.ticket_tier.sale_ends_on",
+      "text": "On sale until",
+      "var": "L10nTicketTier_SaleEndsOn"
+    },
+    {
+      "key": "table.speaker",
+      "path": "table.speaker",
+      "text": "Speaker",
+      "var": "L10nSpeaker"
+    },
+    {
+      "key": "table.speaker.Speaker_Id",
+      "path": "table.speaker.id",
+      "text": "Id",
+      "var": "L10nSpeaker_Id"
+    },
+    {
+      "key": "table.speaker.Speaker_Name",
+      "path": "table.speaker.name",
+      "text": "Name",
+      "var": "L10nSpeaker_Name"
+    },
+    {
+      "key": "table.speaker.Speaker_Email",
+      "path": "table.speaker.email",
+      "text": "Email",
+      "var": "L10nSpeaker_Email"
+    },
+    {
+      "key": "table.speaker.Speaker_Phone",
+      "path": "table.speaker.phone",
+      "text": "Phone",
+      "var": "L10nSpeaker_Phone"
+    },
+    {
+      "key": "table.speaker.Speaker_Country",
+      "path": "table.speaker.country",
+      "text": "Country",
+      "var": "L10nSpeaker_Country"
+    },
+    {
+      "key": "table.speaker.Speaker_Website",
+      "path": "table.speaker.website",
+      "text": "Website",
+      "var": "L10nSpeaker_Website"
+    },
+    {
+      "key": "table.speaker.Speaker_Bio",
+      "path": "table.speaker.bio",
+      "text": "Biography",
+      "var": "L10nSpeaker_Bio"
+    },
+    {
+      "key": "table.speaker.Speaker_PhotoKey",
+      "path": "table.speaker.photo_key",
+      "text": "Photo",
+      "var": "L10nSpeaker_PhotoKey"
+    },
+    {
+      "key": "table.speaker.Speaker_PhotoName",
+      "path": "table.speaker.photo_name",
+      "text": "Photo Name",
+      "var": "L10nSpeaker_PhotoName"
+    },
+    {
+      "key": "table.speaker.Speaker_CreatedAt",
+      "path": "table.speaker.created_at",
+      "text": "Created At",
+      "var": "L10nSpeaker_CreatedAt"
+    },
+    {
+      "key": "table.talk",
+      "path": "table.talk",
+      "text": "Talk",
+      "var": "L10nTalk"
+    },
+    {
+      "key": "table.talk.Talk_Id",
+      "path": "table.talk.id",
+      "text": "Id",
+      "var": "L10nTalk_Id"
+    },
+    {
+      "key": "table.talk.Talk_EventId",
+      "path": "table.talk.event_id",
+      "text": "Event Id",
+      "var": "L10nTalk_EventId"
+    },
+    {
+      "key": "table.talk.Talk_SpeakerId",
+      "path": "table.talk.speaker_id",
+      "text": "Speaker Id",
+      "var": "L10nTalk_SpeakerId"
+    },
+    {
+      "key": "table.talk.Talk_Title",
+      "path": "table.talk.title",
+      "text": "Title",
+      "var": "L10nTalk_Title"
+    },
+    {
+      "key": "table.talk.Talk_Abstract",
+      "path": "table.talk.abstract",
+      "text": "Abstract",
+      "var": "L10nTalk_Abstract"
+    },
+    {
+      "key": "table.talk.Talk_Level",
+      "path": "table.talk.level",
+      "text": "Level",
+      "var": "L10nTalk_Level"
+    },
+    {
+      "key": "table.talk.Talk_Format",
+      "path": "table.talk.format",
+      "text": "Format",
+      "var": "L10nTalk_Format"
+    },
+    {
+      "key": "table.talk.Talk_State",
+      "path": "table.talk.state",
+      "text": "State",
+      "var": "L10nTalk_State"
+    },
+    {
+      "key": "table.talk.Talk_Topics",
+      "path": "table.talk.topics",
+      "text": "Topics",
+      "var": "L10nTalk_Topics"
+    },
+    {
+      "key": "table.talk.Talk_StartsAt",
+      "path": "table.talk.starts_at",
+      "text": "Starts at",
+      "var": "L10nTalk_StartsAt"
+    },
+    {
+      "key": "table.talk.Talk_DurationMinutes",
+      "path": "table.talk.duration_minutes",
+      "text": "Duration (minutes)",
+      "var": "L10nTalk_DurationMinutes"
+    },
+    {
+      "key": "table.talk.Talk_Seats",
+      "path": "table.talk.seats",
+      "text": "Workshop seats",
+      "var": "L10nTalk_Seats"
+    },
+    {
+      "key": "table.talk.Talk_Recorded",
+      "path": "table.talk.recorded",
+      "text": "Recorded",
+      "var": "L10nTalk_Recorded"
+    },
+    {
+      "key": "table.talk.Talk_CreatedAt",
+      "path": "table.talk.created_at",
+      "text": "Created At",
+      "var": "L10nTalk_CreatedAt"
+    },
+    {
+      "key": "table.talk.Talk_UpdatedAt",
+      "path": "table.talk.updated_at",
+      "text": "Updated At",
+      "var": "L10nTalk_UpdatedAt"
+    },
+    {
+      "key": "table.talk_file",
+      "path": "table.talk_file",
+      "text": "Slides",
+      "var": "L10nTalkFile"
+    },
+    {
+      "key": "table.talk_file.TalkFile_Id",
+      "path": "table.talk_file.id",
+      "text": "Id",
+      "var": "L10nTalkFile_Id"
+    },
+    {
+      "key": "table.talk_file.TalkFile_TalkId",
+      "path": "table.talk_file.talk_id",
+      "text": "Talk Id",
+      "var": "L10nTalkFile_TalkId"
+    },
+    {
+      "key": "table.talk_file.TalkFile_Key",
+      "path": "table.talk_file.key",
+      "text": "Key",
+      "var": "L10nTalkFile_Key"
+    },
+    {
+      "key": "table.talk_file.TalkFile_Name",
+      "path": "table.talk_file.name",
+      "text": "Name",
+      "var": "L10nTalkFile_Name"
+    },
+    {
+      "key": "table.talk_file.TalkFile_ContentType",
+      "path": "table.talk_file.content_type",
+      "text": "Content Type",
+      "var": "L10nTalkFile_ContentType"
+    },
+    {
+      "key": "table.talk_file.TalkFile_Size",
+      "path": "table.talk_file.size",
+      "text": "Size",
+      "var": "L10nTalkFile_Size"
+    },
+    {
+      "key": "table.talk_file.TalkFile_CreatedAt",
+      "path": "table.talk_file.created_at",
+      "text": "Created At",
+      "var": "L10nTalkFile_CreatedAt"
+    },
+    {
+      "key": "table.event_view",
+      "path": "table.event_view",
+      "text": "Events",
+      "var": "L10nEventView"
+    },
+    {
+      "key": "table.event_view.EventView_Id",
+      "path": "table.event_view.id",
+      "text": "Id",
+      "var": "L10nEventView_Id"
+    },
+    {
+      "key": "table.event_view.EventView_Name",
+      "path": "table.event_view.name",
+      "text": "Name",
+      "var": "L10nEventView_Name"
+    },
+    {
+      "key": "table.event_view.EventView_Slug",
+      "path": "table.event_view.slug",
+      "text": "Slug",
+      "var": "L10nEventView_Slug"
+    },
+    {
+      "key": "table.event_view.EventView_Status",
+      "path": "table.event_view.status",
+      "text": "Status",
+      "var": "L10nEventView_Status"
+    },
+    {
+      "key": "table.event_view.EventView_StartsOn",
+      "path": "table.event_view.starts_on",
+      "text": "Starts On",
+      "var": "L10nEventView_StartsOn"
+    },
+    {
+      "key": "table.event_view.EventView_EndsOn",
+      "path": "table.event_view.ends_on",
+      "text": "Ends On",
+      "var": "L10nEventView_EndsOn"
+    },
+    {
+      "key": "table.event_view.EventView_Online",
+      "path": "table.event_view.online",
+      "text": "Online",
+      "var": "L10nEventView_Online"
+    },
+    {
+      "key": "table.event_view.EventView_Capacity",
+      "path": "table.event_view.capacity",
+      "text": "Capacity",
+      "var": "L10nEventView_Capacity"
+    },
+    {
+      "key": "table.event_view.EventView_VenueCity",
+      "path": "table.event_view.venue_city",
+      "text": "Venue City",
+      "var": "L10nEventView_VenueCity"
+    },
+    {
+      "key": "table.event_view.EventView_Currency",
+      "path": "table.event_view.currency",
+      "text": "Currency",
+      "var": "L10nEventView_Currency"
+    },
+    {
+      "key": "table.event_view.EventView_Talks",
+      "path": "table.event_view.talks",
+      "text": "Talks",
+      "var": "L10nEventView_Talks"
+    },
+    {
+      "key": "table.event_view.EventView_FromPrice",
+      "path": "table.event_view.from_price",
+      "text": "Tickets from",
+      "var": "L10nEventView_FromPrice"
+    },
+    {
+      "key": "table.event_view.EventView_CreatedAt",
+      "path": "table.event_view.created_at",
+      "text": "Created At",
+      "var": "L10nEventView_CreatedAt"
+    },
+    {
+      "key": "table.speaker_view",
+      "path": "table.speaker_view",
+      "text": "Speakers",
+      "var": "L10nSpeakerView"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Id",
+      "path": "table.speaker_view.id",
+      "text": "Id",
+      "var": "L10nSpeakerView_Id"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Name",
+      "path": "table.speaker_view.name",
+      "text": "Name",
+      "var": "L10nSpeakerView_Name"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Email",
+      "path": "table.speaker_view.email",
+      "text": "Email",
+      "var": "L10nSpeakerView_Email"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Country",
+      "path": "table.speaker_view.country",
+      "text": "Country",
+      "var": "L10nSpeakerView_Country"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Website",
+      "path": "table.speaker_view.website",
+      "text": "Website",
+      "var": "L10nSpeakerView_Website"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_Talks",
+      "path": "table.speaker_view.talks",
+      "text": "Talks",
+      "var": "L10nSpeakerView_Talks"
+    },
+    {
+      "key": "table.speaker_view.SpeakerView_CreatedAt",
+      "path": "table.speaker_view.created_at",
+      "text": "Created At",
+      "var": "L10nSpeakerView_CreatedAt"
+    },
+    {
+      "key": "table.talk_view",
+      "path": "table.talk_view",
+      "text": "Talks",
+      "var": "L10nTalkView"
+    },
+    {
+      "key": "table.talk_view.TalkView_Id",
+      "path": "table.talk_view.id",
+      "text": "Id",
+      "var": "L10nTalkView_Id"
+    },
+    {
+      "key": "table.talk_view.TalkView_Title",
+      "path": "table.talk_view.title",
+      "text": "Title",
+      "var": "L10nTalkView_Title"
+    },
+    {
+      "key": "table.talk_view.TalkView_Level",
+      "path": "table.talk_view.level",
+      "text": "Level",
+      "var": "L10nTalkView_Level"
+    },
+    {
+      "key": "table.talk_view.TalkView_Format",
+      "path": "table.talk_view.format",
+      "text": "Format",
+      "var": "L10nTalkView_Format"
+    },
+    {
+      "key": "table.talk_view.TalkView_State",
+      "path": "table.talk_view.state",
+      "text": "State",
+      "var": "L10nTalkView_State"
+    },
+    {
+      "key": "table.talk_view.TalkView_StartsAt",
+      "path": "table.talk_view.starts_at",
+      "text": "Starts At",
+      "var": "L10nTalkView_StartsAt"
+    },
+    {
+      "key": "table.talk_view.TalkView_DurationMinutes",
+      "path": "table.talk_view.duration_minutes",
+      "text": "Duration Minutes",
+      "var": "L10nTalkView_DurationMinutes"
+    },
+    {
+      "key": "table.talk_view.TalkView_Recorded",
+      "path": "table.talk_view.recorded",
+      "text": "Recorded",
+      "var": "L10nTalkView_Recorded"
+    },
+    {
+      "key": "table.talk_view.TalkView_SpeakerId",
+      "path": "table.talk_view.speaker_id",
+      "text": "Speaker",
+      "var": "L10nTalkView_SpeakerId"
+    },
+    {
+      "key": "table.talk_view.TalkView_SpeakerName",
+      "path": "table.talk_view.speaker_name",
+      "text": "Speaker",
+      "var": "L10nTalkView_SpeakerName"
+    },
+    {
+      "key": "table.talk_view.TalkView_EventId",
+      "path": "table.talk_view.event_id",
+      "text": "Event",
+      "var": "L10nTalkView_EventId"
+    },
+    {
+      "key": "table.talk_view.TalkView_EventName",
+      "path": "table.talk_view.event_name",
+      "text": "Event",
+      "var": "L10nTalkView_EventName"
+    },
+    {
+      "key": "table.talk_view.TalkView_CreatedAt",
+      "path": "table.talk_view.created_at",
+      "text": "Created At",
+      "var": "L10nTalkView_CreatedAt"
+    }
+  ],
+  "package": {
+    "dir": "internal/models",
+    "name": "models"
+  },
+  "producer": "models"
+}

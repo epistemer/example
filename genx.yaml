@@ -1,0 +1,23 @@
+version: 1
+
+producers:
+  - name: sqlc
+    run:   [go, tool, sqlc, generate, -f, sqlc.yaml]
+    check: [go, tool, sqlc, diff, -f, sqlc.yaml]
+    emits:
+      - path: internal/models/codegen_request.json
+        domain: sqlc.request/v1
+
+  - name: settings
+    dir: internal/settings
+    run:   [go, tool, cfgx, gen, ./schema]
+    check: [go, tool, cfgx, gen, -check, ./schema]
+    emits:
+      - internal/settings/zz_settings.labels.json
+
+use:
+  - github.com/epistemer/models:
+      generators: [labels, enums, views]
+      params:
+        dir: internal/models
+  - github.com/epistemer/i18n: [labels]

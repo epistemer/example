@@ -1,0 +1,17 @@
+# A development database for the example. `docker compose up -d`, then
+# `go run . migrate` and `go run . serve`. The credentials are for local
+# development only; they match .env.example.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: confab-db
+    environment:
+      POSTGRES_USER: confab
+      POSTGRES_PASSWORD: confab
+      POSTGRES_DB: confab
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - confab-db:/var/lib/postgresql/data
+volumes:
+  confab-db:

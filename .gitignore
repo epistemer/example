@@ -1,0 +1,6 @@
+/confab
+/confab.exe
+*.db
+confab.yaml
+files/
+outbox/
