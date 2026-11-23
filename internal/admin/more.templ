@@ -1,0 +1,145 @@
+package admin
+
+import (
+	"strings"
+
+	"github.com/epistemer/auth"
+	"github.com/epistemer/handlers"
+	"github.com/epistemer/i18n"
+	"github.com/epistemer/ui"
+	"github.com/epistemer/ui/components"
+	"github.com/epistemer/ui/elements"
+	"github.com/epistemer/ui/layout"
+
+	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/ids"
+)
+
+var (
+	L10nEventsCount   = i18n.Key("page.dashboard.events", "Events: %d")
+	L10nTalksCount    = i18n.Key("page.dashboard.talks", "Talks: %d")
+	L10nSpeakersCount = i18n.Key("page.dashboard.speakers", "Speakers: %d")
+	L10nSessions      = i18n.Key("page.account.sessions", "Signed-in browsers")
+	L10nSince         = i18n.Key("page.account.since", "Since")
+	L10nVerified      = i18n.Key("page.account.verified", "Two proofs")
+)
+
+templ dashboardPage(sess *auth.Session, cfpClosed bool, events, talks, speakers int64) {
+	@layout.PageHeader(L10nWelcome) {
+		@elements.Button().Variant(elements.Outline).Href(adminroutes.Account()) {
+			{ adminroutes.L10nAccount.T(ctx) }
+		}
+	}
+	if sess != nil && !sess.Verified {
+		@elements.Alert().Tone(elements.Warning) {
+			{ L10nUnverified.T(ctx) }
+		}
+	}
+	if cfpClosed {
+		@elements.Alert().Tone(elements.Warning) {
+			{ L10nCFPShut.T(ctx) }
+		}
+	} else {
+		@elements.Alert().Tone(elements.Info) {
+			{ L10nCFPOpen.T(ctx) }
+		}
+	}
+	@elements.Card() {
+		@elements.CardBody {
+			@components.DetailList() {
+				@components.DetailRow(adminroutes.L10nEvents) {
+					@elements.Link(adminroutes.Events(), i18n.Static(L10nEventsCount.T(ctx, events)))
+				}
+				@components.DetailRow(adminroutes.L10nTalks) {
+					@elements.Link(adminroutes.Talks(), i18n.Static(L10nTalksCount.T(ctx, talks)))
+				}
+				@components.DetailRow(adminroutes.L10nSpeakers) {
+					@elements.Link(adminroutes.Speakers(), i18n.Static(L10nSpeakersCount.T(ctx, speakers)))
+				}
+			}
+		}
+	}
+}
+
+templ accountPage(sess *auth.Session, sessions []auth.Session) {
+	@layout.PageHeader(adminroutes.L10nAccount)
+	@elements.Heading(2) {
+		{ L10nSessions.T(ctx) }
+	}
+	@components.DetailList() {
+		for _, s := range sessions {
+			@components.DetailRow(i18n.Static(s.Client.UserAgent)) {
+				@elements.DateTime(s.Created)
+				if s.Verified {
+					@elements.Badge().Tone(elements.Success) {
+						{ L10nVerified.T(ctx) }
+					}
+				}
+			}
+		}
+	}
+}
+
+// hitLink is a search hit's address: a route without parameters, read
+// from its pattern (findings F13).
+func hitLink(rt handlers.Route) ui.Link {
+	_, path, _ := strings.Cut(rt.Pattern, " ")
+	if strings.Contains(path, "{") {
+		return nil
+	}
+	return ui.URL(rt.Prefix + strings.TrimSuffix(path, "{$}"))
+}
+
+templ searchPage(q string, hits []handlers.Hit) {
+	@layout.PageHeader(L10nSearchTitle)
+	<form method="get" action={ templ.SafeURL(adminroutes.Search().URL()) } role="search">
+		<input type="search" name="q" value={ q } aria-label={ L10nSearchTitle.T(ctx) }/>
+	</form>
+	if q != "" && len(hits) == 0 {
+		<p>{ L10nNoHits.T(ctx) }</p>
+	}
+	<ul>
+		for _, h := range hits {
+			if l := hitLink(h.Route); l != nil {
+				<li>
+					@elements.Link(l, i18n.Static(h.Text))
+				</li>
+			}
+		}
+	</ul>
+}
+
+templ settingsPage(f *SettingsForm) {
+	@layout.PageHeader(adminroutes.L10nSettings)
+	<form method="post" action={ templ.SafeURL(adminroutes.SettingsSave().URL()) } novalidate>
+		@formErrors(f.Form)
+		@fields(f.Form)
+		@elements.Button().Submit() {
+			{ L10nSave.T(ctx) }
+		}
+	</form>
+}
+
+templ translationsPage(locales []i18n.Locale, current i18n.Locale, table templ.Component) {
+	@layout.PageHeader(adminroutes.L10nTranslations).Description(i18n.Static(current.NativeName))
+	@components.Tabs(L10nLanguage) {
+		for _, l := range locales {
+			@components.Tab(adminroutes.Translations(ids.Locale(l.Code))).Current(l.Code == current.Code) {
+				{ l.NativeName }
+			}
+		}
+	}
+	@table
+}
+
+templ translationBody(locale ids.Locale, e i18n.Entry, f *TranslationForm) {
+	{{ action := adminroutes.TranslationsSave(locale, e.Key).URL() }}
+	@components.ActionTitle(i18n.Static(e.Key))
+	<form method="post" action={ templ.SafeURL(action) } hx-post={ action } hx-target="#ui-action-dialog-body" hx-swap="innerHTML" novalidate>
+		@formErrors(f.Form)
+		@fields(f.Form)
+		@elements.Button().Submit() {
+			{ L10nSave.T(ctx) }
+		}
+	</form>
+}

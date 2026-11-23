@@ -1,0 +1,50 @@
+package admin
+
+import (
+	"github.com/epistemer/i18n"
+	"github.com/epistemer/ui/components"
+	"github.com/epistemer/ui/elements"
+	"github.com/epistemer/ui/layout"
+
+	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/ids"
+	"github.com/epistemer/example/internal/models"
+)
+
+templ talksPage(table templ.Component) {
+	@layout.PageHeader(adminroutes.L10nTalks) {
+		@elements.Button().Href(adminroutes.TalksNew()) {
+			{ L10nNewTalk.T(ctx) }
+		}
+	}
+	@table
+}
+
+templ talkFormPage(f *TalkForm, id ids.TalkID) {
+	{{ title := L10nNewTalk }}
+	{{ action := adminroutes.TalksCreate().URL() }}
+	if id != 0 {
+		{{ title = i18n.Static(f.Title.Value()) }}
+		{{ action = adminroutes.TalksUpdate(id).URL() }}
+	}
+	@layout.PageHeader(title).Breadcrumbs(layout.Crumb{Href: adminroutes.Talks(), Text: adminroutes.L10nTalks}, layout.Crumb{Text: title})
+	<form method="post" action={ templ.SafeURL(action) } enctype="multipart/form-data" novalidate>
+		@formErrors(f.Form)
+		@fields(f.Form)
+		@elements.Button().Submit() {
+			{ L10nSave.T(ctx) }
+		}
+	</form>
+}
+
+templ moveBody(t models.TalkView, f *MoveForm) {
+	{{ action := adminroutes.TalksMovePut(ids.TalkID(t.ID)).URL() }}
+	@components.ActionTitle(i18n.Static(t.Title))
+	<form method="post" action={ templ.SafeURL(action) } hx-put={ action } hx-target="#ui-action-dialog-body" hx-swap="innerHTML" novalidate>
+		@formErrors(f.Form)
+		@fields(f.Form)
+		@elements.Button().Submit() {
+			{ L10nSave.T(ctx) }
+		}
+	</form>
+}

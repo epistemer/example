@@ -1,0 +1,101 @@
+package admin
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/epistemer/errors"
+	"github.com/epistemer/i18n"
+	"github.com/epistemer/ui"
+	"github.com/epistemer/ui/actions"
+	"github.com/epistemer/ui/components"
+	"github.com/epistemer/ui/elements"
+	"github.com/epistemer/ui/layout"
+
+	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/ids"
+)
+
+var (
+	L10nBrand       = i18n.Key("branding.title", "Confab")
+	L10nProgramme   = i18n.Key("page.nav.programme", "Programme")
+	L10nAdmin       = i18n.Key("page.nav.admin", "Administration")
+	L10nSignOut     = i18n.Key("page.nav.sign_out", "Sign out")
+	L10nSearchHere  = i18n.Key("page.nav.search", "Search pages")
+	L10nErrorTitle  = i18n.Key("page.error.title", "Something stopped this page")
+	L10nErrorStatus = i18n.Key("page.error.status", "Error %d")
+	L10nBack        = i18n.Key("page.error.back", "Back to the dashboard")
+)
+
+// scripts is what ui's tables, actions and remote selects need beside the
+// theme: htmx, with history caching off (the tables skill).
+templ scripts() {
+	<meta name="htmx-config" content='{"includeIndicatorStyles":false,"historyCacheSize":0}'/>
+	<script src={ adminroutes.Prefix + "/assets/htmx.min.js" } defer></script>
+}
+
+// navItem is a nav link shown only when the request's guard admits its
+// route: layout.NavItem doesn't ask the actions gate (see findings).
+templ navItem(ctx context.Context, r *http.Request, to ui.Link, label i18n.Ter) {
+	if actions.Allowed(ctx, to) {
+		@layout.NavItem(to).Current(r.URL.Path == to.URL()) {
+			{ label.T(ctx) }
+		}
+	}
+}
+
+templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
+	@layout.Document(title).Head(themeHead(ctx), scripts()).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
+		@layout.App() {
+			@layout.AppBrand {
+				{ L10nBrand.T(ctx) }
+			}
+			@layout.AppNav {
+				@navItem(ctx, r, adminroutes.Dashboard(), adminroutes.L10nDashboard)
+				@layout.NavSection(L10nProgramme) {
+					@navItem(ctx, r, adminroutes.Events(), adminroutes.L10nEvents)
+					@navItem(ctx, r, adminroutes.Talks(), adminroutes.L10nTalks)
+					@navItem(ctx, r, adminroutes.Speakers(), adminroutes.L10nSpeakers)
+				}
+				@layout.NavSection(L10nAdmin) {
+					@navItem(ctx, r, adminroutes.Settings(), adminroutes.L10nSettings)
+					@navItem(ctx, r, adminroutes.Translations(ids.Locale(h.Tr.Default().Code)), adminroutes.L10nTranslations)
+				}
+			}
+			@layout.AppBar {
+				<form method="get" action={ templ.SafeURL(adminroutes.Search().URL()) } role="search">
+					<input type="search" name="q" aria-label={ L10nSearchHere.T(ctx) } placeholder={ L10nSearchHere.T(ctx) }/>
+				</form>
+				@layout.ColorSchemeMenu(layout.ColorSchemeOf(r))
+				<form method="post" action={ templ.SafeURL(adminroutes.SignOut().URL()) }>
+					@elements.Button().Variant(elements.Ghost).Submit() {
+						{ L10nSignOut.T(ctx) }
+					}
+				</form>
+			}
+			@layout.AppMain {
+				@body
+			}
+		}
+	}
+}
+
+templ errorBody(status int, err error) {
+	@layout.PageHeader(L10nErrorTitle).Description(i18n.Static(L10nErrorStatus.T(ctx, status)))
+	@elements.Alert().Tone(elements.Danger) {
+		{ errors.T(ctx, err) }
+	}
+	@elements.Button().Href(adminroutes.Dashboard()) {
+		{ L10nBack.T(ctx) }
+	}
+}
+
+templ errorShell(h *H, r *http.Request, status int, err error) {
+	@shell(h, r, L10nErrorTitle, errorBody(status, err))
+}
+
+templ errorToast(err error) {
+	@components.ToastSwap(components.Toast(errors.Public(err)).Tone(elements.Danger))
+}
+
+func itoa(n int64) string { return strconv.FormatInt(n, 10) }

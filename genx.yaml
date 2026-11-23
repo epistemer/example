@@ -15,9 +15,16 @@ producers:
     emits:
       - internal/settings/zz_settings.labels.json
 
+  - name: admin-routes
+    run:   [go, tool, handlers, gen, -prefix, /admin, -out, internal/admin/adminroutes, ./internal/admin]
+    check: [go, tool, handlers, gen, -check, -prefix, /admin, -out, internal/admin/adminroutes, ./internal/admin]
+    emits:
+      - internal/admin/adminroutes/zz_adminroutes.routes.json
+
 use:
   - github.com/epistemer/models:
       generators: [labels, enums, views]
       params:
         dir: internal/models
+  - github.com/epistemer/handlers: [routes, labels, permissions]
   - github.com/epistemer/i18n: [labels]

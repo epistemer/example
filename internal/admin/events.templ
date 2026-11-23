@@ -1,0 +1,140 @@
+package admin
+
+import (
+	"net/http"
+	"time"
+
+	"github.com/epistemer/i18n"
+	"github.com/epistemer/models/listing"
+	"github.com/epistemer/models/option"
+	"github.com/epistemer/ui/components"
+	"github.com/epistemer/ui/elements"
+	"github.com/epistemer/ui/forms"
+	"github.com/epistemer/ui/inputs"
+	"github.com/epistemer/ui/layout"
+
+	"github.com/epistemer/example/internal/admin/adminroutes"
+	"github.com/epistemer/example/internal/confab"
+	"github.com/epistemer/example/internal/ids"
+	"github.com/epistemer/example/internal/models"
+)
+
+var (
+	L10nSchedule    = i18n.Key("page.public.schedule", "Schedule")
+	L10nTickets     = i18n.Key("page.public.tickets", "Tickets")
+	L10nNoSchedule  = i18n.Key("page.public.no_schedule", "The schedule isn't out yet.")
+	L10nOnlineEvent = i18n.Key("page.public.online", "Online")
+	L10nMinutes     = i18n.Key("page.public.minutes", "%d min")
+)
+
+func eventByID(id ids.EventID) listing.Query {
+	return listing.Query{Filters: []listing.Filter{{Column: ec.ID.Name, Op: listing.Eq, Value: int64(id)}}, Limit: 1}
+}
+
+// statusBadge shows any enum as a badge toned by its value.
+func statusBadge[R any](get func(R) option.SelectOption) func(R) templ.Component {
+	return func(r R) templ.Component { return enumBadge(get(r)) }
+}
+
+var tones = map[string]elements.Tone{
+	"draft": elements.Neutral, "published": elements.Success, "archived": elements.Warning,
+	"submitted": elements.Info, "accepted": elements.Brand, "rejected": elements.Danger, "scheduled": elements.Success,
+}
+
+templ enumBadge(o option.SelectOption) {
+	@elements.Badge().Tone(tones[o.Value()]) {
+		{ o.Label().T(ctx) }
+	}
+}
+
+templ eventsPage(table templ.Component) {
+	@layout.PageHeader(adminroutes.L10nEvents) {
+		@elements.Button().Href(adminroutes.EventsNew()) {
+			{ L10nNewEvent.T(ctx) }
+		}
+	}
+	@table
+}
+
+// fields renders a form's controls: inputs.Field renders every kind,
+// groups and lists included.
+templ fields(f *forms.Form) {
+	for c := range f.Controls() {
+		@inputs.Field(c)
+	}
+}
+
+templ eventFormPage(f *EventForm, id ids.EventID) {
+	{{ title := L10nNewEvent }}
+	{{ action := adminroutes.EventsCreate().URL() }}
+	if id != 0 {
+		{{ title = i18n.Static(f.Name.Value()) }}
+		{{ action = adminroutes.EventsUpdate(id).URL() }}
+	}
+	@layout.PageHeader(title).Breadcrumbs(layout.Crumb{Href: adminroutes.Events(), Text: adminroutes.L10nEvents}, layout.Crumb{Text: title})
+	<form method="post" action={ templ.SafeURL(action) } novalidate>
+		@formErrors(f.Form)
+		@fields(f.Form)
+		@elements.Button().Submit() {
+			if id == 0 {
+				{ L10nCreate.T(ctx) }
+			} else {
+				{ L10nSave.T(ctx) }
+			}
+		}
+	</form>
+}
+
+templ publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks []models.PublicScheduleRow) {
+	@layout.Document(i18n.Static(e.Name)).Head(themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)) {
+		<main class="confab-public">
+			@layout.PageHeader(i18n.Static(e.Name)).Description(i18n.Static(e.Summary))
+			@components.DetailList() {
+				@components.DetailRow(models.L10nEvent_StartsOn) {
+					@elements.Date(e.StartsOn.Time)
+				}
+				@components.DetailRow(models.L10nEvent_EndsOn) {
+					@elements.Date(e.EndsOn.Time)
+				}
+				@components.DetailRow(L10nVenue) {
+					if e.Online {
+						{ L10nOnlineEvent.T(ctx) }
+					} else {
+						{ e.VenueName.String }, { e.VenueCity.String }
+					}
+				}
+			}
+			@elements.Heading(2) {
+				{ L10nTickets.T(ctx) }
+			}
+			@components.DetailList() {
+				for _, t := range tiers {
+					@components.DetailRow(i18n.Static(t.Name)) {
+						@elements.Amount(money(t.Price, e.Currency))
+					}
+				}
+			}
+			@elements.Heading(2) {
+				{ L10nSchedule.T(ctx) }
+			}
+			if len(talks) == 0 {
+				<p>{ L10nNoSchedule.T(ctx) }</p>
+			}
+			for _, t := range talks {
+				@elements.Card() {
+					@elements.CardHeader {
+						{ t.Title }
+					}
+					@elements.CardBody {
+						<p>
+							@elements.DateTime(t.StartsAt.Time.In(time.UTC))
+							· { L10nMinutes.T(ctx, t.DurationMinutes) } · { t.Speaker }
+						</p>
+						@enumBadge(t.Level)
+						@enumBadge(t.Format)
+					}
+				}
+			}
+		</main>
+	}
+}

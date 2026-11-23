@@ -1,0 +1,68 @@
+package admin
+
+import (
+	"net/http"
+
+	"github.com/epistemer/ui/elements"
+	"github.com/epistemer/ui/forms"
+	"github.com/epistemer/ui/inputs"
+	"github.com/epistemer/ui/layout"
+
+	"github.com/epistemer/example/internal/admin/adminroutes"
+)
+
+// formErrors shows the errors that belong to the form itself, not a field:
+// a wrong password, a refused save.
+templ formErrors(f *forms.Form) {
+	{{ c := f.Control() }}
+	if c.Err() != nil {
+		@elements.Alert().Tone(elements.Danger) {
+			{ errorsT(ctx, c.Err()) }
+		}
+	}
+}
+
+templ authPage(r *http.Request, title i18n.Ter, body templ.Component) {
+	@layout.Document(title).Head(themeHead(ctx)).ColorScheme(layout.ColorSchemeOf(r)) {
+		@layout.Auth(title) {
+			@layout.AuthBrand {
+				{ L10nBrand.T(ctx) }
+			}
+			@layout.AuthBody {
+				@body
+			}
+		}
+	}
+}
+
+templ signInForm(f *SignInForm) {
+	<form method="post" action={ templ.SafeURL(adminroutes.SignInPassword().URL()) } novalidate>
+		@formErrors(f.Form)
+		for c := range f.Controls() {
+			@inputs.Field(c)
+		}
+		@elements.Button().Submit() {
+			{ L10nSignInBtn.T(ctx) }
+		}
+	</form>
+}
+
+templ signInPage(r *http.Request, f *SignInForm) {
+	@authPage(r, adminroutes.L10nSignIn, signInForm(f))
+}
+
+templ codeForm(f *CodeForm) {
+	<form method="post" action={ templ.SafeURL(adminroutes.SignInVerify().URL()) } novalidate>
+		@formErrors(f.Form)
+		for c := range f.Controls() {
+			@inputs.Field(c)
+		}
+		@elements.Button().Submit() {
+			{ L10nVerifyBtn.T(ctx) }
+		}
+	</form>
+}
+
+templ codePage(r *http.Request, f *CodeForm) {
+	@authPage(r, adminroutes.L10nSignInCode, codeForm(f))
+}

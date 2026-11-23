@@ -40,3 +40,20 @@ func (s Slug) String() string { return string(s) }
 
 // SlugPattern is the slug's pattern, for a form rule.
 func SlugPattern() *regexp.Regexp { return slugPattern }
+
+// Locale is a language's BCP 47 code in a path, such as ar or pt-BR.
+type Locale string
+
+var localePattern = regexp.MustCompile(`^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$`)
+
+var ErrBadLocale = errors.Key("errors.confab.bad_locale", "not a language code such as ar or pt-BR", errors.Invalid)
+
+func (l Locale) MarshalText() ([]byte, error) { return []byte(l), nil }
+
+func (l *Locale) UnmarshalText(b []byte) error {
+	if !localePattern.Match(b) {
+		return ErrBadLocale
+	}
+	*l = Locale(b)
+	return nil
+}
