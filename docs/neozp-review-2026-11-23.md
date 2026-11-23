@@ -21,7 +21,9 @@ scope (decided 2026-11-16).
    - ui's example uses errors, i18n and models, but not handlers, auth or
      cfgx.
 
-   Most of iteration 1's medium findings are at that junction.
+   Five findings sit where ui meets handlers (F7, F16, F17, F18, F25),
+   three of them medium. F16 and F25 together caused the iteration's worst
+   bug: a POST that had already committed was sent again.
 3. **Nobody owns a seam.** A fix that touches two packages needs two
    amendments under two sets of terms, and some needs wait on each other in
    a loop. For example, handlers waits on auth for API keys, while auth
@@ -107,8 +109,9 @@ either "as apps ask" or gated on a decision.
 ### 3.3 What the process missed: integration came last
 
 Every interface was locked before a real app used it. The examples are toy
-shops, and each one tests its own package's story. As a result, the
-junctions between packages were first exercised all at once, by Confab:
+shops, and each one tests its own package's story. handlers' shop does
+combine seven packages, but ui's junction with the rest, and every junction
+under a real app's needs, were first exercised by Confab:
 
 | Where the finding sits | Findings | Count |
 |---|---|---:|
@@ -140,13 +143,20 @@ so models' and errors' CI never tests the version apps actually run.
   [in genx](https://github.com/epistemer/genx/blob/main/docs/adr/0001-generation-pipeline.md),
   there is no neozp-wide roadmap, and the board tracks work without
   holding decisions.
-- **Two v1 gates are stale.** errors'
-  [roadmap](https://github.com/epistemer/errors/blob/main/docs/roadmap.md?plain=1#L20-L21)
-  and auth's
-  [roadmap](https://github.com/epistemer/auth/blob/main/docs/roadmap.md?plain=1#L20-L21)
-  still say "`v1.0.0` waits until zp's business code runs on it". The
-  2026-11-16 rule says no release waits for that. The other six packages
-  say "v1.0.0 is your call" with no criterion.
+- **The v1 gates disagree, and some are stale.**
+  - errors'
+    [roadmap](https://github.com/epistemer/errors/blob/main/docs/roadmap.md?plain=1#L20-L21)
+    and auth's
+    [roadmap](https://github.com/epistemer/auth/blob/main/docs/roadmap.md?plain=1#L20-L21)
+    still say "`v1.0.0` waits until zp's business code runs on it".
+    genx's [roadmap](https://github.com/epistemer/genx/blob/main/docs/roadmap.md?plain=1#L309-L310)
+    says the same of models ("zp's move"). The 2026-11-16 rule says no
+    release waits for that.
+  - cfgx waits until "a real application has proven the API", and genx
+    until "the sqlc generators run in a real app". Confab is now that app.
+  - ui is "gated on neozp alone": its visual packages built without a
+    breaking amendment.
+  - handlers, i18n and models leave v1 to epistemer, with no criterion.
 
 ## 4. Confab as the product
 
@@ -257,7 +267,7 @@ epistemer's (every package's ownership.md, "What comes back to you").
 
 | Package | Findings |
 |---|---|
-| ui | F23 (CSS), F24 (the script copies `lang` and `dir` from a boosted response), F27 (`dir="auto"` from the Email, URL and Phone rules), F6 (the combobox upgrades when htmx appears later), F17 (the skill says 422; server-state-interface already does), F10 and F26 (docs) |
+| ui | F23 (CSS), F24 (the script copies `lang` and `dir` from a boosted response), F27 (ui/inputs renders `dir="auto"` on text-like inputs; the rules' documented `Attrs` stay as they are), F6 (the combobox upgrades when htmx appears later), F17 (the skill says 422; server-state-interface already does), F10 and F26 (docs) |
 | cfgx | F14 (the `init` skeleton calls `slog.SetDefault`) |
 | models | F2 (document `table_prefix`'s trade-off) |
 | genx | F31 (document templ's order before genx) |
@@ -286,12 +296,12 @@ epistemer's (every package's ownership.md, "What comes back to you").
 | templ components, layout, icons, theme middleware | ui |
 | validators: email, phone, post codes, country and currency codes | ui/forms/rule |
 | body limit | handlers (`//h:body`, `x-max-body`) |
-| CSRF (on zp's wish list) | auth (`http.CrossOriginProtection`, D13) |
 | the generator entry point | genx |
 
 ### 5.2 What no package covers
 
-Each item below is confirmed in zp's code and, where marked, by something
+Each item below is confirmed in zp's code, except where it is only in a
+neozp backlog (the shared store, the command palette). *Italics* mark what
 Confab hand-rolled.
 
 **Listed in a backlog, not scheduled:**
@@ -336,20 +346,19 @@ Confab hand-rolled.
 - **Migrations.** zp uses golang-migrate; *Confab executes `schema.sql`.*
 - **An audit trail people can read.** zp records session activity, and
   auth emits `Event`s to a `Recorder`, but nothing stores or shows them.
-- **Live updates.** zp streams server-sent events on a few admin pages and
-  one API endpoint. ui ADR 0010 dropped them for table rows; nothing covers
-  the rest.
 - **Remembered table state per user.** zp keeps it in cookies; ui's tables
   keep their state in the URL only.
 
 **Not counted, because the code doesn't confirm them:** exports to Excel
-or CSV, charts, and PDF documents. zp has five templ PDF templates, but
-nothing renders them.
+or CSV, charts, and PDF documents. zp has five templ PDF templates, but no
+code outside their generated files calls them. zp's server-sent events
+stream only table rows, which ui ADR 0010 already settled.
 
 ### 5.3 One stance to state once
 
 auth, i18n and cfgx's store all keep their state in bbolt, so a neozp app
-is a single process. zp is too, since it also uses bbolt, so nothing is in
+is a single process. zp also keeps its settings, translations and a rate
+limiter in bbolt, which points to one process as well, so nothing is in
 conflict today. But the stance is recorded three times, as cfgx
 interface §7.3, cfgx's backlog and i18n's Later list. It should be one
 neozp-wide decision.
@@ -408,9 +417,13 @@ are waiting for, which breaks their loop.
 
 ### 6.4 Questions for epistemer
 
-Each question has a default, which stands if it isn't answered. They are
-mirrored on the board as Decision items, one per package and one for neozp
-as a whole.
+Each question has a default. They are mirrored on the board as Decision
+items, one per package and one for neozp as a whole. No amendment starts
+before epistemer has replied to its item; a reply that answers only some
+questions takes the defaults for the rest.
+
+**⚠ marks a default that reverses a locked or documented decision.** The
+mark says which, so that accepting the default is a deliberate choice.
 
 **neozp-wide**
 
@@ -420,8 +433,9 @@ as a whole.
   `epistemer/neozp` repository.)
 - **Q2. The v1 gate.** *Default:* a package's v1.0.0 waits until Confab uses
   its whole surface, with no open bug or contradiction finding against it.
-  This replaces the stale lines in errors and auth, and gives the other six
-  a criterion.
+  One criterion for all eight. It replaces the zp lines in errors, auth and
+  genx, makes cfgx's and genx's "a real app" concrete, and joins ui's
+  "without a breaking amendment".
 - **Q3. Single instance.** *Default:* neozp is single-process until v1. That
   is stated once, and the shared-store items in cfgx and i18n stay parked.
 - **Q4. Who owns the request's lifecycle.** *Default:*
@@ -440,13 +454,13 @@ as a whole.
 
 **handlers**
 
-- **H1 (F4).** *Default yes:* `handlers gen` reads signatures when the only
+- **H1 (F4).** ⚠ Reverses the interface's error table: "the package doesn't type-check" is a documented refusal. *Default yes:* `handlers gen` reads signatures when the only
   type errors come from its own `-out` package, and reports them as
   warnings. This changes the documented refusal.
 - **H2 (F16, the open Decision).** *Default:* `Register` and `Mount`
   recover a panic into an error passed to the app's error handler, and log
   it with its stack.
-- **H3 (F22).** *Default:* permissions are generated once per app, a
+- **H3 (F22).** ⚠ Reverses interface's rule that "a permission belongs to one routes package", which §16 left for later. *Default:* permissions are generated once per app, a
   `permissions/v1` domain (backlog item 6, which now has its second user).
   The admin and the API can then share `talks.review`.
 - **H4 (F21).** *Default yes:* a permission can carry its text:
@@ -459,26 +473,26 @@ as a whole.
 
 **ui**
 
-- **U1 (F25).** *Default yes:* `Toast`, `Replace`, `Remove` and `Refresh`
+- **U1 (F25).** ⚠ Reverses server-state-interface's reply rules: `Go` after a toast panics by design, and the flash is the app's. *Default yes:* `Toast`, `Replace`, `Remove` and `Refresh`
   return a type without `Go`. A toast set before `Go` survives the redirect
   as a flash.
 - **U2 (F6).** *Default yes:* `theme`'s head serves a pinned htmx and its
   config, unless the app opts out.
 - **U3 (F7).** *Default yes:* `NavItem` consults the actions gate.
-- **U4 (F11).** *Default yes:* a table reaches its remote `Labeler` per
+- **U4 (F11).** ⚠ Reverses amendment A7's `Column.Remote(search, labeler)`, which takes the labeler at declaration. *Default yes:* a table reaches its remote `Labeler` per
   request, through `Bind` or the context, so tables stay package-level
   declarations.
-- **U5 (F9).** *Default yes:* `PostCode` passes a country it doesn't know,
+- **U5 (F9).** ⚠ Reverses interface §6: `PostCode` documents that it panics for an unknown country. *Default yes:* `PostCode` passes a country it doesn't know,
   and `rule.HasPostCode` says which countries it knows.
-- **U6 (F26).** *Default yes:* `KindToggle` becomes `KindYesNo`, and
+- **U6 (F26).** ⚠ Renames a member of `Kind`, which ownership.md reserves for epistemer. *Default yes:* `KindToggle` becomes `KindYesNo`, and
   `Hint` refuses it on a `Checkbox`.
-- **U7 (F30).** *Default yes:* `AssertLabelled` skips hidden fields.
+- **U7 (F30).** ⚠ Changes `AssertLabelled`'s documented check of every control. *Default yes:* `AssertLabelled` skips hidden fields.
 - **U8 (F20).** *Default yes:* add icons for edit, delete, external link,
   upload, download and calendar.
 
 **models**
 
-- **M1 (F5).** *Default yes:* column sets accept sqlc's
+- **M1 (F5).** ⚠ Reverses interface's documented refusal of `emit_pointers_for_null_types` on `_view` relations (A4). *Default yes:* column sets accept sqlc's
   `emit_pointers_for_null_types`, so an app uses `*T` from the database to
   the form.
 - **M2 (F28).** *Default yes:* enums get `UnmarshalText` and `MarshalText`,
@@ -487,13 +501,13 @@ as a whole.
   enums and enum arrays.
 - **M4 (F8).** *Default:* add `option.Static(value, text)` for data labels,
   rather than changing `SelectOption.Label()`.
-- **M5 (F19).** *Default yes:* enum values take their English text from
+- **M5 (F19).** ⚠ Reverses neozp's labels convention that an enum value's English text "is itself". *Default yes:* enum values take their English text from
   `COMMENT ON TYPE`, in the form `value: Text; …`.
 
 **cfgx**
 
 - **C1 (F12).** *Default yes:* `Problem.Err` keeps the validator's error.
-- **C2 (F3).** *Default yes:* no value labels for an enum whose Go type
+- **C2 (F3).** ⚠ Reverses ADR 0008 (A14), under which cfgx labels every enum value. *Default yes:* no value labels for an enum whose Go type
   already has `Label()`.
 - **C3 (F1).** *Default yes:* `cfgx init -name`.
 
@@ -511,8 +525,8 @@ as a whole.
 ### 6.5 Open, not yet a question
 
 - **A resource declaration.** Confab writes the same save lifecycle three
-  times, and zp has 16 entities with an index, a create, an edit and a
-  detail page each. One declaration per resource could generate all four,
+  times, and zp has 13 index, 20 create, 21 edit and 16 detail pages. One
+  declaration per resource could generate those pages,
   but it is too early to design one. Iteration 2 extracts helpers inside
   Confab first, and only what keeps repeating becomes a proposal.
 - **Exports, charts and PDFs** wait for a real need. Neither zp's code nor
