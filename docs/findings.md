@@ -67,7 +67,7 @@ mentions it in passing ("internal/admin cannot import adminroutes before
 adminroutes exists"), but the consequence is that **no real handler
 package can be generated from scratch**: every page links to another page.
 
-*Workaround:* `scratchpad/stub`, a throwaway program that replaces every
+*Workaround:* `scripts/stub`, a program that replaces every
 function body with `panic(0)`, drops package-level values that use the
 routes package (transitively) and unused imports; generate on the stubbed
 copy, then restore. It took four attempts to get right.
