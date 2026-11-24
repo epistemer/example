@@ -17,6 +17,9 @@ It has two jobs:
    building it is in [docs/findings.md](docs/findings.md), with a
    workaround and what would have helped.
 
+Where neozp stands after the first iteration, and what comes next:
+[docs/neozp-review-2026-11-23.md](docs/neozp-review-2026-11-23.md).
+
 ## Run it
 
 Needs Go 1.27 and Docker.
