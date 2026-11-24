@@ -134,7 +134,7 @@
           "label": "Id"
         }
       ],
-      "permission": "api.talks.review",
+      "permission": "talks.review",
       "operation": "setTalkState"
     }
   ],
@@ -146,9 +146,8 @@
       "level": "verified"
     },
     {
-      "key": "api.talks.review",
-      "var": "PermApiTalksReview",
-      "text": "Change a talk's state",
+      "key": "talks.review",
+      "from": "adminroutes",
       "level": "verified"
     }
   ]

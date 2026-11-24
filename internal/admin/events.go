@@ -22,7 +22,6 @@ import (
 	"github.com/epistemer/example/internal/confab"
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
-	"github.com/epistemer/example/internal/pg"
 )
 
 var (
@@ -75,27 +74,14 @@ func newVenue(g *forms.Form) *VenueForm {
 	// The post code's pattern depends on the country the person chose:
 	// a check of the group, since a rule takes a fixed country.
 	g.Check(func(ctx context.Context) error {
-		if err := postCode(ctx, v.Country.Value(), v.PostCode.Value()); err != nil {
-			v.PostCode.Fail(err)
+		if code := v.PostCode.Value(); code != "" {
+			if err := rule.Check(ctx, code, rule.PostCode(v.Country.Value())); err != nil {
+				v.PostCode.Fail(err)
+			}
 		}
 		return nil
 	})
 	return v
-}
-
-// postCode checks a post code against a country chosen at run time.
-// rule.PostCode panics for a country outside its table (findings F9), so
-// the panic is turned into "no pattern known".
-func postCode(ctx context.Context, country, code string) (err error) {
-	if code == "" {
-		return nil
-	}
-	defer func() {
-		if recover() != nil {
-			err = nil
-		}
-	}()
-	return rule.Check(ctx, code, rule.PostCode(country))
 }
 
 // TierForm is one item of the list "tiers".
@@ -161,7 +147,7 @@ func NewEventForm() *EventForm {
 	f.Currency = f.Text("currency").Label(models.L10nEvent_Currency).Required().
 		Is(rule.CurrencyCode(), rule.OneOf("EUR", "USD", "GBP", "EGP").Err(ErrCurrencyNotTaken))
 	f.Tiers = f.List("tiers", newTier).Label(L10nTiers).MinItems(1).MaxItems(8)
-	f.Version = f.Int("version").Hint(forms.KindHidden).Label(models.L10nEvent_Version) // a label nobody sees: formstest.AssertLabelled asks for one
+	f.Version = f.Int("version").Hint(forms.KindHidden) // the optimistic lock; hidden, so no label
 	f.Check(func(context.Context) error {
 		if f.EndsOn.Value().Before(f.StartsOn.Value()) {
 			f.EndsOn.Fail(confab.ErrEndsFirst)
@@ -200,21 +186,21 @@ func (f *EventForm) Fill(e models.Event, tiers []confab.Tier) {
 	f.Slug.Set(ids.Slug(e.Slug))
 	f.Summary.Set(e.Summary)
 	f.Status.Set(e.Status)
-	f.StartsOn.Set(e.StartsOn.Time)
-	f.EndsOn.Set(e.EndsOn.Time)
+	f.StartsOn.Set(e.StartsOn)
+	f.EndsOn.Set(e.EndsOn)
 	f.Online.Set(e.Online)
 	f.Capacity.Set(e.Capacity)
 	f.Currency.Set(e.Currency)
 	f.Version.Set(int(e.Version))
 	if !e.Online {
 		v := f.Venue
-		v.Name.SetPtr(pg.TextPtr(e.VenueName))
-		v.Street.SetPtr(pg.TextPtr(e.VenueStreet))
-		v.City.SetPtr(pg.TextPtr(e.VenueCity))
-		v.Country.SetPtr(pg.TextPtr(e.VenueCountry))
-		v.PostCode.SetPtr(pg.TextPtr(e.VenuePostCode))
-		v.Latitude.SetPtr(pg.FloatOf(e.Latitude))
-		v.Longitude.SetPtr(pg.FloatOf(e.Longitude))
+		v.Name.SetPtr(e.VenueName)
+		v.Street.SetPtr(e.VenueStreet)
+		v.City.SetPtr(e.VenueCity)
+		v.Country.SetPtr(e.VenueCountry)
+		v.PostCode.SetPtr(e.VenuePostCode)
+		v.Latitude.SetPtr(e.Latitude)
+		v.Longitude.SetPtr(e.Longitude)
 	}
 	for _, t := range tiers {
 		item := f.Tiers.Add()
@@ -252,10 +238,10 @@ var EventsTable = tables.New("events", ec.ID,
 	tables.Col(ec.Capacity).Sortable().Filter(),
 	tables.Col(ec.Talks).Sortable(),
 	tables.Col(ec.FromPrice).Sortable().Amount(func(e models.EventView) i18n.Ter {
-		if !e.FromPrice.Valid {
+		if e.FromPrice == nil {
 			return i18n.Static("")
 		}
-		return money(pg.Decimal(e.FromPrice), e.Currency)
+		return money(*e.FromPrice, e.Currency)
 	}),
 ).
 	Label(adminroutes.L10nEvents).
@@ -268,11 +254,11 @@ var EventsView = components.TableOf(EventsTable).
 	Cell(ec.Status, statusBadge(func(e models.EventView) option.SelectOption { return e.Status }))
 
 var (
-	EditEvent    = actions.New(L10nEdit)
+	EditEvent    = actions.New(L10nEdit).Icon(icons.Pencil())
 	PublishEvent = actions.New(L10nPublish).Primary()
 	ArchiveEvent = actions.New(L10nArchive).Confirm(L10nArchiveQ)
-	DeleteEvent  = actions.New(L10nDelete).Danger().Confirm(L10nDeleteEvent)
-	ViewEvent    = actions.New(L10nPublicPage).Icon(icons.Eye())
+	DeleteEvent  = actions.New(L10nDelete).Icon(icons.Trash()).Danger().Confirm(L10nDeleteEvent)
+	ViewEvent    = actions.New(L10nPublicPage).Icon(icons.ExternalLink())
 )
 
 func eventActions(ctx context.Context, e models.EventView) []actions.Item {
@@ -302,7 +288,7 @@ func money(d decimal.Decimal, currency string) i18n.Ter {
 //h:key events
 //h:method GET
 //h:path /events
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:view
 //h:search
 //h:desc Events
@@ -326,7 +312,7 @@ func (h *H) Events(w http.ResponseWriter, r *http.Request) error {
 //h:key events.new
 //h:method GET
 //h:path /events/new
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:search
 //h:entity events
 //h:desc New event
@@ -341,7 +327,7 @@ func (h *H) EventsNew(w http.ResponseWriter, r *http.Request) error {
 //h:key events.create
 //h:method POST
 //h:path /events
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:desc Create an event
 func (h *H) EventsCreate(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
@@ -354,13 +340,13 @@ func (h *H) EventsCreate(w http.ResponseWriter, r *http.Request) error {
 		f.fail(err)
 		return h.page(w, r, http.StatusUnprocessableEntity, L10nNewEvent, eventFormPage(f, 0))
 	}
-	return goWith(w, r, L10nCreated, adminroutes.EventsEdit(id))
+	return components.Reply(w, r).Toast(L10nCreated).Go(adminroutes.EventsEdit(id))
 }
 
 //h:key events.edit
 //h:method GET
 //h:path /events/{id}/edit
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:entity events
 //h:param id label Event number
 //h:desc Edit an event
@@ -382,7 +368,7 @@ func (h *H) EventsEdit(w http.ResponseWriter, r *http.Request, id ids.EventID) e
 //h:key events.update
 //h:method POST
 //h:path /events/{id}/edit
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:param id label Event number
 //h:desc Save an event
 func (h *H) EventsUpdate(w http.ResponseWriter, r *http.Request, id ids.EventID) error {
@@ -395,13 +381,13 @@ func (h *H) EventsUpdate(w http.ResponseWriter, r *http.Request, id ids.EventID)
 		f.fail(err)
 		return h.page(w, r, http.StatusUnprocessableEntity, i18n.Static(f.Name.Value()), eventFormPage(f, id))
 	}
-	return goWith(w, r, L10nSaved, adminroutes.EventsEdit(id))
+	return components.Reply(w, r).Toast(L10nSaved).Go(adminroutes.EventsEdit(id))
 }
 
 //h:key events.status
 //h:method PATCH
 //h:path /events/{id}/status/{status}
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:param id label Event number
 //h:param status label New status
 //h:desc Publish or archive an event
@@ -426,7 +412,7 @@ func (h *H) EventsStatus(w http.ResponseWriter, r *http.Request, id ids.EventID,
 //h:key events.delete
 //h:method DELETE
 //h:path /events/{id}
-//h:perm events.manage
+//h:perm events.manage Manage events
 //h:param id label Event number
 //h:desc Delete an event
 func (h *H) EventsDelete(w http.ResponseWriter, r *http.Request, id ids.EventID) error {

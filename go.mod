@@ -15,15 +15,15 @@ require (
 	github.com/a-h/templ v0.3.1118
 	github.com/epistemer/auth v0.3.0
 	github.com/epistemer/auth/authschema v0.3.0
-	github.com/epistemer/cfgx v0.2.0
-	github.com/epistemer/errors v0.1.0
-	github.com/epistemer/handlers v0.3.0
-	github.com/epistemer/handlers/authguard v0.3.0
-	github.com/epistemer/handlers/openapi v0.3.0
-	github.com/epistemer/i18n v0.3.1
+	github.com/epistemer/cfgx v0.3.1
+	github.com/epistemer/errors v0.2.0
+	github.com/epistemer/handlers v0.4.0
+	github.com/epistemer/handlers/authguard v0.4.0
+	github.com/epistemer/handlers/openapi v0.4.0
+	github.com/epistemer/i18n v0.4.0
 	github.com/epistemer/i18n/i18nschema v0.1.0
-	github.com/epistemer/models v0.4.0
-	github.com/epistemer/ui v0.4.0
+	github.com/epistemer/models v0.5.1
+	github.com/epistemer/ui v0.5.0
 	github.com/epistemer/ui/theme/themeschema v0.2.0
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/jackc/pgx/v5 v5.13.0
@@ -47,7 +47,7 @@ require (
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/epistemer/genx v0.2.0 // indirect
-	github.com/epistemer/handlers/cmd v0.3.0 // indirect
+	github.com/epistemer/handlers/cmd v0.4.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect

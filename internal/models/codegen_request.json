@@ -73703,7 +73703,7 @@
       "insert_into_table": null
     },
     {
-      "text": "SELECT t.id, t.title, t.level, t.format, t.starts_at, t.duration_minutes, s.name AS speaker\nFROM talk t JOIN speaker s ON s.id = t.speaker_id\nWHERE t.event_id = $1 AND t.state = 'scheduled'\nORDER BY t.starts_at, t.id",
+      "text": "SELECT t.id, t.title, t.level, t.format, t.starts_at, t.duration_minutes, s.name AS speaker\nFROM talk t JOIN speaker s ON s.id = t.speaker_id\nWHERE t.event_id = $1 AND t.state = 'scheduled' AND t.starts_at IS NOT NULL\nORDER BY t.starts_at, t.id",
       "name": "PublicSchedule",
       "cmd": ":many",
       "columns": [

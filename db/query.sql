@@ -113,7 +113,7 @@ LIMIT 1;
 -- name: PublicSchedule :many
 SELECT t.id, t.title, t.level, t.format, t.starts_at, t.duration_minutes, s.name AS speaker
 FROM talk t JOIN speaker s ON s.id = t.speaker_id
-WHERE t.event_id = $1 AND t.state = 'scheduled'
+WHERE t.event_id = $1 AND t.state = 'scheduled' AND t.starts_at IS NOT NULL
 ORDER BY t.starts_at, t.id;
 
 -- Talk files (slides)

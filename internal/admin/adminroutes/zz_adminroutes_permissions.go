@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	PermEventsManage       = access.Permission("events.manage", "Events Manage")
-	PermStaff              = access.Permission("staff", "Staff", auth.Unverified)
-	PermSettingsManage     = access.Permission("settings.manage", "Settings Manage")
-	PermTranslationsManage = access.Permission("translations.manage", "Translations Manage")
-	PermSpeakersManage     = access.Permission("speakers.manage", "Speakers Manage")
-	PermTalksManage        = access.Permission("talks.manage", "Talks Manage")
-	PermTalksReview        = access.Permission("talks.review", "Talks Review")
+	PermEventsManage       = access.Permission("events.manage", "Manage events")
+	PermStaff              = access.Permission("staff", "Use the back office", auth.Unverified)
+	PermSettingsManage     = access.Permission("settings.manage", "Change settings")
+	PermTranslationsManage = access.Permission("translations.manage", "Edit translations")
+	PermSpeakersManage     = access.Permission("speakers.manage", "Manage speakers")
+	PermTalksManage        = access.Permission("talks.manage", "Manage talks")
+	PermTalksReview        = access.Permission("talks.review", "Review talks")
 )

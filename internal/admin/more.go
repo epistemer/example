@@ -17,8 +17,8 @@ import (
 	"github.com/epistemer/ui/components"
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/rule"
+	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
-	"github.com/epistemer/ui/theme"
 
 	"github.com/epistemer/auth"
 
@@ -52,7 +52,7 @@ var (
 //h:method GET
 //h:path /
 //h:auth unverified
-//h:perm staff
+//h:perm staff Use the back office
 //h:search
 //h:desc Dashboard
 func (h *H) Dashboard(w http.ResponseWriter, r *http.Request) error {
@@ -81,7 +81,7 @@ func (h *H) Dashboard(w http.ResponseWriter, r *http.Request) error {
 //h:method GET
 //h:path /account
 //h:auth unverified
-//h:perm staff
+//h:perm staff Use the back office
 //h:desc Your account
 func (h *H) Account(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
@@ -154,10 +154,6 @@ type SettingsForm struct {
 	Radius          *forms.Field[string]
 }
 
-func checked(check func(string) error) rule.Rule[string] {
-	return rule.New(func(_ context.Context, v string) error { return check(v) })
-}
-
 func NewSettingsForm() *SettingsForm {
 	f := &SettingsForm{Form: forms.New()}
 	// Labels are cfgx's: settings.<path>, generated from the schema.
@@ -167,17 +163,42 @@ func NewSettingsForm() *SettingsForm {
 	f.DefaultDuration = f.Int("cfp_default_duration").Label(settings.L10nCFPDefaultDuration).Required().
 		Is(rule.Between(5, 240)).As(minutes)
 	color := func(name string, l i18n.Ter) *forms.Field[string] {
-		return f.Text(name).Label(l).Required().Is(checked(theme.CheckColor))
+		return f.Text(name).Label(l).Required()
 	}
 	f.Brand = color("theme_brand_color", settings.L10nThemeBrandColor)
 	f.Danger = color("theme_danger_color", settings.L10nThemeDangerColor)
 	f.Warning = color("theme_warning_color", settings.L10nThemeWarningColor)
 	f.Success = color("theme_success_color", settings.L10nThemeSuccessColor)
 	f.Info = color("theme_info_color", settings.L10nThemeInfoColor)
-	f.FontSans = f.Text("theme_font_sans").Label(settings.L10nThemeFontSans).Required().Is(checked(theme.CheckFont))
-	f.FontMono = f.Text("theme_font_mono").Label(settings.L10nThemeFontMono).Required().Is(checked(theme.CheckFont))
-	f.Radius = f.Text("theme_radius").Label(settings.L10nThemeRadius).Required().Is(checked(theme.CheckRadius))
+	f.FontSans = f.Text("theme_font_sans").Label(settings.L10nThemeFontSans).Required()
+	f.FontMono = f.Text("theme_font_mono").Label(settings.L10nThemeFontMono).Required()
+	f.Radius = f.Text("theme_radius").Label(settings.L10nThemeRadius).Required()
 	return f
+}
+
+// field is the form field for a setting's key, for cfgx's problems. The
+// theme's checks run once, in cfgx (themeschema's Validate), and come back
+// through Problem.Err.
+func (f *SettingsForm) field(key string) interface{ Fail(error) } {
+	switch key {
+	case "theme.brand_color":
+		return f.Brand
+	case "theme.danger_color":
+		return f.Danger
+	case "theme.warning_color":
+		return f.Warning
+	case "theme.success_color":
+		return f.Success
+	case "theme.info_color":
+		return f.Info
+	case "theme.font_sans":
+		return f.FontSans
+	case "theme.font_mono":
+		return f.FontMono
+	case "theme.radius":
+		return f.Radius
+	}
+	return nil
 }
 
 func (f *SettingsForm) Fill(s *settings.Serve) {
@@ -214,7 +235,7 @@ func (f *SettingsForm) apply(u *settings.Update) error {
 //h:key settings
 //h:method GET
 //h:path /settings
-//h:perm settings.manage
+//h:perm settings.manage Change settings
 //h:search
 //h:desc Settings
 func (h *H) SettingsEdit(w http.ResponseWriter, r *http.Request) error {
@@ -226,7 +247,7 @@ func (h *H) SettingsEdit(w http.ResponseWriter, r *http.Request) error {
 //h:key settings.save
 //h:method POST
 //h:path /settings
-//h:perm settings.manage
+//h:perm settings.manage Change settings
 //h:desc Save the settings
 func (h *H) SettingsSave(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
@@ -239,19 +260,24 @@ func (h *H) SettingsSave(w http.ResponseWriter, r *http.Request) error {
 		who = string(s.User)
 	}
 	if err := h.Settings.Update(ctx, f.apply, cfgx.By(who)); err != nil {
-		// cfgx reports problems by key, as English text (findings F12).
+		// Each refused setting fails its field with the validator's own error.
 		var probs cfgx.Errors
-		if errors.As(err, &probs) {
-			f.Fail(ErrSettingsRefused.With(probs.Error()))
-		} else {
-			f.Fail(err)
+		if !errors.As(err, &probs) {
+			return err
+		}
+		for _, p := range probs {
+			if fl := f.field(p.Key); fl != nil && p.Err != nil {
+				fl.Fail(p.Err)
+			} else {
+				f.Fail(ErrSettingsRefused.With(p.Key))
+			}
 		}
 		return h.page(w, r, http.StatusUnprocessableEntity, adminroutes.L10nSettingsEdit, settingsPage(f))
 	}
-	return goWith(w, r, L10nSettingsSaved, adminroutes.SettingsEdit())
+	return components.Reply(w, r).Toast(L10nSettingsSaved).Go(adminroutes.SettingsEdit())
 }
 
-var ErrSettingsRefused = errors.Key1[string]("errors.confab.settings_refused", "the settings were refused: %s", errors.Invalid)
+var ErrSettingsRefused = errors.Key1[string]("errors.confab.settings_refused", "the setting %s was refused", errors.Invalid)
 
 // Translations: a ui table over i18n's catalogue, not over SQL. Its
 // columns are built by hand, as models would generate them.
@@ -283,7 +309,7 @@ var TranslationsTable = tables.New("translations", trKey,
 var TranslationsView = components.TableOf(TranslationsTable)
 
 var (
-	EditTranslation  = actions.New(L10nEdit).Dialog()
+	EditTranslation  = actions.New(L10nEdit).Icon(icons.Pencil()).Dialog()
 	ResetTranslation = actions.New(L10nTransReset).Confirm(L10nResetQ)
 )
 
@@ -318,7 +344,7 @@ func (h *H) searchTranslations(loc ids.Locale, q listing.Query) ([]i18n.Entry, i
 //h:key translations
 //h:method GET
 //h:path /translations/{locale}
-//h:perm translations.manage
+//h:perm translations.manage Edit translations
 //h:view
 //h:search
 //h:param locale label Language
@@ -326,7 +352,10 @@ func (h *H) searchTranslations(loc ids.Locale, q listing.Query) ([]i18n.Entry, i
 func (h *H) Translations(w http.ResponseWriter, r *http.Request, locale ids.Locale) error {
 	l, ok := h.Tr.Locale(string(locale))
 	if !ok {
-		return i18n.ErrUnknownLocale
+		// Locale reports a bool; Search returns i18n's public error, which
+		// people can read (a 404), unlike the bare variable (findings F35).
+		_, err := h.Tr.Search(string(locale), i18n.Query{})
+		return err
 	}
 	ctx := pageLocale.With(r.Context(), locale)
 	r = r.WithContext(ctx)
@@ -368,13 +397,17 @@ func (h *H) entry(locale ids.Locale, key string) (i18n.Entry, error) {
 			return e, nil
 		}
 	}
-	return i18n.Entry{}, i18n.ErrUnknownKey
+	return i18n.Entry{}, ErrNoSuchKey.With(key)
 }
+
+// ErrNoSuchKey is i18n's own unknown-key error, declared again with the same
+// key and kind (i18n §8.5), because Search can't say a key is missing.
+var ErrNoSuchKey = errors.Key1[string]("errors.i18n.unknown_key", "there's no text with the key %s", errors.NotFound)
 
 //h:key translations.edit
 //h:method GET
 //h:path /translations/{locale}/keys/{key...}
-//h:perm translations.manage
+//h:perm translations.manage Edit translations
 //h:param locale label Language
 //h:param key label Key
 //h:desc Edit a translation
@@ -391,7 +424,7 @@ func (h *H) TranslationsEdit(w http.ResponseWriter, r *http.Request, locale ids.
 //h:key translations.save
 //h:method POST
 //h:path /translations/{locale}/keys/{key...}
-//h:perm translations.manage
+//h:perm translations.manage Edit translations
 //h:param locale label Language
 //h:param key label Key
 //h:desc Save a translation
@@ -415,7 +448,7 @@ func (h *H) TranslationsSave(w http.ResponseWriter, r *http.Request, locale ids.
 //h:key translations.reset
 //h:method DELETE
 //h:path /translations/{locale}/keys/{key...}
-//h:perm translations.manage
+//h:perm translations.manage Edit translations
 //h:param locale label Language
 //h:param key label Key
 //h:desc Drop a translation

@@ -452,21 +452,6 @@
       "var": "L10nCFPDefaultLevel"
     },
     {
-      "key": "settings.cfp.default_level.beginner",
-      "path": "cfp.default_level.beginner",
-      "text": "beginner"
-    },
-    {
-      "key": "settings.cfp.default_level.intermediate",
-      "path": "cfp.default_level.intermediate",
-      "text": "intermediate"
-    },
-    {
-      "key": "settings.cfp.default_level.advanced",
-      "path": "cfp.default_level.advanced",
-      "text": "advanced"
-    },
-    {
       "key": "settings.cfp.default_duration",
       "path": "cfp.default_duration",
       "text": "Length a new talk starts at",

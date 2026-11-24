@@ -104,7 +104,7 @@ var Routes = []handlers.Route{
 		Pattern:    "/talks/{id}/state",
 		Surface:    handlers.JSON,
 		Auth:       handlers.Permission,
-		Permission: "api.talks.review",
+		Permission: "talks.review",
 		Label:      L10nSetTalkState,
 		View:       false,
 		Searchable: false,

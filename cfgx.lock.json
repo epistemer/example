@@ -843,6 +843,7 @@
               "text": "advanced"
             }
           ],
+          "enumLabeled": true,
           "kind": "enum",
           "mutable": true,
           "name": "default_level",
@@ -908,5 +909,5 @@
     "."
   ],
   "store": "storage.bolt",
-  "version": 19
+  "version": 20
 }

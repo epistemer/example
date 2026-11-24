@@ -16,13 +16,13 @@ import (
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/files"
 	"github.com/epistemer/ui/forms/rule"
+	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
 	"github.com/epistemer/example/internal/confab"
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
-	"github.com/epistemer/example/internal/pg"
 )
 
 var (
@@ -45,19 +45,12 @@ var (
 	L10nNewState      = i18n.Key("page.talks.new_state", "New state")
 )
 
-// eventOption is an event as a choice of the talk form's select. Its
-// label is data, not a translation key (findings F10).
-type eventOption struct {
-	id   int64
-	name string
-}
-
-func (o eventOption) Value() string    { return strconv.FormatInt(o.id, 10) }
-func (o eventOption) Label() i18n.TKer { return dataLabel(o.name) }
+// eventOptions lists events as choices of the talk form's select; their
+// labels are data, not translation keys.
 func eventOptions(rows []models.ListEventOptionsRow) []option.SelectOption {
 	out := make([]option.SelectOption, len(rows))
 	for i, r := range rows {
-		out[i] = eventOption{r.ID, r.Name}
+		out[i] = option.Static(strconv.FormatInt(r.ID, 10), r.Name)
 	}
 	return out
 }
@@ -66,13 +59,6 @@ var (
 	ErrNoDuration     = errors.Key("errors.confab.no_duration", "say how long the talk is", errors.Invalid)
 	ErrDurationNumber = errors.Key("errors.confab.duration_number", "the duration is a number of minutes", errors.Invalid)
 )
-
-// dataLabel is text that comes from data, posing as a key so it fits
-// option.SelectOption: K is empty.
-type dataLabel string
-
-func (d dataLabel) T(context.Context, ...any) string { return string(d) }
-func (d dataLabel) K() string                        { return "" }
 
 // minutes reads an Int field as a time.Duration: As converts the value
 // both ways, and rules after it are on durations.
@@ -112,7 +98,7 @@ type TalkForm struct {
 	Topics   *forms.Field[[]models.TalkTopic]
 	StartsAt *forms.Field[time.Time]
 	Duration *forms.Field[time.Duration]
-	Seats    *forms.Field[int]
+	Seats    *forms.Field[int32]
 	Recorded *forms.Field[bool]
 	Slides   *forms.Field[files.Upload]
 }
@@ -131,8 +117,8 @@ func NewTalkForm(events []option.SelectOption, speakers speakerLabels, slides []
 		Options(models.AllTalkTopicOptions()...).Is(rule.MinItems[string](1), rule.MaxItems[string](3)).As(topics)
 	f.Duration = f.Int("duration").Label(L10nDurationLabel).RequiredWith(ErrNoDuration).
 		InvalidWith(ErrDurationNumber).Is(rule.Between(5, 240)).As(minutes)
-	f.Seats = f.Int("seats").Label(models.L10nTalk_Seats).When(f.Format.Eq(models.TalkFormatWorkshop)).
-		Required().Is(rule.Between(1, 200))
+	f.Seats = f.Number[int32]("seats").Label(models.L10nTalk_Seats).When(f.Format.Eq(models.TalkFormatWorkshop)).
+		Required().Is(rule.Between[int32](1, 200))
 	// A workshop gets a time once its seats are known; other formats at once.
 	f.StartsAt = f.Time("starts_at", "2006-01-02T15:04").Label(models.L10nTalk_StartsAt).Help(L10nStartsAtHelp).
 		When(forms.Any(
@@ -163,10 +149,10 @@ func (f *TalkForm) Fill(t models.Talk) {
 	f.Level.Set(t.Level)
 	f.Format.Set(t.Format)
 	f.Topics.Set(t.Topics)
-	f.StartsAt.SetPtr(pg.TimeOf(t.StartsAt))
+	f.StartsAt.SetPtr(t.StartsAt)
 	f.Duration.Set(time.Duration(t.DurationMinutes) * time.Minute)
-	f.Seats.SetPtr(pg.Int4Of(t.Seats))
-	f.Recorded.SetPtr(pg.BoolOf(t.Recorded))
+	f.Seats.SetPtr(t.Seats)
+	f.Recorded.SetPtr(t.Recorded)
 }
 
 func (f *TalkForm) fail(err error) {
@@ -211,12 +197,12 @@ func (h *H) talksTable() *tables.Table[models.TalkView] {
 }
 
 var (
-	EditTalk     = actions.New(L10nEdit)
+	EditTalk     = actions.New(L10nEdit).Icon(icons.Pencil())
 	AcceptTalk   = actions.New(L10nAccept).Primary()
 	RejectTalk   = actions.New(L10nReject).Danger().Confirm(L10nRejectQ)
-	ScheduleTalk = actions.New(L10nScheduleTalk)
+	ScheduleTalk = actions.New(L10nScheduleTalk).Icon(icons.Calendar())
 	MoveTalk     = actions.New(L10nMove).Dialog()
-	DeleteTalk   = actions.New(L10nDelete).Danger().Confirm(L10nDeleteTalkQ)
+	DeleteTalk   = actions.New(L10nDelete).Icon(icons.Trash()).Danger().Confirm(L10nDeleteTalkQ)
 )
 
 func talkActions(ctx context.Context, t models.TalkView) []actions.Item {
@@ -240,7 +226,7 @@ func talkBulk(ctx context.Context) []actions.Item {
 //h:key talks
 //h:method GET
 //h:path /talks
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:view
 //h:search
 //h:desc Talks
@@ -283,7 +269,7 @@ func (h *H) newTalkForm(ctx context.Context, talk ids.TalkID) (*TalkForm, error)
 //h:key talks.new
 //h:method GET
 //h:path /talks/new
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:search
 //h:entity talks
 //h:desc New talk
@@ -304,7 +290,7 @@ func (h *H) TalksNew(w http.ResponseWriter, r *http.Request) error {
 //h:key talks.create
 //h:method POST
 //h:path /talks
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:body 110MiB
 //h:desc Create a talk
 func (h *H) TalksCreate(w http.ResponseWriter, r *http.Request) error {
@@ -314,7 +300,7 @@ func (h *H) TalksCreate(w http.ResponseWriter, r *http.Request) error {
 //h:key talks.edit
 //h:method GET
 //h:path /talks/{id}
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:entity talks
 //h:param id label Talk number
 //h:desc Edit a talk
@@ -335,7 +321,7 @@ func (h *H) TalksEdit(w http.ResponseWriter, r *http.Request, id ids.TalkID) err
 //h:key talks.update
 //h:method POST
 //h:path /talks/{id}
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:body 110MiB
 //h:param id label Talk number
 //h:desc Save a talk
@@ -382,13 +368,13 @@ func (h *H) saveTalk(w http.ResponseWriter, r *http.Request, id ids.TalkID) erro
 		return h.page(w, r, http.StatusUnprocessableEntity, title, talkFormPage(f, id))
 	}
 	_ = h.Files.Delete(dropped...)
-	return goWith(w, r, L10nTalkSaved, adminroutes.TalksEdit(saved))
+	return components.Reply(w, r).Toast(L10nTalkSaved).Go(adminroutes.TalksEdit(saved))
 }
 
 //h:key talks.review
 //h:method POST
 //h:path /talks/{id}/review/{state}
-//h:perm talks.review
+//h:perm talks.review Review talks
 //h:param id label Talk number
 //h:param state label New state
 //h:desc Accept, reject or schedule a talk
@@ -415,7 +401,7 @@ func (h *H) TalksReview(w http.ResponseWriter, r *http.Request, id ids.TalkID, s
 //h:key talks.review_many
 //h:method POST
 //h:path /talks/review/{state}
-//h:perm talks.review
+//h:perm talks.review Review talks
 //h:param state label New state
 //h:desc Accept or reject the chosen talks
 func (h *H) TalksReviewMany(w http.ResponseWriter, r *http.Request, state models.TalkState) error {
@@ -448,7 +434,7 @@ func NewMoveForm() *MoveForm {
 //h:key talks.move
 //h:method GET
 //h:path /talks/{id}/state
-//h:perm talks.review
+//h:perm talks.review Review talks
 //h:param id label Talk number
 //h:desc Change a talk's state
 func (h *H) TalksMove(w http.ResponseWriter, r *http.Request, id ids.TalkID) error {
@@ -464,7 +450,7 @@ func (h *H) TalksMove(w http.ResponseWriter, r *http.Request, id ids.TalkID) err
 //h:key talks.move_put
 //h:method PUT
 //h:path /talks/{id}/state
-//h:perm talks.review
+//h:perm talks.review Review talks
 //h:param id label Talk number
 //h:desc Save a talk's state
 func (h *H) TalksMovePut(w http.ResponseWriter, r *http.Request, id ids.TalkID) error {
@@ -495,7 +481,7 @@ func (h *H) TalksMovePut(w http.ResponseWriter, r *http.Request, id ids.TalkID) 
 //h:key talks.delete
 //h:method DELETE
 //h:path /talks/{id}
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:param id label Talk number
 //h:desc Delete a talk
 func (h *H) TalksDelete(w http.ResponseWriter, r *http.Request, id ids.TalkID) error {

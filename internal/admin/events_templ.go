@@ -357,7 +357,7 @@ func publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = elements.Date(e.StartsOn.Time).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = elements.Date(e.StartsOn).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -379,7 +379,7 @@ func publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = elements.Date(e.EndsOn.Time).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = elements.Date(e.EndsOn).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -413,7 +413,7 @@ func publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks
 						}
 					} else {
 						var templ_7745c5c3_Var21 string
-						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(e.VenueName.String)
+						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(deref(e.VenueName))
 						if templ_7745c5c3_Err != nil {
 							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/admin/events.templ`, Line: 103, Col: 26}
 						}
@@ -426,7 +426,7 @@ func publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(e.VenueCity.String)
+						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(deref(e.VenueCity))
 						if templ_7745c5c3_Err != nil {
 							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/admin/events.templ`, Line: 103, Col: 50}
 						}
@@ -618,7 +618,7 @@ func publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talks
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = elements.DateTime(t.StartsAt.Time.In(time.UTC)).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = elements.DateTime(t.StartsAt.In(time.UTC)).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

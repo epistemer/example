@@ -428,3 +428,87 @@ Not every note is a problem. These were better than expected:
 | F30 | ui/forms | friction | low |
 | F31 | genx + templ | friction | low |
 | F32 | genx | friction | low |
+
+## Closing iteration 1 (2026-11-25)
+
+Confab moved to handlers v0.4.0, ui v0.5.0, models v0.5.1, cfgx v0.3.1,
+i18n v0.4.0 and errors v0.2.0, which build epistemer's answers of
+2026-11-24 ([neozp decisions](https://github.com/epistemer/neozp/blob/main/docs/decisions.md)),
+and deleted the workarounds. A finding is closed when its workaround is
+gone (neozp roadmap I1).
+
+| # | Status | How |
+|---|---|---|
+| F1 | closed | cfgx v0.3.0: `cfgx init -name` (A17) |
+| F2 | closed | models documents `table_prefix`'s trade-off |
+| F3 | closed | cfgx v0.3.0 takes an enum's labels from its Go type (A16); the dead `settings.cfp.default_level.*` keys are gone |
+| F4 | closed, low | handlers v0.4.0's error names the missing builder; the order is handler, `handlers gen`, then the link. `scripts/stub` deleted |
+| F5 | closed | models v0.5.0 reads `*T` and overridden types; sqlc's config now uses pointers and overrides, as zp's does. `internal/pg` deleted |
+| F6 | **open** | the combobox now upgrades when htmx arrives late (ui v0.5.0); serving htmx waits for the discussion of forking htmx (U2). The vendored copy stays |
+| F7 | closed | `NavItem` asks the actions gate (ui A9); `navItem` only marks the current page |
+| F8 | closed | `option.Static`; `dataLabel` deleted |
+| F9 | closed | `PostCode` passes unknown countries (ui A9); the recover deleted |
+| F10 | closed | documented |
+| F11 | closed | documented: build such tables at startup, as `H.Check` does |
+| F12 | closed | `Problem.Err` (cfgx A15): the settings page shows themeschema's own error on the field; the repeated checks deleted |
+| F13 | **open** | deferred with epistemer's parameter-form idea (H5) |
+| F14 | closed | cfgx's skeleton calls `slog.SetDefault` |
+| F15 | closed | `models.RegisterTypes`; the hand-written `LoadTypes` deleted |
+| F16 | closed | `Register` and `Mount` recover; `Recover` and `ErrPanic` deleted |
+| F17 | closed | documented: 422 whenever htmx may be involved |
+| F18 | **open** | deferred to the discussion of forking htmx (H6) |
+| F19 | closed | enum values read as words ("Submitted"), neozp D7 |
+| F20 | closed | Lucide generated; edit, delete, calendar and external-link actions carry icons |
+| F21 | closed | permissions carry their text (`//h:perm events.manage Manage events`) |
+| F22 | closed | the API takes `talks.review from adminroutes`; the seed grants one permission, and `TestReviewPermissionShared` holds it |
+| F23 | closed | ui v0.5.0; the CSS rule deleted from `confab.css` |
+| F24 | closed | checked: a boosted switch to Arabic sets `dir="rtl" lang="ar"` |
+| F25 | closed | `Reply(...).Toast(m).Go(l)` carries the toast through handlers' flash; `flash.go` deleted (see F34) |
+| F26 | closed | `<ui-tristate>` renders `KindToggle` (ui A9) |
+| F27 | closed | text inputs carry `dir="auto"` |
+| F28 | closed | enums refuse unknown text: `/events/1/status/bogus` answers 400 |
+| F29 | closed | i18n v0.4.0 and errors v0.2.0: `/translations/xx` answers 404 "there's no locale with the code xx" (see F35) |
+| F30 | closed | the hidden version field has no label |
+| F31 | closed | documented in genx |
+| F32 | dropped, then met again | see F33 |
+
+### F33 — a change to sqlc's options breaks the pipeline in two places (friction, medium; genx + models + handlers + cfgx)
+
+Switching sqlc to `emit_pointers_for_null_types` and overrides changed
+every nullable type. `go tool genx` then failed twice before any of models'
+generators ran:
+
+1. cfgx's producer compiles the settings schema, which imports the models
+   package, and models' `zz_models_views.go` was still written for pgtype.
+2. With that file deleted, `handlers gen` type-checks the admin package,
+   which uses the column sets models hadn't written yet.
+
+genx runs every producer before any trivial generator, so a producer
+can't depend on a generator's output. Taking handlers out of `genx.yaml`
+to break the loop (F32's workaround) made genx delete handlers' outputs
+and drop them from `genx.lock`. Once restored, genx refused to overwrite
+them ("exists and isn't in genx.lock"), until the lock was mended by hand.
+
+*Would help:* genx ordering producers after the generators whose outputs
+their inputs import, or a way to declare that dependency; and
+`genx run <producer>…` (G1, dropped on 2026-11-24) after all.
+
+### F34 — a toast carried across a redirect is always "info" (friction, low; ui)
+
+`Reply.Toast(msg)` takes no tone, and Reply flashes it at level `info`.
+"The event was saved" used to be a success alert; now it's an
+"Information:" toast.
+
+*Would help:* a tone on `Toast` (or `Reply.Success(msg)`), passed to the
+flash's level.
+
+### F35 — an app that finds a locale missing has no public error to return (friction, low; i18n)
+
+`Translator.Locale(code)` answers with a bool. The documented
+`ErrUnknownLocale` is the bare variable, which isn't public (i18n §8.5),
+so returning it still shows a 500. Confab now asks `Search`, which returns
+the public error. For an unknown key it declares i18n's key again with
+`errors.Key1` (`ErrNoSuchKey`), as §8.5 allows.
+
+*Would help:* `Translator.Locale` returning the public error, or i18n
+exporting constructors for its public errors.
