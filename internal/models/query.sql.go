@@ -7,8 +7,9 @@ package models
 
 import (
 	"context"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const createEvent = `-- name: CreateEvent :one
@@ -24,17 +25,17 @@ type CreateEventParams struct {
 	Slug          string
 	Summary       string
 	Status        EventStatus
-	StartsOn      pgtype.Date
-	EndsOn        pgtype.Date
+	StartsOn      time.Time
+	EndsOn        time.Time
 	Online        bool
 	Capacity      int32
-	VenueName     pgtype.Text
-	VenueStreet   pgtype.Text
-	VenueCity     pgtype.Text
-	VenueCountry  pgtype.Text
-	VenuePostCode pgtype.Text
-	Latitude      pgtype.Float8
-	Longitude     pgtype.Float8
+	VenueName     *string
+	VenueStreet   *string
+	VenueCity     *string
+	VenueCountry  *string
+	VenuePostCode *string
+	Latitude      *float64
+	Longitude     *float64
 	Currency      string
 }
 
@@ -71,12 +72,12 @@ RETURNING id
 type CreateSpeakerParams struct {
 	Name      string
 	Email     string
-	Phone     pgtype.Text
+	Phone     *string
 	Country   string
-	Website   pgtype.Text
+	Website   *string
 	Bio       string
-	PhotoKey  pgtype.Text
-	PhotoName pgtype.Text
+	PhotoKey  *string
+	PhotoName *string
 }
 
 func (q *Queries) CreateSpeaker(ctx context.Context, arg CreateSpeakerParams) (int64, error) {
@@ -110,10 +111,10 @@ type CreateTalkParams struct {
 	Level           TalkLevel
 	Format          TalkFormat
 	Topics          []TalkTopic
-	StartsAt        pgtype.Timestamptz
+	StartsAt        *time.Time
 	DurationMinutes int32
-	Seats           pgtype.Int4
-	Recorded        pgtype.Bool
+	Seats           *int32
+	Recorded        *bool
 }
 
 func (q *Queries) CreateTalk(ctx context.Context, arg CreateTalkParams) (int64, error) {
@@ -167,9 +168,9 @@ type CreateTicketTierParams struct {
 	EventID    int64
 	Position   int32
 	Name       string
-	Price      pgtype.Numeric
+	Price      decimal.Decimal
 	Quantity   int32
-	SaleEndsOn pgtype.Date
+	SaleEndsOn *time.Time
 }
 
 func (q *Queries) CreateTicketTier(ctx context.Context, arg CreateTicketTierParams) error {
@@ -540,8 +541,8 @@ type OverlappingTalkParams struct {
 	EventID   int64
 	SpeakerID int64
 	ID        int64
-	EndsAt    pgtype.Timestamptz
-	StartsAt  pgtype.Timestamptz
+	EndsAt    time.Time
+	StartsAt  time.Time
 }
 
 type OverlappingTalkRow struct {
@@ -565,7 +566,7 @@ func (q *Queries) OverlappingTalk(ctx context.Context, arg OverlappingTalkParams
 const publicSchedule = `-- name: PublicSchedule :many
 SELECT t.id, t.title, t.level, t.format, t.starts_at, t.duration_minutes, s.name AS speaker
 FROM talk t JOIN speaker s ON s.id = t.speaker_id
-WHERE t.event_id = $1 AND t.state = 'scheduled'
+WHERE t.event_id = $1 AND t.state = 'scheduled' AND t.starts_at IS NOT NULL
 ORDER BY t.starts_at, t.id
 `
 
@@ -574,7 +575,7 @@ type PublicScheduleRow struct {
 	Title           string
 	Level           TalkLevel
 	Format          TalkFormat
-	StartsAt        pgtype.Timestamptz
+	StartsAt        *time.Time
 	DurationMinutes int32
 	Speaker         string
 }
@@ -703,17 +704,17 @@ type UpdateEventParams struct {
 	Slug          string
 	Summary       string
 	Status        EventStatus
-	StartsOn      pgtype.Date
-	EndsOn        pgtype.Date
+	StartsOn      time.Time
+	EndsOn        time.Time
 	Online        bool
 	Capacity      int32
-	VenueName     pgtype.Text
-	VenueStreet   pgtype.Text
-	VenueCity     pgtype.Text
-	VenueCountry  pgtype.Text
-	VenuePostCode pgtype.Text
-	Latitude      pgtype.Float8
-	Longitude     pgtype.Float8
+	VenueName     *string
+	VenueStreet   *string
+	VenueCity     *string
+	VenueCountry  *string
+	VenuePostCode *string
+	Latitude      *float64
+	Longitude     *float64
 	Currency      string
 	Version       int32
 }
@@ -755,12 +756,12 @@ type UpdateSpeakerParams struct {
 	ID        int64
 	Name      string
 	Email     string
-	Phone     pgtype.Text
+	Phone     *string
 	Country   string
-	Website   pgtype.Text
+	Website   *string
 	Bio       string
-	PhotoKey  pgtype.Text
-	PhotoName pgtype.Text
+	PhotoKey  *string
+	PhotoName *string
 }
 
 func (q *Queries) UpdateSpeaker(ctx context.Context, arg UpdateSpeakerParams) error {
@@ -794,10 +795,10 @@ type UpdateTalkParams struct {
 	Level           TalkLevel
 	Format          TalkFormat
 	Topics          []TalkTopic
-	StartsAt        pgtype.Timestamptz
+	StartsAt        *time.Time
 	DurationMinutes int32
-	Seats           pgtype.Int4
-	Recorded        pgtype.Bool
+	Seats           *int32
+	Recorded        *bool
 }
 
 func (q *Queries) UpdateTalk(ctx context.Context, arg UpdateTalkParams) error {

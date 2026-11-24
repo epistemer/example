@@ -13,6 +13,7 @@ import (
 	"github.com/epistemer/auth/access"
 	"github.com/epistemer/handlers"
 	"github.com/epistemer/handlers/authguard"
+	"github.com/epistemer/handlers/middleware"
 	"github.com/epistemer/handlers/openapi"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/ui/theme"
@@ -71,7 +72,11 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 		return err
 	}
 
-	h := &admin.H{Store: store, Files: files, Access: ac, Theme: th, Tr: tr, Settings: s}
+	var flashOpts []middleware.FlashOption
+	if s.AuthCookieInsecure() { // plain HTTP in development, as auth's cookies
+		flashOpts = append(flashOpts, middleware.FlashInsecure())
+	}
+	h := &admin.H{Store: store, Files: files, Access: ac, Theme: th, Tr: tr, Settings: s, Flash: middleware.NewFlash(flashOpts...)}
 	a, err := auth.New(db, s, confab.Directory{S: store}, confab.Outbox{Dir: s.MailOutbox()},
 		// Staff may sign in with the password alone to read the dashboard;
 		// everything else needs the emailed code too, unless the browser is
@@ -93,7 +98,7 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 	mux := http.NewServeMux()
 	adminroutes.Register(mux, h, guard,
 		handlers.WithErrors(h.ErrorPage),
-		handlers.WithMiddleware(h.Recover, h.Middleware),
+		handlers.WithMiddleware(h.Middleware),
 	)
 
 	// The JSON API: its own mux and the bearer carrier, so a cookie never
@@ -117,7 +122,7 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 
 	root := http.NewServeMux()
 	root.Handle(apiroutes.Prefix+"/", a.Load(auth.Bearer())(apiMux))
-	root.Handle(adminroutes.Prefix+"/", a.Load(auth.Cookie())(mux))
+	root.Handle(adminroutes.Prefix+"/", h.Flash.Middleware(a.Load(auth.Cookie())(mux)))
 	root.Handle(adminroutes.Prefix+"/ui/", th)
 	root.Handle(adminroutes.Prefix+"/assets/", admin.Assets())
 	root.Handle("GET /{$}", http.RedirectHandler(adminroutes.Dashboard().URL(), http.StatusSeeOther))

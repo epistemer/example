@@ -17,13 +17,13 @@ import (
 	"github.com/epistemer/ui/forms"
 	"github.com/epistemer/ui/forms/files"
 	"github.com/epistemer/ui/forms/rule"
+	"github.com/epistemer/ui/icons"
 	"github.com/epistemer/ui/tables"
 
 	"github.com/epistemer/example/internal/admin/adminroutes"
 	"github.com/epistemer/example/internal/confab"
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
-	"github.com/epistemer/example/internal/pg"
 )
 
 var (
@@ -71,21 +71,21 @@ func NewSpeakerForm(photo []files.Stored) *SpeakerForm {
 }
 
 func storedPhoto(s models.Speaker) []files.Stored {
-	if !s.PhotoKey.Valid {
+	if s.PhotoKey == nil {
 		return nil
 	}
 	return []files.Stored{{
-		Key: s.PhotoKey.String, Name: s.PhotoName.String,
-		Href: adminroutes.File(s.PhotoKey.String), Image: true,
+		Key: *s.PhotoKey, Name: deref(s.PhotoName),
+		Href: adminroutes.File(*s.PhotoKey), Image: true,
 	}}
 }
 
 func (f *SpeakerForm) Fill(s models.Speaker) {
 	f.Name.Set(s.Name)
 	f.Email.Set(s.Email)
-	f.Phone.SetPtr(pg.TextPtr(s.Phone))
+	f.Phone.SetPtr(s.Phone)
 	f.Country.Set(s.Country)
-	f.Website.SetPtr(pg.TextPtr(s.Website))
+	f.Website.SetPtr(s.Website)
 	f.Bio.Set(s.Bio)
 	f.Consent.Set(true)
 }
@@ -109,8 +109,8 @@ func (f *SpeakerForm) save(fs *confab.Files, old models.Speaker) (confab.Speaker
 	case len(up.Kept) == 1:
 		in.Photo = &confab.StoredFile{Key: up.Kept[0].Key, Name: up.Kept[0].Name}
 	}
-	if old.PhotoKey.Valid && (in.Photo == nil || in.Photo.Key != old.PhotoKey.String) {
-		drop = append(drop, old.PhotoKey.String)
+	if old.PhotoKey != nil && (in.Photo == nil || in.Photo.Key != *old.PhotoKey) {
+		drop = append(drop, *old.PhotoKey)
 	}
 	return in, drop, nil
 }
@@ -130,7 +130,7 @@ var SpeakersTable = tables.New("speakers", sc.ID,
 	tables.Col(sc.Name).Searchable().Sortable().Link(func(s models.SpeakerView) ui.Link { return adminroutes.SpeakersEdit(ids.SpeakerID(s.ID)) }),
 	tables.Col(sc.Email).Searchable(),
 	tables.Col(sc.Country).Filter().Sortable(),
-	tables.Col(sc.Website).Link(func(s models.SpeakerView) ui.Link { return ui.URL(s.Website.String) }),
+	tables.Col(sc.Website).Link(func(s models.SpeakerView) ui.Link { return ui.URL(deref(s.Website)) }),
 	tables.Col(sc.Talks).Sortable().Filter(),
 	tables.Col(sc.CreatedAt).Sortable(),
 ).
@@ -142,8 +142,8 @@ var SpeakersTable = tables.New("speakers", sc.ID,
 var SpeakersView = components.TableOf(SpeakersTable)
 
 var (
-	EditSpeaker   = actions.New(L10nEdit)
-	DeleteSpeaker = actions.New(L10nDelete).Danger().Confirm(L10nDeleteSpeakerQ)
+	EditSpeaker   = actions.New(L10nEdit).Icon(icons.Pencil())
+	DeleteSpeaker = actions.New(L10nDelete).Icon(icons.Trash()).Danger().Confirm(L10nDeleteSpeakerQ)
 )
 
 func speakerActions(ctx context.Context, s models.SpeakerView) []actions.Item {
@@ -180,7 +180,7 @@ func (l speakerLabels) LabelOf(ctx context.Context, id string) (string, bool, er
 //h:key speakers
 //h:method GET
 //h:path /speakers
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:view
 //h:search
 //h:desc Speakers
@@ -204,7 +204,7 @@ func (h *H) Speakers(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.search
 //h:method GET
 //h:path /speakers/search
-//h:perm talks.manage
+//h:perm talks.manage Manage talks
 //h:desc Find a speaker
 func (h *H) SpeakersSearch(w http.ResponseWriter, r *http.Request) error {
 	rows, err := h.Store.SearchSpeakers(r.Context(), models.SearchSpeakersParams{
@@ -223,7 +223,7 @@ func (h *H) SpeakersSearch(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.new
 //h:method GET
 //h:path /speakers/new
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:search
 //h:entity speakers
 //h:desc New speaker
@@ -234,7 +234,7 @@ func (h *H) SpeakersNew(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.create
 //h:method POST
 //h:path /speakers
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:body 3MiB
 //h:desc Create a speaker
 func (h *H) SpeakersCreate(w http.ResponseWriter, r *http.Request) error {
@@ -244,7 +244,7 @@ func (h *H) SpeakersCreate(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.edit
 //h:method GET
 //h:path /speakers/{id}
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:entity speakers
 //h:param id label Speaker number
 //h:desc Edit a speaker
@@ -261,7 +261,7 @@ func (h *H) SpeakersEdit(w http.ResponseWriter, r *http.Request, id ids.SpeakerI
 //h:key speakers.update
 //h:method POST
 //h:path /speakers/{id}
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:body 3MiB
 //h:param id label Speaker number
 //h:desc Save a speaker
@@ -296,20 +296,20 @@ func (h *H) saveSpeaker(w http.ResponseWriter, r *http.Request, id ids.SpeakerID
 		}
 	}
 	if err != nil {
-		if in.Photo != nil && in.Photo.Key != old.PhotoKey.String {
+		if in.Photo != nil && in.Photo.Key != deref(old.PhotoKey) {
 			_ = h.Files.Delete(in.Photo.Key)
 		}
 		f.fail(err)
 		return h.page(w, r, http.StatusUnprocessableEntity, title, speakerFormPage(f, id))
 	}
 	_ = h.Files.Delete(drop...)
-	return goWith(w, r, L10nSpeakerSaved, adminroutes.SpeakersEdit(id))
+	return components.Reply(w, r).Toast(L10nSpeakerSaved).Go(adminroutes.SpeakersEdit(id))
 }
 
 //h:key speakers.delete
 //h:method DELETE
 //h:path /speakers/{id}
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:param id label Speaker number
 //h:desc Delete a speaker
 func (h *H) SpeakersDelete(w http.ResponseWriter, r *http.Request, id ids.SpeakerID) error {
@@ -321,8 +321,8 @@ func (h *H) SpeakersDelete(w http.ResponseWriter, r *http.Request, id ids.Speake
 	if err := h.Store.DeleteSpeaker(ctx, id); err != nil {
 		return components.Reply(w, r).Fail(err).Else(adminroutes.Speakers())
 	}
-	if s.PhotoKey.Valid {
-		_ = h.Files.Delete(s.PhotoKey.String)
+	if s.PhotoKey != nil {
+		_ = h.Files.Delete(*s.PhotoKey)
 	}
 	return components.Reply(w, r).Toast(L10nSpeakerDeleted).
 		Remove(SpeakersTable.RowID(strconv.FormatInt(int64(id), 10))).Else(adminroutes.Speakers())
@@ -350,7 +350,7 @@ var ErrBadCSV = errors.Key1[int]("errors.confab.bad_csv", "line %d needs a name,
 //h:key speakers.import
 //h:method GET
 //h:path /speakers/import
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:search
 //h:entity speakers
 //h:desc Import speakers
@@ -361,7 +361,7 @@ func (h *H) SpeakersImport(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.import_post
 //h:method POST
 //h:path /speakers/import
-//h:perm speakers.manage
+//h:perm speakers.manage Manage speakers
 //h:body 64MiB
 //h:desc Read an import
 func (h *H) SpeakersImportPost(w http.ResponseWriter, r *http.Request) error {

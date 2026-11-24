@@ -7,7 +7,6 @@ import (
 	"github.com/epistemer/errors"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/ui"
-	"github.com/epistemer/ui/actions"
 	"github.com/epistemer/ui/components"
 	"github.com/epistemer/ui/elements"
 	"github.com/epistemer/ui/layout"
@@ -38,17 +37,15 @@ templ appCSS() {
 	<link rel="stylesheet" href={ adminroutes.Prefix + "/assets/confab.css" }/>
 }
 
-// navItem is a nav link shown only when the request's guard admits its
-// route: layout.NavItem doesn't ask the actions gate (see findings).
+// navItem marks the current page; NavItem itself drops a link the guard
+// refuses (ui A9, findings F7).
 templ navItem(r *http.Request, to ui.Link, label i18n.Ter) {
-	if actions.Allowed(ctx, to) {
-		@layout.NavItem(to).Current(r.URL.Path == to.URL()) {
-			{ label.T(ctx) }
-		}
+	@layout.NavItem(to).Current(r.URL.Path == to.URL()) {
+		{ label.T(ctx) }
 	}
 }
 
-templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component, flash i18n.Ter) {
+templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
 	@layout.Document(title).Head(scripts(), themeHead(ctx), appCSS()).ColorScheme(layout.ColorSchemeOf(r)).BodyAttrs(templ.Attributes{"hx-boost": "true"}) {
 		@layout.App() {
 			@layout.AppBrand {
@@ -87,11 +84,6 @@ templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component, flash i
 				</form>
 			}
 			@layout.AppMain {
-				if flash != nil {
-					@elements.Alert().Tone(elements.Success) {
-						{ flash.T(ctx) }
-					}
-				}
 				@body
 			}
 		}

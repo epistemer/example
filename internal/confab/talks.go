@@ -11,7 +11,6 @@ import (
 
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
-	"github.com/epistemer/example/internal/pg"
 )
 
 // Rules are the call for papers' settings the talk rules read: the
@@ -31,8 +30,8 @@ type TalkInput struct {
 	Topics   []models.TalkTopic
 	StartsAt *time.Time
 	Duration time.Duration
-	Seats    *int  // workshops only
-	Recorded *bool // nil: not decided yet
+	Seats    *int32 // workshops only
+	Recorded *bool  // nil: not decided yet
 }
 
 // CheckTalk runs the rules between a talk, its event and its speaker's
@@ -59,13 +58,13 @@ func (s *Store) CheckTalk(ctx context.Context, rules Rules, talk ids.TalkID, in 
 	if in.StartsAt == nil {
 		return nil
 	}
-	first, last := e.StartsOn.Time, e.EndsOn.Time.AddDate(0, 0, 1)
+	first, last := e.StartsOn, e.EndsOn.AddDate(0, 0, 1)
 	if in.StartsAt.Before(first) || !in.StartsAt.Before(last) {
-		return ErrOutsideEvent.With(i18n.StaticDate(first), i18n.StaticDate(e.EndsOn.Time))
+		return ErrOutsideEvent.With(i18n.StaticDate(first), i18n.StaticDate(e.EndsOn))
 	}
 	o, err := s.OverlappingTalk(ctx, models.OverlappingTalkParams{
 		EventID: int64(in.Event), SpeakerID: int64(in.Speaker), ID: int64(talk),
-		StartsAt: pg.Time(in.StartsAt), EndsAt: pg.Time(new(in.StartsAt.Add(in.Duration))),
+		StartsAt: *in.StartsAt, EndsAt: in.StartsAt.Add(in.Duration),
 	})
 	switch {
 	case err == nil:
@@ -79,8 +78,8 @@ func (s *Store) CheckTalk(ctx context.Context, rules Rules, talk ids.TalkID, in 
 func (in TalkInput) params() models.CreateTalkParams {
 	return models.CreateTalkParams{
 		EventID: int64(in.Event), SpeakerID: int64(in.Speaker), Title: in.Title, Abstract: in.Abstract,
-		Level: in.Level, Format: in.Format, Topics: in.Topics, StartsAt: pg.Time(in.StartsAt),
-		DurationMinutes: int32(in.Duration / time.Minute), Seats: pg.Int4(in.Seats), Recorded: pg.Bool(in.Recorded),
+		Level: in.Level, Format: in.Format, Topics: in.Topics, StartsAt: in.StartsAt,
+		DurationMinutes: int32(in.Duration / time.Minute), Seats: in.Seats, Recorded: in.Recorded,
 	}
 }
 
@@ -153,7 +152,7 @@ func (s *Store) TalkView(ctx context.Context, id ids.TalkID) (models.TalkView, e
 
 // Schedule moves an accepted talk with a start time to scheduled.
 func CanSchedule(t models.TalkView) error {
-	if t.State != models.TalkStateAccepted || !t.StartsAt.Valid {
+	if t.State != models.TalkStateAccepted || t.StartsAt == nil {
 		return ErrNotScheduled
 	}
 	return nil

@@ -232,25 +232,19 @@ var EventViewColumns = struct {
 		Name:  "id",
 		Label: L10nEventView_Id,
 		Kind:  column.Integer,
-		Get: func(r EventView) column.Value {
-			return column.Value{Int: r.ID}
-		},
+		Get:   column.Field(column.Integer, func(r EventView) any { return r.ID }),
 	},
 	Name: column.Column[EventView]{
 		Name:  "name",
 		Label: L10nEventView_Name,
 		Kind:  column.Text,
-		Get: func(r EventView) column.Value {
-			return column.Value{Text: r.Name}
-		},
+		Get:   column.Field(column.Text, func(r EventView) any { return r.Name }),
 	},
 	Slug: column.Column[EventView]{
 		Name:  "slug",
 		Label: L10nEventView_Slug,
 		Kind:  column.Text,
-		Get: func(r EventView) column.Value {
-			return column.Value{Text: r.Slug}
-		},
+		Get:   column.Field(column.Text, func(r EventView) any { return r.Slug }),
 	},
 	Status: column.Column[EventView]{
 		Name:    "status",
@@ -265,99 +259,55 @@ var EventViewColumns = struct {
 		Name:  "starts_on",
 		Label: L10nEventView_StartsOn,
 		Kind:  column.Date,
-		Get: func(r EventView) column.Value {
-			if !r.StartsOn.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.StartsOn.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.StartsOn.Time}
-		},
+		Get:   column.Field(column.Date, func(r EventView) any { return r.StartsOn }),
 	},
 	EndsOn: column.Column[EventView]{
 		Name:  "ends_on",
 		Label: L10nEventView_EndsOn,
 		Kind:  column.Date,
-		Get: func(r EventView) column.Value {
-			if !r.EndsOn.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.EndsOn.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.EndsOn.Time}
-		},
+		Get:   column.Field(column.Date, func(r EventView) any { return r.EndsOn }),
 	},
 	Online: column.Column[EventView]{
 		Name:  "online",
 		Label: L10nEventView_Online,
 		Kind:  column.Bool,
-		Get: func(r EventView) column.Value {
-			return column.Value{Bool: r.Online}
-		},
+		Get:   column.Field(column.Bool, func(r EventView) any { return r.Online }),
 	},
 	Capacity: column.Column[EventView]{
 		Name:  "capacity",
 		Label: L10nEventView_Capacity,
 		Kind:  column.Integer,
-		Get: func(r EventView) column.Value {
-			return column.Value{Int: int64(r.Capacity)}
-		},
+		Get:   column.Field(column.Integer, func(r EventView) any { return r.Capacity }),
 	},
 	VenueCity: column.Column[EventView]{
 		Name:  "venue_city",
 		Label: L10nEventView_VenueCity,
 		Kind:  column.Text,
-		Get: func(r EventView) column.Value {
-			if !r.VenueCity.Valid {
-				return column.Value{Null: true}
-			}
-			return column.Value{Text: r.VenueCity.String}
-		},
+		Get:   column.Field(column.Text, func(r EventView) any { return r.VenueCity }),
 	},
 	Currency: column.Column[EventView]{
 		Name:  "currency",
 		Label: L10nEventView_Currency,
 		Kind:  column.Text,
-		Get: func(r EventView) column.Value {
-			return column.Value{Text: r.Currency}
-		},
+		Get:   column.Field(column.Text, func(r EventView) any { return r.Currency }),
 	},
 	Talks: column.Column[EventView]{
 		Name:  "talks",
 		Label: L10nEventView_Talks,
 		Kind:  column.Integer,
-		Get: func(r EventView) column.Value {
-			return column.Value{Int: int64(r.Talks)}
-		},
+		Get:   column.Field(column.Integer, func(r EventView) any { return r.Talks }),
 	},
 	FromPrice: column.Column[EventView]{
 		Name:  "from_price",
 		Label: L10nEventView_FromPrice,
 		Kind:  column.Number,
-		Get: func(r EventView) column.Value {
-			if !r.FromPrice.Valid {
-				return column.Value{Null: true}
-			}
-			v, _ := r.FromPrice.Value()
-			digits, _ := v.(string)
-			return column.Numeric(digits)
-		},
+		Get:   column.Field(column.Number, func(r EventView) any { return r.FromPrice }),
 	},
 	CreatedAt: column.Column[EventView]{
 		Name:  "created_at",
 		Label: L10nEventView_CreatedAt,
 		Kind:  column.Time,
-		Get: func(r EventView) column.Value {
-			if !r.CreatedAt.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.CreatedAt.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.CreatedAt.Time}
-		},
+		Get:   column.Field(column.Time, func(r EventView) any { return r.CreatedAt }),
 	},
 }
 
@@ -375,66 +325,43 @@ var SpeakerViewColumns = struct {
 		Name:  "id",
 		Label: L10nSpeakerView_Id,
 		Kind:  column.Integer,
-		Get: func(r SpeakerView) column.Value {
-			return column.Value{Int: r.ID}
-		},
+		Get:   column.Field(column.Integer, func(r SpeakerView) any { return r.ID }),
 	},
 	Name: column.Column[SpeakerView]{
 		Name:  "name",
 		Label: L10nSpeakerView_Name,
 		Kind:  column.Text,
-		Get: func(r SpeakerView) column.Value {
-			return column.Value{Text: r.Name}
-		},
+		Get:   column.Field(column.Text, func(r SpeakerView) any { return r.Name }),
 	},
 	Email: column.Column[SpeakerView]{
 		Name:  "email",
 		Label: L10nSpeakerView_Email,
 		Kind:  column.Text,
-		Get: func(r SpeakerView) column.Value {
-			return column.Value{Text: r.Email}
-		},
+		Get:   column.Field(column.Text, func(r SpeakerView) any { return r.Email }),
 	},
 	Country: column.Column[SpeakerView]{
 		Name:  "country",
 		Label: L10nSpeakerView_Country,
 		Kind:  column.Text,
-		Get: func(r SpeakerView) column.Value {
-			return column.Value{Text: r.Country}
-		},
+		Get:   column.Field(column.Text, func(r SpeakerView) any { return r.Country }),
 	},
 	Website: column.Column[SpeakerView]{
 		Name:  "website",
 		Label: L10nSpeakerView_Website,
 		Kind:  column.Text,
-		Get: func(r SpeakerView) column.Value {
-			if !r.Website.Valid {
-				return column.Value{Null: true}
-			}
-			return column.Value{Text: r.Website.String}
-		},
+		Get:   column.Field(column.Text, func(r SpeakerView) any { return r.Website }),
 	},
 	Talks: column.Column[SpeakerView]{
 		Name:  "talks",
 		Label: L10nSpeakerView_Talks,
 		Kind:  column.Integer,
-		Get: func(r SpeakerView) column.Value {
-			return column.Value{Int: int64(r.Talks)}
-		},
+		Get:   column.Field(column.Integer, func(r SpeakerView) any { return r.Talks }),
 	},
 	CreatedAt: column.Column[SpeakerView]{
 		Name:  "created_at",
 		Label: L10nSpeakerView_CreatedAt,
 		Kind:  column.Time,
-		Get: func(r SpeakerView) column.Value {
-			if !r.CreatedAt.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.CreatedAt.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.CreatedAt.Time}
-		},
+		Get:   column.Field(column.Time, func(r SpeakerView) any { return r.CreatedAt }),
 	},
 }
 
@@ -458,17 +385,13 @@ var TalkViewColumns = struct {
 		Name:  "id",
 		Label: L10nTalkView_Id,
 		Kind:  column.Integer,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Int: r.ID}
-		},
+		Get:   column.Field(column.Integer, func(r TalkView) any { return r.ID }),
 	},
 	Title: column.Column[TalkView]{
 		Name:  "title",
 		Label: L10nTalkView_Title,
 		Kind:  column.Text,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Text: r.Title}
-		},
+		Get:   column.Field(column.Text, func(r TalkView) any { return r.Title }),
 	},
 	Level: column.Column[TalkView]{
 		Name:    "level",
@@ -501,79 +424,48 @@ var TalkViewColumns = struct {
 		Name:  "starts_at",
 		Label: L10nTalkView_StartsAt,
 		Kind:  column.Time,
-		Get: func(r TalkView) column.Value {
-			if !r.StartsAt.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.StartsAt.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.StartsAt.Time}
-		},
+		Get:   column.Field(column.Time, func(r TalkView) any { return r.StartsAt }),
 	},
 	DurationMinutes: column.Column[TalkView]{
 		Name:  "duration_minutes",
 		Label: L10nTalkView_DurationMinutes,
 		Kind:  column.Integer,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Int: int64(r.DurationMinutes)}
-		},
+		Get:   column.Field(column.Integer, func(r TalkView) any { return r.DurationMinutes }),
 	},
 	Recorded: column.Column[TalkView]{
 		Name:  "recorded",
 		Label: L10nTalkView_Recorded,
 		Kind:  column.Bool,
-		Get: func(r TalkView) column.Value {
-			if !r.Recorded.Valid {
-				return column.Value{Null: true}
-			}
-			return column.Value{Bool: r.Recorded.Bool}
-		},
+		Get:   column.Field(column.Bool, func(r TalkView) any { return r.Recorded }),
 	},
 	SpeakerID: column.Column[TalkView]{
 		Name:  "speaker_id",
 		Label: L10nTalkView_SpeakerId,
 		Kind:  column.Integer,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Int: r.SpeakerID}
-		},
+		Get:   column.Field(column.Integer, func(r TalkView) any { return r.SpeakerID }),
 	},
 	SpeakerName: column.Column[TalkView]{
 		Name:  "speaker_name",
 		Label: L10nTalkView_SpeakerName,
 		Kind:  column.Text,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Text: r.SpeakerName}
-		},
+		Get:   column.Field(column.Text, func(r TalkView) any { return r.SpeakerName }),
 	},
 	EventID: column.Column[TalkView]{
 		Name:  "event_id",
 		Label: L10nTalkView_EventId,
 		Kind:  column.Integer,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Int: r.EventID}
-		},
+		Get:   column.Field(column.Integer, func(r TalkView) any { return r.EventID }),
 	},
 	EventName: column.Column[TalkView]{
 		Name:  "event_name",
 		Label: L10nTalkView_EventName,
 		Kind:  column.Text,
-		Get: func(r TalkView) column.Value {
-			return column.Value{Text: r.EventName}
-		},
+		Get:   column.Field(column.Text, func(r TalkView) any { return r.EventName }),
 	},
 	CreatedAt: column.Column[TalkView]{
 		Name:  "created_at",
 		Label: L10nTalkView_CreatedAt,
 		Kind:  column.Time,
-		Get: func(r TalkView) column.Value {
-			if !r.CreatedAt.Valid {
-				return column.Value{Null: true}
-			}
-			if m := r.CreatedAt.InfinityModifier; m != 0 {
-				return column.Infinite(int8(m))
-			}
-			return column.Value{Time: r.CreatedAt.Time}
-		},
+		Get:   column.Field(column.Time, func(r TalkView) any { return r.CreatedAt }),
 	},
 }

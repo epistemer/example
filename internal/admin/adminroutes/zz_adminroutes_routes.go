@@ -780,7 +780,10 @@ func Register(mux *http.ServeMux, h Handler, g handlers.Guard, opts ...handlers.
 			return err
 		}
 		p0 := ids.EventID(v0)
-		p1 := models.EventStatus(handlers.ParamString(r, Routes[5].Params[1]))
+		var p1 models.EventStatus
+		if err := handlers.ParamText(r, Routes[5].Params[1], &p1); err != nil {
+			return err
+		}
 		return h.EventsStatus(w, r, p0, p1)
 	})
 	m.Handle(6, func(w http.ResponseWriter, r *http.Request) error {
@@ -939,11 +942,17 @@ func Register(mux *http.ServeMux, h Handler, g handlers.Guard, opts ...handlers.
 			return err
 		}
 		p0 := ids.TalkID(v0)
-		p1 := models.TalkState(handlers.ParamString(r, Routes[38].Params[1]))
+		var p1 models.TalkState
+		if err := handlers.ParamText(r, Routes[38].Params[1], &p1); err != nil {
+			return err
+		}
 		return h.TalksReview(w, r, p0, p1)
 	})
 	m.Handle(39, func(w http.ResponseWriter, r *http.Request) error {
-		p0 := models.TalkState(handlers.ParamString(r, Routes[39].Params[0]))
+		var p0 models.TalkState
+		if err := handlers.ParamText(r, Routes[39].Params[0], &p0); err != nil {
+			return err
+		}
 		return h.TalksReviewMany(w, r, p0)
 	})
 	m.Handle(40, func(w http.ResponseWriter, r *http.Request) error {
@@ -1000,7 +1009,7 @@ func EventsUpdate(p0 ids.EventID) handlers.Link {
 
 // EventsStatus returns the link to events.status.
 func EventsStatus(p0 ids.EventID, p1 models.EventStatus) handlers.Link {
-	return handlers.NewLink(&Routes[5], Prefix+"/events/"+strconv.FormatInt(int64(p0), 10)+"/status/"+handlers.Segment(string(p1)))
+	return handlers.NewLink(&Routes[5], Prefix+"/events/"+strconv.FormatInt(int64(p0), 10)+"/status/"+handlers.Segment(handlers.Text(p1)))
 }
 
 // EventsDelete returns the link to events.delete.
@@ -1165,12 +1174,12 @@ func TalksUpdate(p0 ids.TalkID) handlers.Link {
 
 // TalksReview returns the link to talks.review.
 func TalksReview(p0 ids.TalkID, p1 models.TalkState) handlers.Link {
-	return handlers.NewLink(&Routes[38], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/review/"+handlers.Segment(string(p1)))
+	return handlers.NewLink(&Routes[38], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/review/"+handlers.Segment(handlers.Text(p1)))
 }
 
 // TalksReviewMany returns the link to talks.review_many.
 func TalksReviewMany(p0 models.TalkState) handlers.Link {
-	return handlers.NewLink(&Routes[39], Prefix+"/talks/review/"+handlers.Segment(string(p0)))
+	return handlers.NewLink(&Routes[39], Prefix+"/talks/review/"+handlers.Segment(handlers.Text(p0)))
 }
 
 // TalksMove returns the link to talks.move.

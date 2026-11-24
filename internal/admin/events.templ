@@ -91,16 +91,16 @@ templ publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talk
 			@layout.PageHeader(i18n.Static(e.Name)).Description(i18n.Static(e.Summary))
 			@components.DetailList() {
 				@components.DetailRow(models.L10nEvent_StartsOn) {
-					@elements.Date(e.StartsOn.Time)
+					@elements.Date(e.StartsOn)
 				}
 				@components.DetailRow(models.L10nEvent_EndsOn) {
-					@elements.Date(e.EndsOn.Time)
+					@elements.Date(e.EndsOn)
 				}
 				@components.DetailRow(L10nVenue) {
 					if e.Online {
 						{ L10nOnlineEvent.T(ctx) }
 					} else {
-						{ e.VenueName.String }, { e.VenueCity.String }
+						{ deref(e.VenueName) }, { deref(e.VenueCity) }
 					}
 				}
 			}
@@ -127,7 +127,7 @@ templ publicEventPage(r *http.Request, e models.Event, tiers []confab.Tier, talk
 					}
 					@elements.CardBody {
 						<p>
-							@elements.DateTime(t.StartsAt.Time.In(time.UTC))
+							@elements.DateTime(t.StartsAt.In(time.UTC))
 							· { L10nMinutes.T(ctx, t.DurationMinutes) } · { t.Speaker }
 						</p>
 						@enumBadge(t.Level)

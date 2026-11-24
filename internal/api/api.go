@@ -88,7 +88,7 @@ func (s *Server) GetSchedule(ctx context.Context, req GetScheduleRequestObject) 
 	}
 	out := make(GetSchedule200JSONResponse, len(rows))
 	for i, r := range rows {
-		out[i] = ScheduledTalk{Id: r.ID, Title: r.Title, StartsAt: r.StartsAt.Time, Minutes: int(r.DurationMinutes),
+		out[i] = ScheduledTalk{Id: r.ID, Title: r.Title, StartsAt: *r.StartsAt, Minutes: int(r.DurationMinutes),
 			Speaker: r.Speaker, Level: string(r.Level), Format: string(r.Format)}
 	}
 	return out, nil
@@ -111,9 +111,7 @@ func (s *Server) ListTalks(ctx context.Context, req ListTalksRequestObject) (Lis
 	out := ListTalks200JSONResponse{Total: total, Talks: make([]Talk, len(rows))}
 	for i, r := range rows {
 		t := Talk{Id: r.ID, Title: r.Title, State: r.State, Speaker: r.SpeakerName, Event: r.EventName}
-		if r.StartsAt.Valid {
-			t.StartsAt = &r.StartsAt.Time
-		}
+		t.StartsAt = r.StartsAt
 		out.Talks[i] = t
 	}
 	return out, nil

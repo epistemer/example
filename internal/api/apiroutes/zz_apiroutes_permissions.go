@@ -7,6 +7,5 @@ import (
 )
 
 var (
-	PermApiTalksRead   = access.Permission("api.talks.read", "Api Talks Read")
-	PermApiTalksReview = access.Permission("api.talks.review", "Change a talk's state")
+	PermApiTalksRead = access.Permission("api.talks.read", "Api Talks Read")
 )

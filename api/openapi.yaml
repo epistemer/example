@@ -126,6 +126,7 @@ paths:
       operationId: setTalkState
       summary: Change a talk's state
       x-route-key: api.talks.review
+      x-permission: talks.review from adminroutes
       parameters:
         - name: id
           in: path

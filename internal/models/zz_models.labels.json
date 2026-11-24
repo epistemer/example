@@ -4,121 +4,121 @@
     {
       "key": "enum.event_status.draft",
       "path": "enum.event_status.draft",
-      "text": "draft",
+      "text": "Draft",
       "var": "L10nEventStatusDraft"
     },
     {
       "key": "enum.event_status.published",
       "path": "enum.event_status.published",
-      "text": "published",
+      "text": "Published",
       "var": "L10nEventStatusPublished"
     },
     {
       "key": "enum.event_status.archived",
       "path": "enum.event_status.archived",
-      "text": "archived",
+      "text": "Archived",
       "var": "L10nEventStatusArchived"
     },
     {
       "key": "enum.talk_level.beginner",
       "path": "enum.talk_level.beginner",
-      "text": "beginner",
+      "text": "Beginner",
       "var": "L10nTalkLevelBeginner"
     },
     {
       "key": "enum.talk_level.intermediate",
       "path": "enum.talk_level.intermediate",
-      "text": "intermediate",
+      "text": "Intermediate",
       "var": "L10nTalkLevelIntermediate"
     },
     {
       "key": "enum.talk_level.advanced",
       "path": "enum.talk_level.advanced",
-      "text": "advanced",
+      "text": "Advanced",
       "var": "L10nTalkLevelAdvanced"
     },
     {
       "key": "enum.talk_format.talk",
       "path": "enum.talk_format.talk",
-      "text": "talk",
+      "text": "Talk",
       "var": "L10nTalkFormatTalk"
     },
     {
       "key": "enum.talk_format.workshop",
       "path": "enum.talk_format.workshop",
-      "text": "workshop",
+      "text": "Workshop",
       "var": "L10nTalkFormatWorkshop"
     },
     {
       "key": "enum.talk_format.lightning",
       "path": "enum.talk_format.lightning",
-      "text": "lightning",
+      "text": "Lightning",
       "var": "L10nTalkFormatLightning"
     },
     {
       "key": "enum.talk_format.panel",
       "path": "enum.talk_format.panel",
-      "text": "panel",
+      "text": "Panel",
       "var": "L10nTalkFormatPanel"
     },
     {
       "key": "enum.talk_state.submitted",
       "path": "enum.talk_state.submitted",
-      "text": "submitted",
+      "text": "Submitted",
       "var": "L10nTalkStateSubmitted"
     },
     {
       "key": "enum.talk_state.accepted",
       "path": "enum.talk_state.accepted",
-      "text": "accepted",
+      "text": "Accepted",
       "var": "L10nTalkStateAccepted"
     },
     {
       "key": "enum.talk_state.rejected",
       "path": "enum.talk_state.rejected",
-      "text": "rejected",
+      "text": "Rejected",
       "var": "L10nTalkStateRejected"
     },
     {
       "key": "enum.talk_state.scheduled",
       "path": "enum.talk_state.scheduled",
-      "text": "scheduled",
+      "text": "Scheduled",
       "var": "L10nTalkStateScheduled"
     },
     {
       "key": "enum.talk_topic.go",
       "path": "enum.talk_topic.go",
-      "text": "go",
+      "text": "Go",
       "var": "L10nTalkTopicGo"
     },
     {
       "key": "enum.talk_topic.web",
       "path": "enum.talk_topic.web",
-      "text": "web",
+      "text": "Web",
       "var": "L10nTalkTopicWeb"
     },
     {
       "key": "enum.talk_topic.data",
       "path": "enum.talk_topic.data",
-      "text": "data",
+      "text": "Data",
       "var": "L10nTalkTopicData"
     },
     {
       "key": "enum.talk_topic.security",
       "path": "enum.talk_topic.security",
-      "text": "security",
+      "text": "Security",
       "var": "L10nTalkTopicSecurity"
     },
     {
       "key": "enum.talk_topic.operations",
       "path": "enum.talk_topic.operations",
-      "text": "operations",
+      "text": "Operations",
       "var": "L10nTalkTopicOperations"
     },
     {
       "key": "enum.talk_topic.design",
       "path": "enum.talk_topic.design",
-      "text": "design",
+      "text": "Design",
       "var": "L10nTalkTopicDesign"
     },
     {

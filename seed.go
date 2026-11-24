@@ -49,7 +49,7 @@ func seed(ctx context.Context, s *settings.Seed, log *logrus.Logger) error {
 	}
 	g, err := ac.CreateGroup(ctx, "Reviewers")
 	if err == nil {
-		for _, p := range []*access.Perm{adminroutes.PermStaff, adminroutes.PermTalksManage, adminroutes.PermTalksReview, apiroutes.PermApiTalksRead, apiroutes.PermApiTalksReview} {
+		for _, p := range []*access.Perm{adminroutes.PermStaff, adminroutes.PermTalksManage, adminroutes.PermTalksReview, apiroutes.PermApiTalksRead} {
 			if err := ac.Grant(ctx, g.ID, p); err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ func seed(ctx context.Context, s *settings.Seed, log *logrus.Logger) error {
 	}
 	at := func(d, h int) *time.Time { t := time.Date(2027, 4, d, h, 0, 0, 0, time.UTC); return &t }
 	yes := true
-	seats := 30
+	seats := int32(30)
 	talks := []struct {
 		in    confab.TalkInput
 		state models.TalkState

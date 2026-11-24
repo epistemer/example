@@ -7,8 +7,9 @@ package models
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 type EventStatus string
@@ -284,24 +285,24 @@ type Event struct {
 	Summary string
 	Status  EventStatus
 	// First day
-	StartsOn pgtype.Date
+	StartsOn time.Time
 	// Last day
-	EndsOn pgtype.Date
+	EndsOn time.Time
 	// Online only
 	Online       bool
 	Capacity     int32
-	VenueName    pgtype.Text
-	VenueStreet  pgtype.Text
-	VenueCity    pgtype.Text
-	VenueCountry pgtype.Text
+	VenueName    *string
+	VenueStreet  *string
+	VenueCity    *string
+	VenueCountry *string
 	// Post code
-	VenuePostCode pgtype.Text
-	Latitude      pgtype.Float8
-	Longitude     pgtype.Float8
+	VenuePostCode *string
+	Latitude      *float64
+	Longitude     *float64
 	Currency      string
 	Version       int32
-	CreatedAt     pgtype.Timestamptz
-	UpdatedAt     pgtype.Timestamptz
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // Events
@@ -310,16 +311,16 @@ type EventView struct {
 	Name      string
 	Slug      string
 	Status    EventStatus
-	StartsOn  pgtype.Date
-	EndsOn    pgtype.Date
+	StartsOn  time.Time
+	EndsOn    time.Time
 	Online    bool
 	Capacity  int32
-	VenueCity pgtype.Text
+	VenueCity *string
 	Currency  string
 	Talks     int32
 	// Tickets from
-	FromPrice pgtype.Numeric
-	CreatedAt pgtype.Timestamptz
+	FromPrice *decimal.Decimal
+	CreatedAt time.Time
 }
 
 // Speaker
@@ -327,15 +328,15 @@ type Speaker struct {
 	ID      int64
 	Name    string
 	Email   string
-	Phone   pgtype.Text
+	Phone   *string
 	Country string
-	Website pgtype.Text
+	Website *string
 	// Biography
 	Bio string
 	// Photo
-	PhotoKey  pgtype.Text
-	PhotoName pgtype.Text
-	CreatedAt pgtype.Timestamptz
+	PhotoKey  *string
+	PhotoName *string
+	CreatedAt time.Time
 }
 
 // Speakers
@@ -344,9 +345,9 @@ type SpeakerView struct {
 	Name      string
 	Email     string
 	Country   string
-	Website   pgtype.Text
+	Website   *string
 	Talks     int32
-	CreatedAt pgtype.Timestamptz
+	CreatedAt time.Time
 }
 
 // Staff member
@@ -356,7 +357,7 @@ type Staff struct {
 	Email     string
 	Name      string
 	Disabled  bool
-	CreatedAt pgtype.Timestamptz
+	CreatedAt time.Time
 }
 
 // Talk
@@ -373,15 +374,15 @@ type Talk struct {
 	State     TalkState
 	Topics    []TalkTopic
 	// Starts at
-	StartsAt pgtype.Timestamptz
+	StartsAt *time.Time
 	// Duration (minutes)
 	DurationMinutes int32
 	// Workshop seats
-	Seats pgtype.Int4
+	Seats *int32
 	// Recorded
-	Recorded  pgtype.Bool
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	Recorded  *bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // Slides
@@ -392,7 +393,7 @@ type TalkFile struct {
 	Name        string
 	ContentType string
 	Size        int64
-	CreatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
 }
 
 // Talks
@@ -402,9 +403,9 @@ type TalkView struct {
 	Level           TalkLevel
 	Format          TalkFormat
 	State           TalkState
-	StartsAt        pgtype.Timestamptz
+	StartsAt        *time.Time
 	DurationMinutes int32
-	Recorded        pgtype.Bool
+	Recorded        *bool
 	// Speaker
 	SpeakerID int64
 	// Speaker
@@ -413,7 +414,7 @@ type TalkView struct {
 	EventID int64
 	// Event
 	EventName string
-	CreatedAt pgtype.Timestamptz
+	CreatedAt time.Time
 }
 
 // Ticket tier
@@ -422,8 +423,8 @@ type TicketTier struct {
 	EventID  int64
 	Position int32
 	Name     string
-	Price    pgtype.Numeric
+	Price    decimal.Decimal
 	Quantity int32
 	// On sale until
-	SaleEndsOn pgtype.Date
+	SaleEndsOn *time.Time
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/epistemer/auth/access"
 	"github.com/epistemer/errors"
 	"github.com/epistemer/handlers"
+	"github.com/epistemer/handlers/middleware"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/ui"
 	"github.com/epistemer/ui/actions"
@@ -44,10 +45,12 @@ type H struct {
 	Theme    *theme.Theme
 	Tr       *i18n.Translator
 	Settings *settings.Serve
-	Routes   *handlers.Table // every route, for the search page
+	Routes   *handlers.Table   // every route, for the search page
+	Flash    *middleware.Flash // carries a toast across a redirect
 
 	// The talks table filters by speaker through a Labeler that reads the
-	// database, so it's built once the store exists (findings F11).
+	// database, so Check builds it at startup, once the store exists, as
+	// ui documents for tables with remote filters (findings F11).
 	talksOnce sync.Once
 	talks     *tables.Table[models.TalkView]
 	talksView *components.TableView[models.TalkView]
@@ -91,6 +94,7 @@ func (h *H) request(r *http.Request) *http.Request {
 	ctx := actions.Gate.With(r.Context(), handlers.Gate(admit))
 	ctx = inputs.WithLabelCache(ctx)
 	ctx = CurrentTheme.With(ctx, h.Theme)
+	ctx = components.Flash.With(ctx, h.Flash)
 	return r.WithContext(ctx)
 }
 
@@ -109,34 +113,30 @@ func render(w http.ResponseWriter, r *http.Request, status int, c templ.Componen
 
 // page renders body in the app shell.
 func (h *H) page(w http.ResponseWriter, r *http.Request, status int, title i18n.Ter, body templ.Component) error {
-	return render(w, r, status, shell(h, r, title, body, takeFlash(w, r)))
+	return render(w, r, status, shell(h, r, title, body))
 }
 
 // ErrorPage answers every error of the admin: the guard's refusals, auth's,
-// handlers' and the handlers' own. Without a session it sends the person
-// to sign in.
+// handlers' (a recovered panic included) and the handlers' own.
+// handlers/middleware logs it and picks the status; errorPage writes it.
 func (h *H) ErrorPage(w http.ResponseWriter, r *http.Request, err error) {
-	r = h.request(r)
+	middleware.ErrorPage(h.errorPage)(w, h.request(r), err)
+}
+
+// errorPage sends a person without a session to sign in, keeps the page
+// under htmx with a toast, and otherwise renders the error in the shell.
+func (h *H) errorPage(w http.ResponseWriter, r *http.Request, status int, err error) error {
 	if errors.Is(err, auth.ErrNoSession) && r.Method == http.MethodGet {
-		http.Redirect(w, r, adminroutes.SignIn().URL(), http.StatusSeeOther)
-		return
+		return middleware.Redirect(w, r, adminroutes.SignIn())
 	}
 	if d, ok := auth.RetryAfter(err); ok {
 		w.Header().Set("Retry-After", strconv.Itoa(max(1, int((d+time.Second-1)/time.Second))))
 	}
-	status := handlers.Status(err)
-	if status >= 500 {
-		slog.ErrorContext(r.Context(), "admin", "err", err, "path", r.URL.Path)
-	}
-	if r.Header.Get("HX-Request") == "true" {
-		// An htmx request: a toast, out of band, keeps the page.
+	if middleware.HTMX(r) {
 		w.Header().Set("HX-Reswap", "none")
-		_ = render(w, r, status, errorToast(err))
-		return
+		return render(w, r, status, errorToast(err))
 	}
-	if rerr := render(w, r, status, shell(h, r, L10nErrorTitle, errorBody(status, err), nil)); rerr != nil {
-		handlers.WriteText(w, r, err)
-	}
+	return render(w, r, status, shell(h, r, L10nErrorTitle, errorBody(status, err)))
 }
 
 // CurrentTheme carries the theme to every page, sign-in pages included,
@@ -149,23 +149,11 @@ func errorsT(ctx context.Context, err error) string { return errors.T(ctx, err) 
 
 func handlersStatus(err error) int { return handlers.Status(err) }
 
-// ErrPanic is what people see when a handler panicked.
-var ErrPanic = errors.Key("errors.confab.panic", "the page failed; the error was logged")
-
-// Recover turns a handler's panic into a 500 page. handlers has none yet
-// (findings F16): without it the connection drops, and a browser may send
-// the POST again.
-func (h *H) Recover(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if v := recover(); v != nil {
-				if v == http.ErrAbortHandler {
-					panic(v)
-				}
-				slog.ErrorContext(r.Context(), "admin: panic", "panic", v, "path", r.URL.Path)
-				h.ErrorPage(w, r, ErrPanic)
-			}
-		}()
-		next.ServeHTTP(w, r)
-	})
+// deref reads a nullable column: the zero value when it is NULL.
+func deref[T any](p *T) T {
+	if p == nil {
+		var z T
+		return z
+	}
+	return *p
 }

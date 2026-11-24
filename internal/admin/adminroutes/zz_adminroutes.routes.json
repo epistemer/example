@@ -128,7 +128,7 @@
           "var": "L10nEventsStatusStatus",
           "type": "models.EventStatus",
           "import": "github.com/epistemer/example/internal/models",
-          "parse": "string",
+          "parse": "text",
           "kind": "segment",
           "label": "New status",
           "alias": "models"
@@ -754,7 +754,7 @@
           "var": "L10nTalksReviewState",
           "type": "models.TalkState",
           "import": "github.com/epistemer/example/internal/models",
-          "parse": "string",
+          "parse": "text",
           "kind": "segment",
           "label": "New state",
           "alias": "models"
@@ -779,7 +779,7 @@
           "var": "L10nTalksReviewManyState",
           "type": "models.TalkState",
           "import": "github.com/epistemer/example/internal/models",
-          "parse": "string",
+          "parse": "text",
           "kind": "segment",
           "label": "New state",
           "alias": "models"
@@ -867,43 +867,43 @@
     {
       "key": "events.manage",
       "var": "PermEventsManage",
-      "text": "Events Manage",
+      "text": "Manage events",
       "level": "verified"
     },
     {
       "key": "staff",
       "var": "PermStaff",
-      "text": "Staff",
+      "text": "Use the back office",
       "level": "unverified"
     },
     {
       "key": "settings.manage",
       "var": "PermSettingsManage",
-      "text": "Settings Manage",
+      "text": "Change settings",
       "level": "verified"
     },
     {
       "key": "translations.manage",
       "var": "PermTranslationsManage",
-      "text": "Translations Manage",
+      "text": "Edit translations",
       "level": "verified"
     },
     {
       "key": "speakers.manage",
       "var": "PermSpeakersManage",
-      "text": "Speakers Manage",
+      "text": "Manage speakers",
       "level": "verified"
     },
     {
       "key": "talks.manage",
       "var": "PermTalksManage",
-      "text": "Talks Manage",
+      "text": "Manage talks",
       "level": "verified"
     },
     {
       "key": "talks.review",
       "var": "PermTalksReview",
-      "text": "Talks Review",
+      "text": "Review talks",
       "level": "verified"
     }
   ]

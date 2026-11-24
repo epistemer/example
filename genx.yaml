@@ -29,7 +29,7 @@ producers:
 
 use:
   - github.com/epistemer/models:
-      generators: [labels, enums, views]
+      generators: [labels, enums, views, pgx]
       params:
         dir: internal/models
   - github.com/epistemer/handlers: [routes, labels, permissions]

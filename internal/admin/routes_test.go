@@ -3,6 +3,7 @@ package admin
 import (
 	"testing"
 
+	"github.com/epistemer/handlers"
 	"github.com/epistemer/handlers/handlerstest"
 	"github.com/epistemer/ui/tables/tablestest"
 
@@ -35,5 +36,17 @@ func TestEventsTableQuery(t *testing.T) {
 	st = tablestest.Bind(t, EventsTable, "status=bogus")
 	if got := tablestest.Errors(st); len(got) == 0 {
 		t.Error("a bogus status filter was accepted")
+	}
+}
+
+// A reviewer's one grant, talks.review, opens the review routes of both the
+// admin and the API (findings F22): the API takes the admin's permission.
+func TestReviewPermissionShared(t *testing.T) {
+	for _, routes := range [][]handlers.Route{adminroutes.Routes, apiroutes.Routes} {
+		for _, r := range routes {
+			if (r.Key == "talks.review" || r.Key == "api.talks.review") && r.Permission != "talks.review" {
+				t.Errorf("%s needs %q, want talks.review", r.Key, r.Permission)
+			}
+		}
 	}
 }

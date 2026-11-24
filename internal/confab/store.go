@@ -18,7 +18,6 @@ import (
 
 	"github.com/epistemer/example/internal/ids"
 	"github.com/epistemer/example/internal/models"
-	"github.com/epistemer/example/internal/pg"
 )
 
 // Q is everything sqlc and models generate on the queries.
@@ -41,14 +40,7 @@ func Open(ctx context.Context, url string) (*Store, error) {
 	}
 	// pgx encodes an array of an enum only once it knows the types
 	// (findings F15): talk.topics is talk_topic[].
-	cfg.AfterConnect = func(ctx context.Context, c *pgx.Conn) error {
-		ts, err := c.LoadTypes(ctx, []string{"talk_topic", "_talk_topic"})
-		if err != nil {
-			return err
-		}
-		c.TypeMap().RegisterTypes(ts)
-		return nil
-	}
+	cfg.AfterConnect = models.RegisterTypes // enums and enum arrays
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
@@ -147,10 +139,10 @@ func (s *Store) CreateEvent(ctx context.Context, in EventInput) (ids.EventID, er
 		var err error
 		id, err = q.CreateEvent(ctx, models.CreateEventParams{
 			Name: in.Name, Slug: string(in.Slug), Summary: in.Summary, Status: in.Status,
-			StartsOn: pg.Date(in.StartsOn), EndsOn: pg.Date(in.EndsOn), Online: in.Online,
-			Capacity: in.Capacity, VenueName: pg.Text(n), VenueStreet: pg.Text(st),
-			VenueCity: pg.Text(c), VenueCountry: pg.Text(co), VenuePostCode: pg.Text(pc),
-			Latitude: pg.Float(lat), Longitude: pg.Float(lng), Currency: in.Currency,
+			StartsOn: in.StartsOn, EndsOn: in.EndsOn, Online: in.Online,
+			Capacity: in.Capacity, VenueName: n, VenueStreet: st,
+			VenueCity: c, VenueCountry: co, VenuePostCode: pc,
+			Latitude: lat, Longitude: lng, Currency: in.Currency,
 		})
 		if err != nil {
 			return err
@@ -177,10 +169,10 @@ func (s *Store) UpdateEvent(ctx context.Context, id ids.EventID, version int32, 
 		rows, err := q.UpdateEvent(ctx, models.UpdateEventParams{
 			ID: int64(id), Version: version,
 			Name: in.Name, Slug: string(in.Slug), Summary: in.Summary, Status: in.Status,
-			StartsOn: pg.Date(in.StartsOn), EndsOn: pg.Date(in.EndsOn), Online: in.Online,
-			Capacity: in.Capacity, VenueName: pg.Text(n), VenueStreet: pg.Text(st),
-			VenueCity: pg.Text(c), VenueCountry: pg.Text(co), VenuePostCode: pg.Text(pc),
-			Latitude: pg.Float(lat), Longitude: pg.Float(lng), Currency: in.Currency,
+			StartsOn: in.StartsOn, EndsOn: in.EndsOn, Online: in.Online,
+			Capacity: in.Capacity, VenueName: n, VenueStreet: st,
+			VenueCity: c, VenueCountry: co, VenuePostCode: pc,
+			Latitude: lat, Longitude: lng, Currency: in.Currency,
 		})
 		if err != nil {
 			return err
@@ -205,8 +197,8 @@ func (s *Store) UpdateEvent(ctx context.Context, id ids.EventID, version int32, 
 func saveTiers(ctx context.Context, q *models.Queries, event int64, tiers []Tier) error {
 	for i, t := range tiers {
 		err := q.CreateTicketTier(ctx, models.CreateTicketTierParams{
-			EventID: event, Position: int32(i), Name: t.Name, Price: pg.Numeric(t.Price),
-			Quantity: int32(t.Quantity), SaleEndsOn: pg.DatePtr(t.SaleEndsOn),
+			EventID: event, Position: int32(i), Name: t.Name, Price: t.Price,
+			Quantity: int32(t.Quantity), SaleEndsOn: t.SaleEndsOn,
 		})
 		if err != nil {
 			return err
@@ -232,7 +224,7 @@ func (s *Store) Tiers(ctx context.Context, id ids.EventID) ([]Tier, error) {
 	}
 	out := make([]Tier, len(rows))
 	for i, r := range rows {
-		out[i] = Tier{Name: r.Name, Price: pg.Decimal(r.Price), Quantity: int(r.Quantity), SaleEndsOn: pg.DateOf(r.SaleEndsOn)}
+		out[i] = Tier{Name: r.Name, Price: r.Price, Quantity: int(r.Quantity), SaleEndsOn: r.SaleEndsOn}
 	}
 	return out, nil
 }
@@ -250,8 +242,8 @@ type StoredFile struct{ Key, Name string }
 func (s *Store) CreateSpeaker(ctx context.Context, in SpeakerInput) (ids.SpeakerID, error) {
 	key, name := in.photo()
 	id, err := s.Queries.CreateSpeaker(ctx, models.CreateSpeakerParams{
-		Name: in.Name, Email: in.Email, Phone: pg.Text(in.Phone), Country: in.Country,
-		Website: pg.Text(in.Website), Bio: in.Bio, PhotoKey: pg.Text(key), PhotoName: pg.Text(name),
+		Name: in.Name, Email: in.Email, Phone: in.Phone, Country: in.Country,
+		Website: in.Website, Bio: in.Bio, PhotoKey: key, PhotoName: name,
 	})
 	if unique(err, "speaker_email_key") {
 		return 0, ErrEmailTaken
@@ -265,8 +257,8 @@ func (s *Store) CreateSpeaker(ctx context.Context, in SpeakerInput) (ids.Speaker
 func (s *Store) UpdateSpeaker(ctx context.Context, id ids.SpeakerID, in SpeakerInput) error {
 	key, name := in.photo()
 	err := s.Queries.UpdateSpeaker(ctx, models.UpdateSpeakerParams{
-		ID: int64(id), Name: in.Name, Email: in.Email, Phone: pg.Text(in.Phone), Country: in.Country,
-		Website: pg.Text(in.Website), Bio: in.Bio, PhotoKey: pg.Text(key), PhotoName: pg.Text(name),
+		ID: int64(id), Name: in.Name, Email: in.Email, Phone: in.Phone, Country: in.Country,
+		Website: in.Website, Bio: in.Bio, PhotoKey: key, PhotoName: name,
 	})
 	if unique(err, "speaker_email_key") {
 		return ErrEmailTaken
