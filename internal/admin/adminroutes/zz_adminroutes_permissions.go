@@ -10,8 +10,8 @@ import (
 var (
 	PermEventsManage       = access.Permission("events.manage", "Manage events")
 	PermStaff              = access.Permission("staff", "Use the back office", auth.Unverified)
-	PermSettingsManage     = access.Permission("settings.manage", "Change settings")
 	PermTranslationsManage = access.Permission("translations.manage", "Edit translations")
+	PermSettingsManage     = access.Permission("settings.manage", "Change settings")
 	PermSpeakersManage     = access.Permission("speakers.manage", "Manage speakers")
 	PermTalksManage        = access.Permission("talks.manage", "Manage talks")
 	PermTalksReview        = access.Permission("talks.review", "Review talks")

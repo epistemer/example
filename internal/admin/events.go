@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/epistemer/errors"
@@ -314,7 +315,6 @@ func (h *H) Events(w http.ResponseWriter, r *http.Request) error {
 //h:path /events/new
 //h:perm events.manage Manage events
 //h:search
-//h:entity events
 //h:desc New event
 func (h *H) EventsNew(w http.ResponseWriter, r *http.Request) error {
 	f := NewEventForm()
@@ -347,8 +347,8 @@ func (h *H) EventsCreate(w http.ResponseWriter, r *http.Request) error {
 //h:method GET
 //h:path /events/{id}/edit
 //h:perm events.manage Manage events
-//h:entity events
-//h:param id label Event number
+//h:search
+//h:param id from events.search label Event number
 //h:desc Edit an event
 func (h *H) EventsEdit(w http.ResponseWriter, r *http.Request, id ids.EventID) error {
 	ctx := r.Context()
@@ -458,4 +458,42 @@ func (h *H) EventPage(w http.ResponseWriter, r *http.Request, slug ids.Slug) err
 		return err
 	}
 	return render(w, r, http.StatusOK, publicEventPage(r, e, tiers, talks))
+}
+
+//h:key events.search
+//h:method GET
+//h:path /events/search
+//h:perm events.manage Manage events
+//h:desc Find an event
+func (h *H) EventsSearch(w http.ResponseWriter, r *http.Request) error {
+	rows, err := h.Store.ListEventOptions(r.Context())
+	if err != nil {
+		return err
+	}
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	var out []components.Suggestion
+	for _, e := range rows {
+		if q == "" || strings.Contains(strings.ToLower(e.Name), q) {
+			out = append(out, components.Suggestion{Value: strconv.FormatInt(e.ID, 10), Label: i18n.Static(e.Name)})
+		}
+	}
+	return render(w, r, http.StatusOK, components.Suggestions(out...))
+}
+
+// eventLabels names an event by its number, for the palette's event field.
+type eventLabels struct{ s *confab.Store }
+
+func (l eventLabels) LabelOf(ctx context.Context, id string) (string, bool, error) {
+	n, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return "", false, nil
+	}
+	e, err := l.s.Event(ctx, ids.EventID(n))
+	if errors.Is(err, confab.ErrNotFound) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	return e.Name, true, nil
 }

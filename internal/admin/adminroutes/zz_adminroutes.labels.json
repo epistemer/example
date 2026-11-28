@@ -86,6 +86,12 @@
       "var": "L10nEventPageSlug"
     },
     {
+      "key": "route.events.search",
+      "path": "route.events.search",
+      "text": "Find an event",
+      "var": "L10nEventsSearch"
+    },
+    {
       "key": "route.dashboard",
       "path": "route.dashboard",
       "text": "Dashboard",
@@ -110,10 +116,40 @@
       "var": "L10nFileKey"
     },
     {
-      "key": "route.search",
-      "path": "route.search",
+      "key": "route.palette.search",
+      "path": "route.palette.search",
       "text": "Search pages",
-      "var": "L10nSearch"
+      "var": "L10nPaletteSearch"
+    },
+    {
+      "key": "route.palette.form",
+      "path": "route.palette.form",
+      "text": "Fill in a page's address",
+      "var": "L10nPaletteForm"
+    },
+    {
+      "key": "route_param.palette.form.key",
+      "path": "route_param.palette.form.key",
+      "text": "Page",
+      "var": "L10nPaletteFormKey"
+    },
+    {
+      "key": "route.palette.go",
+      "path": "route.palette.go",
+      "text": "Open a page",
+      "var": "L10nPaletteGo"
+    },
+    {
+      "key": "route_param.palette.go.key",
+      "path": "route_param.palette.go.key",
+      "text": "Page",
+      "var": "L10nPaletteGoKey"
+    },
+    {
+      "key": "route.locales.search",
+      "path": "route.locales.search",
+      "text": "Find a language",
+      "var": "L10nLocalesSearch"
     },
     {
       "key": "route.settings",

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"embed"
+	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -25,6 +26,7 @@ import (
 	"github.com/epistemer/ui/actions"
 	"github.com/epistemer/ui/components"
 	"github.com/epistemer/ui/inputs"
+	"github.com/epistemer/ui/palette"
 	"github.com/epistemer/ui/tables"
 	"github.com/epistemer/ui/theme"
 
@@ -45,7 +47,8 @@ type H struct {
 	Theme    *theme.Theme
 	Tr       *i18n.Translator
 	Settings *settings.Serve
-	Routes   *handlers.Table   // every route, for the search page
+	Routes   *handlers.Table   // every route, for the palette
+	Palette  *palette.Palette  // the top bar's search (ui/palette)
 	Flash    *middleware.Flash // carries a toast across a redirect
 
 	// The talks table filters by speaker through a Labeler that reads the
@@ -95,7 +98,32 @@ func (h *H) request(r *http.Request) *http.Request {
 	ctx = inputs.WithLabelCache(ctx)
 	ctx = CurrentTheme.With(ctx, h.Theme)
 	ctx = components.Flash.With(ctx, h.Flash)
-	return r.WithContext(ctx)
+	r = r.WithContext(ctx)
+	return r.WithContext(pageRequest.With(r.Context(), r))
+}
+
+// pageRequest is the request a page renders for: palette.Page gives the
+// shell only a title and a body, and Confab's shell reads the request
+// (the current nav item, the colour scheme) (findings F36).
+var pageRequest = ui.NewProvider[*http.Request](nil)
+
+// NewPalette is the top bar's palette over h.Routes: its three routes,
+// the labelers of the sources it offers, and pages in the shell.
+func (h *H) NewPalette() *palette.Palette {
+	return palette.New(h.Routes, h.Guard, h.Tr, palette.Endpoints{
+		Search: adminroutes.PaletteSearch(),
+		Form:   func(key string) handlers.Link { return adminroutes.PaletteForm(key) },
+		Go:     func(key string) handlers.Link { return adminroutes.PaletteGo(key) },
+	},
+		palette.Labels("events.search", eventLabels{h.Store}),
+		palette.Labels("speakers.search", speakerLabels{h.Store}),
+		palette.Labels("locales.search", localeLabels{h.Tr}),
+		palette.Page(func(title i18n.Ter, body templ.Component) templ.Component {
+			return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+				return shell(h, pageRequest.Value(ctx), title, body).Render(ctx, w)
+			})
+		}),
+	)
 }
 
 // render writes a whole page, buffered so a render error can still become

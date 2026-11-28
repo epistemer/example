@@ -119,6 +119,7 @@ func serve(ctx context.Context, s *settings.Serve, log *logrus.Logger) error {
 		)
 	})
 	h.Routes = handlers.NewTable(adminroutes.Routes, apiroutes.Routes)
+	h.Palette = h.NewPalette()
 
 	root := http.NewServeMux()
 	root.Handle(apiroutes.Prefix+"/", a.Load(auth.Bearer())(apiMux))

@@ -225,7 +225,6 @@ func (h *H) SpeakersSearch(w http.ResponseWriter, r *http.Request) error {
 //h:path /speakers/new
 //h:perm speakers.manage Manage speakers
 //h:search
-//h:entity speakers
 //h:desc New speaker
 func (h *H) SpeakersNew(w http.ResponseWriter, r *http.Request) error {
 	return h.page(w, r, http.StatusOK, L10nNewSpeaker, speakerFormPage(NewSpeakerForm(nil), 0))
@@ -244,9 +243,9 @@ func (h *H) SpeakersCreate(w http.ResponseWriter, r *http.Request) error {
 //h:key speakers.edit
 //h:method GET
 //h:path /speakers/{id}
+//h:search
 //h:perm speakers.manage Manage speakers
-//h:entity speakers
-//h:param id label Speaker number
+//h:param id from speakers.search label Speaker number
 //h:desc Edit a speaker
 func (h *H) SpeakersEdit(w http.ResponseWriter, r *http.Request, id ids.SpeakerID) error {
 	s, err := h.Store.Speaker(r.Context(), id)
@@ -352,7 +351,6 @@ var ErrBadCSV = errors.Key1[int]("errors.confab.bad_csv", "line %d needs a name,
 //h:path /speakers/import
 //h:perm speakers.manage Manage speakers
 //h:search
-//h:entity speakers
 //h:desc Import speakers
 func (h *H) SpeakersImport(w http.ResponseWriter, r *http.Request) error {
 	return h.page(w, r, http.StatusOK, L10nImport, importPage(NewImportForm(), 0, 0))

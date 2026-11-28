@@ -33,8 +33,7 @@
       "view": false,
       "search": true,
       "params": [],
-      "permission": "events.manage",
-      "entity": "events"
+      "permission": "events.manage"
     },
     {
       "key": "events.create",
@@ -58,7 +57,7 @@
       "text": "Edit an event",
       "auth": "permission",
       "view": false,
-      "search": false,
+      "search": true,
       "params": [
         {
           "name": "id",
@@ -69,11 +68,11 @@
           "parse": "int64",
           "kind": "segment",
           "label": "Event number",
-          "alias": "ids"
+          "alias": "ids",
+          "from": "events.search"
         }
       ],
-      "permission": "events.manage",
-      "entity": "events"
+      "permission": "events.manage"
     },
     {
       "key": "events.update",
@@ -186,6 +185,19 @@
       ]
     },
     {
+      "key": "events.search",
+      "method": "GET",
+      "pattern": "/events/search",
+      "name": "EventsSearch",
+      "var": "L10nEventsSearch",
+      "text": "Find an event",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "events.manage"
+    },
+    {
       "key": "dashboard",
       "method": "GET",
       "pattern": "/",
@@ -235,16 +247,75 @@
       ]
     },
     {
-      "key": "search",
+      "key": "palette.search",
       "method": "GET",
-      "pattern": "/search",
-      "name": "Search",
-      "var": "L10nSearch",
+      "pattern": "/palette",
+      "name": "PaletteSearch",
+      "var": "L10nPaletteSearch",
       "text": "Search pages",
       "auth": "session",
       "view": false,
       "search": false,
       "params": []
+    },
+    {
+      "key": "palette.form",
+      "method": "GET",
+      "pattern": "/palette/{key}/form",
+      "name": "PaletteForm",
+      "var": "L10nPaletteForm",
+      "text": "Fill in a page's address",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nPaletteFormKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "segment",
+          "label": "Page"
+        }
+      ]
+    },
+    {
+      "key": "palette.go",
+      "method": "GET",
+      "pattern": "/palette/{key}/go",
+      "name": "PaletteGo",
+      "var": "L10nPaletteGo",
+      "text": "Open a page",
+      "auth": "session",
+      "view": false,
+      "search": false,
+      "params": [
+        {
+          "name": "key",
+          "go": "key",
+          "var": "L10nPaletteGoKey",
+          "type": "string",
+          "import": "",
+          "parse": "string",
+          "kind": "segment",
+          "label": "Page"
+        }
+      ]
+    },
+    {
+      "key": "locales.search",
+      "method": "GET",
+      "pattern": "/locales/search",
+      "name": "LocalesSearch",
+      "var": "L10nLocalesSearch",
+      "text": "Find a language",
+      "auth": "permission",
+      "view": false,
+      "search": false,
+      "params": [],
+      "permission": "translations.manage"
     },
     {
       "key": "settings",
@@ -292,7 +363,8 @@
           "parse": "text",
           "kind": "segment",
           "label": "Language",
-          "alias": "ids"
+          "alias": "ids",
+          "from": "locales.search"
         }
       ],
       "permission": "translations.manage"
@@ -511,8 +583,7 @@
       "view": false,
       "search": true,
       "params": [],
-      "permission": "speakers.manage",
-      "entity": "speakers"
+      "permission": "speakers.manage"
     },
     {
       "key": "speakers.create",
@@ -537,7 +608,7 @@
       "text": "Edit a speaker",
       "auth": "permission",
       "view": false,
-      "search": false,
+      "search": true,
       "params": [
         {
           "name": "id",
@@ -548,11 +619,11 @@
           "parse": "int64",
           "kind": "segment",
           "label": "Speaker number",
-          "alias": "ids"
+          "alias": "ids",
+          "from": "speakers.search"
         }
       ],
-      "permission": "speakers.manage",
-      "entity": "speakers"
+      "permission": "speakers.manage"
     },
     {
       "key": "speakers.update",
@@ -616,8 +687,7 @@
       "view": false,
       "search": true,
       "params": [],
-      "permission": "speakers.manage",
-      "entity": "speakers"
+      "permission": "speakers.manage"
     },
     {
       "key": "speakers.import_post",
@@ -657,8 +727,7 @@
       "view": false,
       "search": true,
       "params": [],
-      "permission": "talks.manage",
-      "entity": "talks"
+      "permission": "talks.manage"
     },
     {
       "key": "talks.create",
@@ -697,8 +766,7 @@
           "alias": "ids"
         }
       ],
-      "permission": "talks.manage",
-      "entity": "talks"
+      "permission": "talks.manage"
     },
     {
       "key": "talks.update",
@@ -877,15 +945,15 @@
       "level": "unverified"
     },
     {
-      "key": "settings.manage",
-      "var": "PermSettingsManage",
-      "text": "Change settings",
-      "level": "verified"
-    },
-    {
       "key": "translations.manage",
       "var": "PermTranslationsManage",
       "text": "Edit translations",
+      "level": "verified"
+    },
+    {
+      "key": "settings.manage",
+      "var": "PermSettingsManage",
+      "text": "Change settings",
       "level": "verified"
     },
     {

@@ -19,11 +19,17 @@ var (
 	L10nEventsDeleteId          = i18n.Key("route_param.events.delete.id", "Event number")
 	L10nEventPage               = i18n.Key("route.event_page", "Event programme")
 	L10nEventPageSlug           = i18n.Key("route_param.event_page.slug", "Event address")
+	L10nEventsSearch            = i18n.Key("route.events.search", "Find an event")
 	L10nDashboard               = i18n.Key("route.dashboard", "Dashboard")
 	L10nAccount                 = i18n.Key("route.account", "Your account")
 	L10nFile                    = i18n.Key("route.file", "A stored file")
 	L10nFileKey                 = i18n.Key("route_param.file.key", "File")
-	L10nSearch                  = i18n.Key("route.search", "Search pages")
+	L10nPaletteSearch           = i18n.Key("route.palette.search", "Search pages")
+	L10nPaletteForm             = i18n.Key("route.palette.form", "Fill in a page's address")
+	L10nPaletteFormKey          = i18n.Key("route_param.palette.form.key", "Page")
+	L10nPaletteGo               = i18n.Key("route.palette.go", "Open a page")
+	L10nPaletteGoKey            = i18n.Key("route_param.palette.go.key", "Page")
+	L10nLocalesSearch           = i18n.Key("route.locales.search", "Find a language")
 	L10nSettingsEdit            = i18n.Key("route.settings", "Settings")
 	L10nSettingsSave            = i18n.Key("route.settings.save", "Save the settings")
 	L10nTranslations            = i18n.Key("route.translations", "Translations")
@@ -91,11 +97,17 @@ var l10n = map[string]i18n.TKer{
 	"route_param.events.delete.id":          L10nEventsDeleteId,
 	"route.event_page":                      L10nEventPage,
 	"route_param.event_page.slug":           L10nEventPageSlug,
+	"route.events.search":                   L10nEventsSearch,
 	"route.dashboard":                       L10nDashboard,
 	"route.account":                         L10nAccount,
 	"route.file":                            L10nFile,
 	"route_param.file.key":                  L10nFileKey,
-	"route.search":                          L10nSearch,
+	"route.palette.search":                  L10nPaletteSearch,
+	"route.palette.form":                    L10nPaletteForm,
+	"route_param.palette.form.key":          L10nPaletteFormKey,
+	"route.palette.go":                      L10nPaletteGo,
+	"route_param.palette.go.key":            L10nPaletteGoKey,
+	"route.locales.search":                  L10nLocalesSearch,
 	"route.settings":                        L10nSettingsEdit,
 	"route.settings.save":                   L10nSettingsSave,
 	"route.translations":                    L10nTranslations,
