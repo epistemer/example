@@ -8,7 +8,6 @@ import (
 
 	"github.com/epistemer/cfgx"
 	"github.com/epistemer/errors"
-	"github.com/epistemer/handlers"
 	"github.com/epistemer/i18n"
 	"github.com/epistemer/models/column"
 	"github.com/epistemer/models/listing"
@@ -33,8 +32,6 @@ var (
 	L10nUnverified    = i18n.Key("page.dashboard.unverified", "You signed in with one proof: pages that change the programme ask for the emailed code too.")
 	L10nCFPOpen       = i18n.Key("page.dashboard.cfp_open", "The call for papers is open.")
 	L10nCFPShut       = i18n.Key("page.dashboard.cfp_closed", "The call for papers is closed.")
-	L10nSearchTitle   = i18n.Key("page.search.title", "Search")
-	L10nNoHits        = i18n.Key("page.search.none", "No page matches.")
 	L10nSettingsSaved = i18n.Key("page.settings.saved", "The settings were saved; they apply at once.")
 	L10nCFPSection    = i18n.Key("page.settings.cfp", "Call for papers")
 	L10nThemeSection  = i18n.Key("page.settings.theme", "Look")
@@ -115,25 +112,60 @@ func (h *H) File(w http.ResponseWriter, r *http.Request, key string) error {
 	return nil
 }
 
-//h:key search
+//h:key palette.search
 //h:method GET
-//h:path /search
+//h:path /palette
 //h:auth session
 //h:desc Search pages
-func (h *H) Search(w http.ResponseWriter, r *http.Request) error {
-	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	var hits []handlers.Hit
-	if q != "" {
-		var err error
-		hits, err = h.Routes.Search(r, h.Guard, h.Tr, handlers.Query{
-			Text: q, Limit: 20,
-			Only: func(rt handlers.Route) bool { return rt.Searchable },
-		})
-		if err != nil {
-			return err
+func (h *H) PaletteSearch(w http.ResponseWriter, r *http.Request) error {
+	return h.Palette.Search(w, r)
+}
+
+//h:key palette.form
+//h:method GET
+//h:path /palette/{key}/form
+//h:auth session
+//h:param key label Page
+//h:desc Fill in a page's address
+func (h *H) PaletteForm(w http.ResponseWriter, r *http.Request, key string) error {
+	return h.Palette.Form(w, r, key)
+}
+
+//h:key palette.go
+//h:method GET
+//h:path /palette/{key}/go
+//h:auth session
+//h:param key label Page
+//h:desc Open a page
+func (h *H) PaletteGo(w http.ResponseWriter, r *http.Request, key string) error {
+	return h.Palette.Go(w, r, key)
+}
+
+//h:key locales.search
+//h:method GET
+//h:path /locales/search
+//h:perm translations.manage Edit translations
+//h:desc Find a language
+func (h *H) LocalesSearch(w http.ResponseWriter, r *http.Request) error {
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	var out []components.Suggestion
+	for _, l := range h.Tr.Locales() {
+		if q == "" || strings.Contains(strings.ToLower(l.Code+" "+l.NativeName), q) {
+			out = append(out, components.Suggestion{Value: l.Code, Label: i18n.Static(l.NativeName)})
 		}
 	}
-	return h.page(w, r, http.StatusOK, L10nSearchTitle, searchPage(q, hits))
+	return render(w, r, http.StatusOK, components.Suggestions(out...))
+}
+
+// localeLabels names a locale by its code, for the palette's language
+// field.
+type localeLabels struct{ tr *i18n.Translator }
+
+func (l localeLabels) LabelOf(_ context.Context, code string) (string, bool, error) {
+	if loc, ok := l.tr.Locale(code); ok {
+		return loc.NativeName, true, nil
+	}
+	return "", false, nil
 }
 
 // SettingsForm edits the mutable settings: the call for papers and the
@@ -347,7 +379,7 @@ func (h *H) searchTranslations(loc ids.Locale, q listing.Query) ([]i18n.Entry, i
 //h:perm translations.manage Edit translations
 //h:view
 //h:search
-//h:param locale label Language
+//h:param locale from locales.search label Language
 //h:desc Translations
 func (h *H) Translations(w http.ResponseWriter, r *http.Request, locale ids.Locale) error {
 	l, ok := h.Tr.Locale(string(locale))

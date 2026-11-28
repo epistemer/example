@@ -20,7 +20,6 @@ var (
 	L10nProgramme   = i18n.Key("page.nav.programme", "Programme")
 	L10nAdmin       = i18n.Key("page.nav.admin", "Administration")
 	L10nSignOut     = i18n.Key("page.nav.sign_out", "Sign out")
-	L10nSearchHere  = i18n.Key("page.nav.search", "Search pages")
 	L10nErrorTitle  = i18n.Key("page.error.title", "Something stopped this page")
 	L10nErrorStatus = i18n.Key("page.error.status", "Error %d")
 	L10nBack        = i18n.Key("page.error.back", "Back to the dashboard")
@@ -64,9 +63,7 @@ templ shell(h *H, r *http.Request, title i18n.Ter, body templ.Component) {
 				}
 			}
 			@layout.AppBar {
-				<form method="get" action={ templ.SafeURL(adminroutes.Search().URL()) } role="search">
-					<input type="search" name="q" aria-label={ L10nSearchHere.T(ctx) } placeholder={ L10nSearchHere.T(ctx) }/>
-				</form>
+				@h.Palette.Element()
 				<form method="post" action={ templ.SafeURL(adminroutes.Locale().URL()) } class="confab-locales">
 					for _, l := range i18n.Codes(ctx) {
 						if l.Code != i18n.Code(ctx).Code {

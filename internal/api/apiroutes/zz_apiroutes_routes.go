@@ -28,7 +28,7 @@ var Routes = []handlers.Route{
 		Searchable: false,
 		Operation:  "getSchedule",
 		Params: []handlers.Param{
-			{Name: "slug", Rest: false, Label: L10nGetScheduleSlug},
+			{Name: "slug", Rest: false, Label: L10nGetScheduleSlug, Kind: handlers.KindString},
 		},
 	},
 	{
@@ -94,7 +94,7 @@ var Routes = []handlers.Route{
 		MaxBody:    26214400,
 		Operation:  "uploadSlides",
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nUploadSlidesId},
+			{Name: "id", Rest: false, Label: L10nUploadSlidesId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -110,7 +110,7 @@ var Routes = []handlers.Route{
 		Searchable: false,
 		Operation:  "setTalkState",
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nSetTalkStateId},
+			{Name: "id", Rest: false, Label: L10nSetTalkStateId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 }

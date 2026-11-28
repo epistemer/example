@@ -39,7 +39,6 @@ var Routes = []handlers.Route{
 		Label:      L10nEventsNew,
 		View:       false,
 		Searchable: true,
-		Entity:     "events",
 	},
 	{
 		Key:        "events.create",
@@ -63,10 +62,9 @@ var Routes = []handlers.Route{
 		Permission: "events.manage",
 		Label:      L10nEventsEdit,
 		View:       false,
-		Searchable: false,
-		Entity:     "events",
+		Searchable: true,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nEventsEditId},
+			{Name: "id", Rest: false, Label: L10nEventsEditId, Kind: handlers.KindInt, Bits: 64, From: "events.search"},
 		},
 	},
 	{
@@ -81,7 +79,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nEventsUpdateId},
+			{Name: "id", Rest: false, Label: L10nEventsUpdateId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -96,8 +94,20 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nEventsStatusId},
-			{Name: "status", Rest: false, Label: L10nEventsStatusStatus},
+			{Name: "id", Rest: false, Label: L10nEventsStatusId, Kind: handlers.KindInt, Bits: 64},
+			{Name: "status", Rest: false, Label: L10nEventsStatusStatus, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v models.EventStatus
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
 		},
 	},
 	{
@@ -112,7 +122,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nEventsDeleteId},
+			{Name: "id", Rest: false, Label: L10nEventsDeleteId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -126,8 +136,32 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "slug", Rest: false, Label: L10nEventPageSlug},
+			{Name: "slug", Rest: false, Label: L10nEventPageSlug, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v ids.Slug
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
 		},
+	},
+	{
+		Key:        "events.search",
+		Method:     "GET",
+		Prefix:     Prefix,
+		Pattern:    "/events/search",
+		Surface:    handlers.HTML,
+		Auth:       handlers.Permission,
+		Permission: "events.manage",
+		Label:      L10nEventsSearch,
+		View:       false,
+		Searchable: false,
 	},
 	{
 		Key:        "dashboard",
@@ -164,17 +198,57 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "key", Rest: true, Label: L10nFileKey},
+			{Name: "key", Rest: true, Label: L10nFileKey, Kind: handlers.KindString},
 		},
 	},
 	{
-		Key:        "search",
+		Key:        "palette.search",
 		Method:     "GET",
 		Prefix:     Prefix,
-		Pattern:    "/search",
+		Pattern:    "/palette",
 		Surface:    handlers.HTML,
 		Auth:       handlers.Session,
-		Label:      L10nSearch,
+		Label:      L10nPaletteSearch,
+		View:       false,
+		Searchable: false,
+	},
+	{
+		Key:        "palette.form",
+		Method:     "GET",
+		Prefix:     Prefix,
+		Pattern:    "/palette/{key}/form",
+		Surface:    handlers.HTML,
+		Auth:       handlers.Session,
+		Label:      L10nPaletteForm,
+		View:       false,
+		Searchable: false,
+		Params: []handlers.Param{
+			{Name: "key", Rest: false, Label: L10nPaletteFormKey, Kind: handlers.KindString},
+		},
+	},
+	{
+		Key:        "palette.go",
+		Method:     "GET",
+		Prefix:     Prefix,
+		Pattern:    "/palette/{key}/go",
+		Surface:    handlers.HTML,
+		Auth:       handlers.Session,
+		Label:      L10nPaletteGo,
+		View:       false,
+		Searchable: false,
+		Params: []handlers.Param{
+			{Name: "key", Rest: false, Label: L10nPaletteGoKey, Kind: handlers.KindString},
+		},
+	},
+	{
+		Key:        "locales.search",
+		Method:     "GET",
+		Prefix:     Prefix,
+		Pattern:    "/locales/search",
+		Surface:    handlers.HTML,
+		Auth:       handlers.Permission,
+		Permission: "translations.manage",
+		Label:      L10nLocalesSearch,
 		View:       false,
 		Searchable: false,
 	},
@@ -214,7 +288,19 @@ var Routes = []handlers.Route{
 		View:       true,
 		Searchable: true,
 		Params: []handlers.Param{
-			{Name: "locale", Rest: false, Label: L10nTranslationsLocale},
+			{Name: "locale", Rest: false, Label: L10nTranslationsLocale, Kind: handlers.KindText, From: "locales.search",
+				Canon: func(s string) (string, error) {
+					var v ids.Locale
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
 		},
 	},
 	{
@@ -229,8 +315,20 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "locale", Rest: false, Label: L10nTranslationsEditLocale},
-			{Name: "key", Rest: true, Label: L10nTranslationsEditKey},
+			{Name: "locale", Rest: false, Label: L10nTranslationsEditLocale, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v ids.Locale
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
+			{Name: "key", Rest: true, Label: L10nTranslationsEditKey, Kind: handlers.KindString},
 		},
 	},
 	{
@@ -245,8 +343,20 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "locale", Rest: false, Label: L10nTranslationsSaveLocale},
-			{Name: "key", Rest: true, Label: L10nTranslationsSaveKey},
+			{Name: "locale", Rest: false, Label: L10nTranslationsSaveLocale, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v ids.Locale
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
+			{Name: "key", Rest: true, Label: L10nTranslationsSaveKey, Kind: handlers.KindString},
 		},
 	},
 	{
@@ -261,8 +371,20 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "locale", Rest: false, Label: L10nTranslationsResetLocale},
-			{Name: "key", Rest: true, Label: L10nTranslationsResetKey},
+			{Name: "locale", Rest: false, Label: L10nTranslationsResetLocale, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v ids.Locale
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
+			{Name: "key", Rest: true, Label: L10nTranslationsResetKey, Kind: handlers.KindString},
 		},
 	},
 	{
@@ -366,7 +488,6 @@ var Routes = []handlers.Route{
 		Label:      L10nSpeakersNew,
 		View:       false,
 		Searchable: true,
-		Entity:     "speakers",
 	},
 	{
 		Key:        "speakers.create",
@@ -391,10 +512,9 @@ var Routes = []handlers.Route{
 		Permission: "speakers.manage",
 		Label:      L10nSpeakersEdit,
 		View:       false,
-		Searchable: false,
-		Entity:     "speakers",
+		Searchable: true,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nSpeakersEditId},
+			{Name: "id", Rest: false, Label: L10nSpeakersEditId, Kind: handlers.KindInt, Bits: 64, From: "speakers.search"},
 		},
 	},
 	{
@@ -410,7 +530,7 @@ var Routes = []handlers.Route{
 		Searchable: false,
 		MaxBody:    3145728,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nSpeakersUpdateId},
+			{Name: "id", Rest: false, Label: L10nSpeakersUpdateId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -425,7 +545,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nSpeakersDeleteId},
+			{Name: "id", Rest: false, Label: L10nSpeakersDeleteId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -439,7 +559,6 @@ var Routes = []handlers.Route{
 		Label:      L10nSpeakersImport,
 		View:       false,
 		Searchable: true,
-		Entity:     "speakers",
 	},
 	{
 		Key:        "speakers.import_post",
@@ -477,7 +596,6 @@ var Routes = []handlers.Route{
 		Label:      L10nTalksNew,
 		View:       false,
 		Searchable: true,
-		Entity:     "talks",
 	},
 	{
 		Key:        "talks.create",
@@ -503,9 +621,8 @@ var Routes = []handlers.Route{
 		Label:      L10nTalksEdit,
 		View:       false,
 		Searchable: false,
-		Entity:     "talks",
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksEditId},
+			{Name: "id", Rest: false, Label: L10nTalksEditId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -521,7 +638,7 @@ var Routes = []handlers.Route{
 		Searchable: false,
 		MaxBody:    115343360,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksUpdateId},
+			{Name: "id", Rest: false, Label: L10nTalksUpdateId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -536,8 +653,20 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksReviewId},
-			{Name: "state", Rest: false, Label: L10nTalksReviewState},
+			{Name: "id", Rest: false, Label: L10nTalksReviewId, Kind: handlers.KindInt, Bits: 64},
+			{Name: "state", Rest: false, Label: L10nTalksReviewState, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v models.TalkState
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
 		},
 	},
 	{
@@ -552,7 +681,19 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "state", Rest: false, Label: L10nTalksReviewManyState},
+			{Name: "state", Rest: false, Label: L10nTalksReviewManyState, Kind: handlers.KindText,
+				Canon: func(s string) (string, error) {
+					var v models.TalkState
+					if err := v.UnmarshalText([]byte(s)); err != nil {
+						return "", err
+					}
+					b, err := v.MarshalText()
+					if err != nil {
+						return "", err
+					}
+					return string(b), nil
+				},
+			},
 		},
 	},
 	{
@@ -567,7 +708,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksMoveId},
+			{Name: "id", Rest: false, Label: L10nTalksMoveId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -582,7 +723,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksMovePutId},
+			{Name: "id", Rest: false, Label: L10nTalksMovePutId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 	{
@@ -597,7 +738,7 @@ var Routes = []handlers.Route{
 		View:       false,
 		Searchable: false,
 		Params: []handlers.Param{
-			{Name: "id", Rest: false, Label: L10nTalksDeleteId},
+			{Name: "id", Rest: false, Label: L10nTalksDeleteId, Kind: handlers.KindInt, Bits: 64},
 		},
 	},
 }
@@ -621,76 +762,84 @@ func ByKey(key string) (handlers.Route, bool) {
 		return Routes[6], true
 	case "event_page":
 		return Routes[7], true
-	case "dashboard":
+	case "events.search":
 		return Routes[8], true
-	case "account":
+	case "dashboard":
 		return Routes[9], true
-	case "file":
+	case "account":
 		return Routes[10], true
-	case "search":
+	case "file":
 		return Routes[11], true
-	case "settings":
+	case "palette.search":
 		return Routes[12], true
-	case "settings.save":
+	case "palette.form":
 		return Routes[13], true
-	case "translations":
+	case "palette.go":
 		return Routes[14], true
-	case "translations.edit":
+	case "locales.search":
 		return Routes[15], true
-	case "translations.save":
+	case "settings":
 		return Routes[16], true
-	case "translations.reset":
+	case "settings.save":
 		return Routes[17], true
-	case "locale":
+	case "translations":
 		return Routes[18], true
-	case "sign_in":
+	case "translations.edit":
 		return Routes[19], true
-	case "sign_in.password":
+	case "translations.save":
 		return Routes[20], true
-	case "sign_in.code":
+	case "translations.reset":
 		return Routes[21], true
-	case "sign_in.verify":
+	case "locale":
 		return Routes[22], true
-	case "sign_out":
+	case "sign_in":
 		return Routes[23], true
-	case "speakers":
+	case "sign_in.password":
 		return Routes[24], true
-	case "speakers.search":
+	case "sign_in.code":
 		return Routes[25], true
-	case "speakers.new":
+	case "sign_in.verify":
 		return Routes[26], true
-	case "speakers.create":
+	case "sign_out":
 		return Routes[27], true
-	case "speakers.edit":
+	case "speakers":
 		return Routes[28], true
-	case "speakers.update":
+	case "speakers.search":
 		return Routes[29], true
-	case "speakers.delete":
+	case "speakers.new":
 		return Routes[30], true
-	case "speakers.import":
+	case "speakers.create":
 		return Routes[31], true
-	case "speakers.import_post":
+	case "speakers.edit":
 		return Routes[32], true
-	case "talks":
+	case "speakers.update":
 		return Routes[33], true
-	case "talks.new":
+	case "speakers.delete":
 		return Routes[34], true
-	case "talks.create":
+	case "speakers.import":
 		return Routes[35], true
-	case "talks.edit":
+	case "speakers.import_post":
 		return Routes[36], true
-	case "talks.update":
+	case "talks":
 		return Routes[37], true
-	case "talks.review":
+	case "talks.new":
 		return Routes[38], true
-	case "talks.review_many":
+	case "talks.create":
 		return Routes[39], true
-	case "talks.move":
+	case "talks.edit":
 		return Routes[40], true
-	case "talks.move_put":
+	case "talks.update":
 		return Routes[41], true
-	case "talks.delete":
+	case "talks.review":
 		return Routes[42], true
+	case "talks.review_many":
+		return Routes[43], true
+	case "talks.move":
+		return Routes[44], true
+	case "talks.move_put":
+		return Routes[45], true
+	case "talks.delete":
+		return Routes[46], true
 	}
 	return handlers.Route{}, false
 }
@@ -705,10 +854,14 @@ type Handler interface {
 	EventsStatus(w http.ResponseWriter, r *http.Request, p0 ids.EventID, p1 models.EventStatus) error
 	EventsDelete(w http.ResponseWriter, r *http.Request, p0 ids.EventID) error
 	EventPage(w http.ResponseWriter, r *http.Request, p0 ids.Slug) error
+	EventsSearch(w http.ResponseWriter, r *http.Request) error
 	Dashboard(w http.ResponseWriter, r *http.Request) error
 	Account(w http.ResponseWriter, r *http.Request) error
 	File(w http.ResponseWriter, r *http.Request, p0 string) error
-	Search(w http.ResponseWriter, r *http.Request) error
+	PaletteSearch(w http.ResponseWriter, r *http.Request) error
+	PaletteForm(w http.ResponseWriter, r *http.Request, p0 string) error
+	PaletteGo(w http.ResponseWriter, r *http.Request, p0 string) error
+	LocalesSearch(w http.ResponseWriter, r *http.Request) error
 	SettingsEdit(w http.ResponseWriter, r *http.Request) error
 	SettingsSave(w http.ResponseWriter, r *http.Request) error
 	Translations(w http.ResponseWriter, r *http.Request, p0 ids.Locale) error
@@ -802,158 +955,137 @@ func Register(mux *http.ServeMux, h Handler, g handlers.Guard, opts ...handlers.
 		return h.EventPage(w, r, p0)
 	})
 	m.Handle(8, func(w http.ResponseWriter, r *http.Request) error {
-		return h.Dashboard(w, r)
+		return h.EventsSearch(w, r)
 	})
 	m.Handle(9, func(w http.ResponseWriter, r *http.Request) error {
-		return h.Account(w, r)
+		return h.Dashboard(w, r)
 	})
 	m.Handle(10, func(w http.ResponseWriter, r *http.Request) error {
-		p0 := string(handlers.ParamString(r, Routes[10].Params[0]))
-		return h.File(w, r, p0)
+		return h.Account(w, r)
 	})
 	m.Handle(11, func(w http.ResponseWriter, r *http.Request) error {
-		return h.Search(w, r)
+		p0 := string(handlers.ParamString(r, Routes[11].Params[0]))
+		return h.File(w, r, p0)
 	})
 	m.Handle(12, func(w http.ResponseWriter, r *http.Request) error {
-		return h.SettingsEdit(w, r)
+		return h.PaletteSearch(w, r)
 	})
 	m.Handle(13, func(w http.ResponseWriter, r *http.Request) error {
-		return h.SettingsSave(w, r)
+		p0 := string(handlers.ParamString(r, Routes[13].Params[0]))
+		return h.PaletteForm(w, r, p0)
 	})
 	m.Handle(14, func(w http.ResponseWriter, r *http.Request) error {
+		p0 := string(handlers.ParamString(r, Routes[14].Params[0]))
+		return h.PaletteGo(w, r, p0)
+	})
+	m.Handle(15, func(w http.ResponseWriter, r *http.Request) error {
+		return h.LocalesSearch(w, r)
+	})
+	m.Handle(16, func(w http.ResponseWriter, r *http.Request) error {
+		return h.SettingsEdit(w, r)
+	})
+	m.Handle(17, func(w http.ResponseWriter, r *http.Request) error {
+		return h.SettingsSave(w, r)
+	})
+	m.Handle(18, func(w http.ResponseWriter, r *http.Request) error {
 		var p0 ids.Locale
-		if err := handlers.ParamText(r, Routes[14].Params[0], &p0); err != nil {
+		if err := handlers.ParamText(r, Routes[18].Params[0], &p0); err != nil {
 			return err
 		}
 		return h.Translations(w, r, p0)
 	})
-	m.Handle(15, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(19, func(w http.ResponseWriter, r *http.Request) error {
 		var p0 ids.Locale
-		if err := handlers.ParamText(r, Routes[15].Params[0], &p0); err != nil {
+		if err := handlers.ParamText(r, Routes[19].Params[0], &p0); err != nil {
 			return err
 		}
-		p1 := string(handlers.ParamString(r, Routes[15].Params[1]))
+		p1 := string(handlers.ParamString(r, Routes[19].Params[1]))
 		return h.TranslationsEdit(w, r, p0, p1)
 	})
-	m.Handle(16, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(20, func(w http.ResponseWriter, r *http.Request) error {
 		var p0 ids.Locale
-		if err := handlers.ParamText(r, Routes[16].Params[0], &p0); err != nil {
+		if err := handlers.ParamText(r, Routes[20].Params[0], &p0); err != nil {
 			return err
 		}
-		p1 := string(handlers.ParamString(r, Routes[16].Params[1]))
+		p1 := string(handlers.ParamString(r, Routes[20].Params[1]))
 		return h.TranslationsSave(w, r, p0, p1)
 	})
-	m.Handle(17, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(21, func(w http.ResponseWriter, r *http.Request) error {
 		var p0 ids.Locale
-		if err := handlers.ParamText(r, Routes[17].Params[0], &p0); err != nil {
+		if err := handlers.ParamText(r, Routes[21].Params[0], &p0); err != nil {
 			return err
 		}
-		p1 := string(handlers.ParamString(r, Routes[17].Params[1]))
+		p1 := string(handlers.ParamString(r, Routes[21].Params[1]))
 		return h.TranslationsReset(w, r, p0, p1)
 	})
-	m.Handle(18, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(22, func(w http.ResponseWriter, r *http.Request) error {
 		return h.Locale(w, r)
 	})
-	m.Handle(19, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(23, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SignIn(w, r)
 	})
-	m.Handle(20, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(24, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SignInPassword(w, r)
 	})
-	m.Handle(21, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(25, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SignInCode(w, r)
 	})
-	m.Handle(22, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(26, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SignInVerify(w, r)
 	})
-	m.Handle(23, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(27, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SignOut(w, r)
 	})
-	m.Handle(24, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(28, func(w http.ResponseWriter, r *http.Request) error {
 		return h.Speakers(w, r)
 	})
-	m.Handle(25, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(29, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SpeakersSearch(w, r)
 	})
-	m.Handle(26, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(30, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SpeakersNew(w, r)
 	})
-	m.Handle(27, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(31, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SpeakersCreate(w, r)
 	})
-	m.Handle(28, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[28].Params[0], 64)
+	m.Handle(32, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[32].Params[0], 64)
 		if err != nil {
 			return err
 		}
 		p0 := ids.SpeakerID(v0)
 		return h.SpeakersEdit(w, r, p0)
 	})
-	m.Handle(29, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[29].Params[0], 64)
+	m.Handle(33, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[33].Params[0], 64)
 		if err != nil {
 			return err
 		}
 		p0 := ids.SpeakerID(v0)
 		return h.SpeakersUpdate(w, r, p0)
 	})
-	m.Handle(30, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[30].Params[0], 64)
+	m.Handle(34, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[34].Params[0], 64)
 		if err != nil {
 			return err
 		}
 		p0 := ids.SpeakerID(v0)
 		return h.SpeakersDelete(w, r, p0)
 	})
-	m.Handle(31, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(35, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SpeakersImport(w, r)
 	})
-	m.Handle(32, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(36, func(w http.ResponseWriter, r *http.Request) error {
 		return h.SpeakersImportPost(w, r)
 	})
-	m.Handle(33, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(37, func(w http.ResponseWriter, r *http.Request) error {
 		return h.Talks(w, r)
 	})
-	m.Handle(34, func(w http.ResponseWriter, r *http.Request) error {
+	m.Handle(38, func(w http.ResponseWriter, r *http.Request) error {
 		return h.TalksNew(w, r)
 	})
-	m.Handle(35, func(w http.ResponseWriter, r *http.Request) error {
-		return h.TalksCreate(w, r)
-	})
-	m.Handle(36, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[36].Params[0], 64)
-		if err != nil {
-			return err
-		}
-		p0 := ids.TalkID(v0)
-		return h.TalksEdit(w, r, p0)
-	})
-	m.Handle(37, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[37].Params[0], 64)
-		if err != nil {
-			return err
-		}
-		p0 := ids.TalkID(v0)
-		return h.TalksUpdate(w, r, p0)
-	})
-	m.Handle(38, func(w http.ResponseWriter, r *http.Request) error {
-		v0, err := handlers.ParamInt(r, Routes[38].Params[0], 64)
-		if err != nil {
-			return err
-		}
-		p0 := ids.TalkID(v0)
-		var p1 models.TalkState
-		if err := handlers.ParamText(r, Routes[38].Params[1], &p1); err != nil {
-			return err
-		}
-		return h.TalksReview(w, r, p0, p1)
-	})
 	m.Handle(39, func(w http.ResponseWriter, r *http.Request) error {
-		var p0 models.TalkState
-		if err := handlers.ParamText(r, Routes[39].Params[0], &p0); err != nil {
-			return err
-		}
-		return h.TalksReviewMany(w, r, p0)
+		return h.TalksCreate(w, r)
 	})
 	m.Handle(40, func(w http.ResponseWriter, r *http.Request) error {
 		v0, err := handlers.ParamInt(r, Routes[40].Params[0], 64)
@@ -961,7 +1093,7 @@ func Register(mux *http.ServeMux, h Handler, g handlers.Guard, opts ...handlers.
 			return err
 		}
 		p0 := ids.TalkID(v0)
-		return h.TalksMove(w, r, p0)
+		return h.TalksEdit(w, r, p0)
 	})
 	m.Handle(41, func(w http.ResponseWriter, r *http.Request) error {
 		v0, err := handlers.ParamInt(r, Routes[41].Params[0], 64)
@@ -969,10 +1101,45 @@ func Register(mux *http.ServeMux, h Handler, g handlers.Guard, opts ...handlers.
 			return err
 		}
 		p0 := ids.TalkID(v0)
-		return h.TalksMovePut(w, r, p0)
+		return h.TalksUpdate(w, r, p0)
 	})
 	m.Handle(42, func(w http.ResponseWriter, r *http.Request) error {
 		v0, err := handlers.ParamInt(r, Routes[42].Params[0], 64)
+		if err != nil {
+			return err
+		}
+		p0 := ids.TalkID(v0)
+		var p1 models.TalkState
+		if err := handlers.ParamText(r, Routes[42].Params[1], &p1); err != nil {
+			return err
+		}
+		return h.TalksReview(w, r, p0, p1)
+	})
+	m.Handle(43, func(w http.ResponseWriter, r *http.Request) error {
+		var p0 models.TalkState
+		if err := handlers.ParamText(r, Routes[43].Params[0], &p0); err != nil {
+			return err
+		}
+		return h.TalksReviewMany(w, r, p0)
+	})
+	m.Handle(44, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[44].Params[0], 64)
+		if err != nil {
+			return err
+		}
+		p0 := ids.TalkID(v0)
+		return h.TalksMove(w, r, p0)
+	})
+	m.Handle(45, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[45].Params[0], 64)
+		if err != nil {
+			return err
+		}
+		p0 := ids.TalkID(v0)
+		return h.TalksMovePut(w, r, p0)
+	})
+	m.Handle(46, func(w http.ResponseWriter, r *http.Request) error {
+		v0, err := handlers.ParamInt(r, Routes[46].Params[0], 64)
 		if err != nil {
 			return err
 		}
@@ -1022,177 +1189,197 @@ func EventPage(p0 ids.Slug) handlers.Link {
 	return handlers.NewLink(&Routes[7], Prefix+"/e/"+handlers.Segment(handlers.Text(p0)))
 }
 
+// EventsSearch returns the link to events.search.
+func EventsSearch() handlers.Link {
+	return handlers.NewLink(&Routes[8], Prefix+"/events/search")
+}
+
 // Dashboard returns the link to dashboard.
 func Dashboard() handlers.Link {
-	return handlers.NewLink(&Routes[8], Prefix+"/")
+	return handlers.NewLink(&Routes[9], Prefix+"/")
 }
 
 // Account returns the link to account.
 func Account() handlers.Link {
-	return handlers.NewLink(&Routes[9], Prefix+"/account")
+	return handlers.NewLink(&Routes[10], Prefix+"/account")
 }
 
 // File returns the link to file.
 func File(p0 string) handlers.Link {
-	return handlers.NewLink(&Routes[10], Prefix+"/files/"+handlers.Rest(string(p0)))
+	return handlers.NewLink(&Routes[11], Prefix+"/files/"+handlers.Rest(string(p0)))
 }
 
-// Search returns the link to search.
-func Search() handlers.Link {
-	return handlers.NewLink(&Routes[11], Prefix+"/search")
+// PaletteSearch returns the link to palette.search.
+func PaletteSearch() handlers.Link {
+	return handlers.NewLink(&Routes[12], Prefix+"/palette")
+}
+
+// PaletteForm returns the link to palette.form.
+func PaletteForm(p0 string) handlers.Link {
+	return handlers.NewLink(&Routes[13], Prefix+"/palette/"+handlers.Segment(string(p0))+"/form")
+}
+
+// PaletteGo returns the link to palette.go.
+func PaletteGo(p0 string) handlers.Link {
+	return handlers.NewLink(&Routes[14], Prefix+"/palette/"+handlers.Segment(string(p0))+"/go")
+}
+
+// LocalesSearch returns the link to locales.search.
+func LocalesSearch() handlers.Link {
+	return handlers.NewLink(&Routes[15], Prefix+"/locales/search")
 }
 
 // SettingsEdit returns the link to settings.
 func SettingsEdit() handlers.Link {
-	return handlers.NewLink(&Routes[12], Prefix+"/settings")
+	return handlers.NewLink(&Routes[16], Prefix+"/settings")
 }
 
 // SettingsSave returns the link to settings.save.
 func SettingsSave() handlers.Link {
-	return handlers.NewLink(&Routes[13], Prefix+"/settings")
+	return handlers.NewLink(&Routes[17], Prefix+"/settings")
 }
 
 // Translations returns the link to translations.
 func Translations(p0 ids.Locale) handlers.Link {
-	return handlers.NewLink(&Routes[14], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0)))
+	return handlers.NewLink(&Routes[18], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0)))
 }
 
 // TranslationsEdit returns the link to translations.edit.
 func TranslationsEdit(p0 ids.Locale, p1 string) handlers.Link {
-	return handlers.NewLink(&Routes[15], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
+	return handlers.NewLink(&Routes[19], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
 }
 
 // TranslationsSave returns the link to translations.save.
 func TranslationsSave(p0 ids.Locale, p1 string) handlers.Link {
-	return handlers.NewLink(&Routes[16], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
+	return handlers.NewLink(&Routes[20], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
 }
 
 // TranslationsReset returns the link to translations.reset.
 func TranslationsReset(p0 ids.Locale, p1 string) handlers.Link {
-	return handlers.NewLink(&Routes[17], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
+	return handlers.NewLink(&Routes[21], Prefix+"/translations/"+handlers.Segment(handlers.Text(p0))+"/keys/"+handlers.Rest(string(p1)))
 }
 
 // Locale returns the link to locale.
 func Locale() handlers.Link {
-	return handlers.NewLink(&Routes[18], Prefix+"/locale")
+	return handlers.NewLink(&Routes[22], Prefix+"/locale")
 }
 
 // SignIn returns the link to sign_in.
 func SignIn() handlers.Link {
-	return handlers.NewLink(&Routes[19], Prefix+"/sign-in")
+	return handlers.NewLink(&Routes[23], Prefix+"/sign-in")
 }
 
 // SignInPassword returns the link to sign_in.password.
 func SignInPassword() handlers.Link {
-	return handlers.NewLink(&Routes[20], Prefix+"/sign-in")
+	return handlers.NewLink(&Routes[24], Prefix+"/sign-in")
 }
 
 // SignInCode returns the link to sign_in.code.
 func SignInCode() handlers.Link {
-	return handlers.NewLink(&Routes[21], Prefix+"/sign-in/code")
+	return handlers.NewLink(&Routes[25], Prefix+"/sign-in/code")
 }
 
 // SignInVerify returns the link to sign_in.verify.
 func SignInVerify() handlers.Link {
-	return handlers.NewLink(&Routes[22], Prefix+"/sign-in/code")
+	return handlers.NewLink(&Routes[26], Prefix+"/sign-in/code")
 }
 
 // SignOut returns the link to sign_out.
 func SignOut() handlers.Link {
-	return handlers.NewLink(&Routes[23], Prefix+"/sign-out")
+	return handlers.NewLink(&Routes[27], Prefix+"/sign-out")
 }
 
 // Speakers returns the link to speakers.
 func Speakers() handlers.Link {
-	return handlers.NewLink(&Routes[24], Prefix+"/speakers")
+	return handlers.NewLink(&Routes[28], Prefix+"/speakers")
 }
 
 // SpeakersSearch returns the link to speakers.search.
 func SpeakersSearch() handlers.Link {
-	return handlers.NewLink(&Routes[25], Prefix+"/speakers/search")
+	return handlers.NewLink(&Routes[29], Prefix+"/speakers/search")
 }
 
 // SpeakersNew returns the link to speakers.new.
 func SpeakersNew() handlers.Link {
-	return handlers.NewLink(&Routes[26], Prefix+"/speakers/new")
+	return handlers.NewLink(&Routes[30], Prefix+"/speakers/new")
 }
 
 // SpeakersCreate returns the link to speakers.create.
 func SpeakersCreate() handlers.Link {
-	return handlers.NewLink(&Routes[27], Prefix+"/speakers")
+	return handlers.NewLink(&Routes[31], Prefix+"/speakers")
 }
 
 // SpeakersEdit returns the link to speakers.edit.
 func SpeakersEdit(p0 ids.SpeakerID) handlers.Link {
-	return handlers.NewLink(&Routes[28], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[32], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
 }
 
 // SpeakersUpdate returns the link to speakers.update.
 func SpeakersUpdate(p0 ids.SpeakerID) handlers.Link {
-	return handlers.NewLink(&Routes[29], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[33], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
 }
 
 // SpeakersDelete returns the link to speakers.delete.
 func SpeakersDelete(p0 ids.SpeakerID) handlers.Link {
-	return handlers.NewLink(&Routes[30], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[34], Prefix+"/speakers/"+strconv.FormatInt(int64(p0), 10))
 }
 
 // SpeakersImport returns the link to speakers.import.
 func SpeakersImport() handlers.Link {
-	return handlers.NewLink(&Routes[31], Prefix+"/speakers/import")
+	return handlers.NewLink(&Routes[35], Prefix+"/speakers/import")
 }
 
 // SpeakersImportPost returns the link to speakers.import_post.
 func SpeakersImportPost() handlers.Link {
-	return handlers.NewLink(&Routes[32], Prefix+"/speakers/import")
+	return handlers.NewLink(&Routes[36], Prefix+"/speakers/import")
 }
 
 // Talks returns the link to talks.
 func Talks() handlers.Link {
-	return handlers.NewLink(&Routes[33], Prefix+"/talks")
+	return handlers.NewLink(&Routes[37], Prefix+"/talks")
 }
 
 // TalksNew returns the link to talks.new.
 func TalksNew() handlers.Link {
-	return handlers.NewLink(&Routes[34], Prefix+"/talks/new")
+	return handlers.NewLink(&Routes[38], Prefix+"/talks/new")
 }
 
 // TalksCreate returns the link to talks.create.
 func TalksCreate() handlers.Link {
-	return handlers.NewLink(&Routes[35], Prefix+"/talks")
+	return handlers.NewLink(&Routes[39], Prefix+"/talks")
 }
 
 // TalksEdit returns the link to talks.edit.
 func TalksEdit(p0 ids.TalkID) handlers.Link {
-	return handlers.NewLink(&Routes[36], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[40], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
 }
 
 // TalksUpdate returns the link to talks.update.
 func TalksUpdate(p0 ids.TalkID) handlers.Link {
-	return handlers.NewLink(&Routes[37], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[41], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
 }
 
 // TalksReview returns the link to talks.review.
 func TalksReview(p0 ids.TalkID, p1 models.TalkState) handlers.Link {
-	return handlers.NewLink(&Routes[38], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/review/"+handlers.Segment(handlers.Text(p1)))
+	return handlers.NewLink(&Routes[42], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/review/"+handlers.Segment(handlers.Text(p1)))
 }
 
 // TalksReviewMany returns the link to talks.review_many.
 func TalksReviewMany(p0 models.TalkState) handlers.Link {
-	return handlers.NewLink(&Routes[39], Prefix+"/talks/review/"+handlers.Segment(handlers.Text(p0)))
+	return handlers.NewLink(&Routes[43], Prefix+"/talks/review/"+handlers.Segment(handlers.Text(p0)))
 }
 
 // TalksMove returns the link to talks.move.
 func TalksMove(p0 ids.TalkID) handlers.Link {
-	return handlers.NewLink(&Routes[40], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/state")
+	return handlers.NewLink(&Routes[44], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/state")
 }
 
 // TalksMovePut returns the link to talks.move_put.
 func TalksMovePut(p0 ids.TalkID) handlers.Link {
-	return handlers.NewLink(&Routes[41], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/state")
+	return handlers.NewLink(&Routes[45], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10)+"/state")
 }
 
 // TalksDelete returns the link to talks.delete.
 func TalksDelete(p0 ids.TalkID) handlers.Link {
-	return handlers.NewLink(&Routes[42], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
+	return handlers.NewLink(&Routes[46], Prefix+"/talks/"+strconv.FormatInt(int64(p0), 10))
 }

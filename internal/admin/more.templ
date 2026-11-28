@@ -1,12 +1,9 @@
 package admin
 
 import (
-	"strings"
 
 	"github.com/epistemer/auth"
-	"github.com/epistemer/handlers"
 	"github.com/epistemer/i18n"
-	"github.com/epistemer/ui"
 	"github.com/epistemer/ui/components"
 	"github.com/epistemer/ui/elements"
 	"github.com/epistemer/ui/layout"
@@ -80,34 +77,6 @@ templ accountPage(sess *auth.Session, sessions []auth.Session) {
 	}
 }
 
-// hitLink is a search hit's address: a route without parameters, read
-// from its pattern (findings F13).
-func hitLink(rt handlers.Route) ui.Link {
-	_, path, _ := strings.Cut(rt.Pattern, " ")
-	if strings.Contains(path, "{") {
-		return nil
-	}
-	return ui.URL(rt.Prefix + strings.TrimSuffix(path, "{$}"))
-}
-
-templ searchPage(q string, hits []handlers.Hit) {
-	@layout.PageHeader(L10nSearchTitle)
-	<form method="get" action={ templ.SafeURL(adminroutes.Search().URL()) } role="search">
-		<input type="search" name="q" value={ q } aria-label={ L10nSearchTitle.T(ctx) }/>
-	</form>
-	if q != "" && len(hits) == 0 {
-		<p>{ L10nNoHits.T(ctx) }</p>
-	}
-	<ul>
-		for _, h := range hits {
-			if l := hitLink(h.Route); l != nil {
-				<li>
-					@elements.Link(l, i18n.Static(h.Text))
-				</li>
-			}
-		}
-	</ul>
-}
 
 templ settingsPage(f *SettingsForm) {
 	@layout.PageHeader(adminroutes.L10nSettingsEdit)

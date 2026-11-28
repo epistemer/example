@@ -451,7 +451,7 @@ gone (neozp roadmap I1).
 | F10 | closed | documented |
 | F11 | closed | documented: build such tables at startup, as `H.Check` does |
 | F12 | closed | `Problem.Err` (cfgx A15): the settings page shows themeschema's own error on the field; the repeated checks deleted |
-| F13 | **open** | deferred with epistemer's parameter-form idea (H5) |
+| F13 | closed | handlers v0.5.0 (`Hit.Link`, `Table.Link`, `//h:param <name> from <key>`) and ui v0.6.0's palette (neozp ADR 0002): the top bar is `ui/palette`'s element; `/search`, `searchPage` and `hitLink` deleted; events, speakers and languages have sources |
 | F14 | closed | cfgx's skeleton calls `slog.SetDefault` |
 | F15 | closed | `models.RegisterTypes`; the hand-written `LoadTypes` deleted |
 | F16 | closed | `Register` and `Mount` recover; `Recover` and `ErrPanic` deleted |
@@ -512,3 +512,29 @@ the public error. For an unknown key it declares i18n's key again with
 
 *Would help:* `Translator.Locale` returning the public error, or i18n
 exporting constructors for its public errors.
+
+### F36 — `palette.Page` gives the shell no request (friction, low; ui)
+
+`palette.Page(func(title i18n.Ter, body templ.Component) templ.Component)`
+wraps the palette's answers without htmx in the app's shell. Confab's shell
+reads the request, for the current nav item (`r.URL.Path`) and the colour
+scheme (`layout.ColorSchemeOf(r)`), as `h.page` passes it. Confab puts the
+request in the context in its middleware (`pageRequest`) to read it back
+inside `Page`.
+
+*Would help:* `Page` taking the request:
+`func(r *http.Request, title i18n.Ter, body templ.Component) templ.Component`.
+This is a change to ui A10's locked signature, so epistemer decides it.
+
+### F37 — linking a new route in the edit that declares it (friction, low; handlers)
+
+The palette's three routes were declared and linked (`adminroutes.PaletteSearch()`
+in `NewPalette`) in one edit. `handlers gen` refuses, as A6 says, and the
+previous `zz_adminroutes_routes.go` no longer compiled against v0.5.0
+(`Route.Entity` is gone). So the links were taken out, the routes
+generated, and the links put back: F4's dance, which A6 names but doesn't
+remove.
+
+*Would help:* `gen` generating the routes package when the only type
+errors are links to the builders it is about to write (F4's original ask).
+

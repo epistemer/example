@@ -271,7 +271,6 @@ func (h *H) newTalkForm(ctx context.Context, talk ids.TalkID) (*TalkForm, error)
 //h:path /talks/new
 //h:perm talks.manage Manage talks
 //h:search
-//h:entity talks
 //h:desc New talk
 func (h *H) TalksNew(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
@@ -301,7 +300,6 @@ func (h *H) TalksCreate(w http.ResponseWriter, r *http.Request) error {
 //h:method GET
 //h:path /talks/{id}
 //h:perm talks.manage Manage talks
-//h:entity talks
 //h:param id label Talk number
 //h:desc Edit a talk
 func (h *H) TalksEdit(w http.ResponseWriter, r *http.Request, id ids.TalkID) error {
